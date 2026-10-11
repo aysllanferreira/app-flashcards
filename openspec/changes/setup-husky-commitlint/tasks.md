@@ -16,11 +16,11 @@
 
 - [x] 3.1 Create `.husky/pre-push` in POSIX `sh` that reads each `<local ref> <local sha> <remote ref> <remote sha>` line from stdin and exits 1 with a message naming the branch when the remote ref is `refs/heads/dev` or `refs/heads/main`; verify it is executable and `sh -n .husky/pre-push` exits 0
 - [x] 3.2 Verify the hook logic offline: `printf 'refs/heads/feat/x abc refs/heads/dev def\n' | sh .husky/pre-push origin url` exits 1 naming `dev`, the same with `refs/heads/main` exits 1 naming `main`, and with `refs/heads/feat/x` as the remote ref exits 0
-- [ ] 3.3 Commit the work so far with Conventional Commit messages (no Claude attribution) and verify each commit passes the commit-msg hook
+- [x] 3.3 Commit the work so far with Conventional Commit messages (no Claude attribution) and verify each commit passes the commit-msg hook
 
 ## 4. End-to-end verification (issue #5, AC 1, 4, 5, 6 and 7)
 
-- [ ] 4.1 Record `git ls-remote origin refs/heads/dev`, run `git push origin HEAD:dev`, and verify it exits non-zero with the pre-push message naming `dev` and `ls-remote` shows the same SHA (AC 4)
-- [ ] 4.2 Record `git ls-remote origin refs/heads/main`, run `git push origin HEAD:main`, and verify it exits non-zero with the pre-push message naming `main` and `ls-remote` shows the same SHA (AC 5)
-- [ ] 4.3 Run `git push -u origin feat/husky-installation` and verify it exits 0 (AC 6)
-- [ ] 4.4 Clone the committed branch into a scratch directory (`git clone --branch feat/husky-installation <repo> <scratch>/clone`), run `pnpm install` there, and verify it exits 0, `git config core.hooksPath` prints `.husky/_`, and `git status --porcelain` lists no `node_modules` entries (AC 1 and 7)
+- [x] 4.1 Record `git ls-remote origin refs/heads/dev`, run `git push origin HEAD:dev`, and verify it exits non-zero with the pre-push message naming `dev` and `ls-remote` shows the same SHA (AC 4)
+- [x] 4.2 Record `git ls-remote origin refs/heads/main`, run `git push origin HEAD:main`, and verify it exits non-zero with the pre-push message naming `main` and `ls-remote` shows the same SHA (AC 5)
+- [x] 4.3 Run `git push -u origin feat/husky-installation` and verify it exits 0 (AC 6)
+- [x] 4.4 Clone the committed branch into a scratch directory (`git clone --branch feat/husky-installation <repo> <scratch>/clone`), run `pnpm install` there, and verify it exits 0, `git config core.hooksPath` prints `.husky/_`, and `git status --porcelain` lists no `node_modules` entries (AC 1 and 7)
