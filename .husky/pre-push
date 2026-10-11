@@ -1,0 +1,14 @@
+# Reject pushes that would update dev or main on the remote.
+# Git passes one "<local ref> <local sha> <remote ref> <remote sha>" line per ref
+# on stdin, so this also catches pushes like "git push origin feat/x:dev".
+status=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/dev | refs/heads/main)
+      branch=${remote_ref#refs/heads/}
+      echo "husky - pre-push: direct pushes to '$branch' are not allowed. Push a feature branch and open a pull request instead." >&2
+      status=1
+      ;;
+  esac
+done
+exit $status
