@@ -1,0 +1,28 @@
+name: Task
+description: Any piece of work (feature, fix, refactor, chore). Issues are the source of truth for OpenSpec changes.
+body:
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why this matters. What problem does it solve, who does it affect, and what happens if we don't do it?
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What will be done, concretely. Put out-of-scope notes here as an "Out of scope:" line.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: |
+        One or more checkboxes, each a verifiable outcome: a command and its expected result, an observable behavior, or a measurable value.
+        Avoid vague wording such as "works well" or "is fast" with no measure.
+      value: |
+        - [ ]
+    validations:
+      required: true
