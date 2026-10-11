@@ -27,5 +27,5 @@
 ## 4. End-to-end verification (issue #2, AC 4, 6 and 7)
 
 - [x] 4.1 Dry run in a new Claude session: run `/opsx:propose` for a throwaway idea with no issue. Verify Claude drafts an issue in the template and asks before creating it instead of scaffolding a change. Discard the draft and leave no change directory behind.
-- [ ] 4.2 Commit the work as Conventional Commits and open a PR to `dev` with `Closes #2`. Verify that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0 and that `gh pr view --json baseRefName` reports `dev`.
+- [x] 4.2 Commit the work as Conventional Commits and open a PR to `dev` with `Closes #2`. Verify that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0 and that `gh pr view --json baseRefName` reports `dev`.
 - [ ] 4.3 After the PR merges into `dev`, open "New issue" on GitHub. Verify the form shows the three required fields and no blank-issue option, then tick AC 4 on issue #2. The PR cannot verify this, because GitHub reads issue forms only from the default branch (`dev`).
