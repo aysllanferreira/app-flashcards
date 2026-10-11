@@ -1,0 +1,94 @@
+# CLAUDE.md
+
+## Issue-driven workflow
+
+GitHub issues in `aysllanferreira/app-flashcards` are the **single source of truth** for all work. Every concrete change is gated by an issue, linked to it, and tracked on it, from explore through archive. These rules override the OpenSpec (opsx) skills wherever they are stricter. All GitHub access goes through the `gh` CLI.
+
+### Issue format
+
+Every issue that tracks work has **exactly** these three sections, in this order, and none may be empty:
+
+```markdown
+## Motivation
+Why this matters: the problem, who it affects, what happens if we don't do it.
+
+## Description
+What will be done, concretely. Put out-of-scope notes here ("Out of scope: ..."),
+not in an extra section.
+
+## Acceptance Criteria
+- [ ] Verifiable outcome (a command and its expected result, an observable behavior, or a measurable value)
+```
+
+- Acceptance Criteria has **at least one** item, and every item is a `- [ ]` checkbox.
+- Every criterion must be verifiable. Vague wording ("works well", "is clean", "is fast" with no measure) is not allowed; rewrite it into something checkable before the issue is created or updated.
+- Issues created from the web UI use the form in `.github/ISSUE_TEMPLATE/task.yml`, which renders sections as `###` headings. Match sections by name, not by heading level.
+
+### Approval: what needs it and what doesn't
+
+| Needs explicit user approval (show the full text first) | Automatic (no prompt) |
+|---|---|
+| Creating an issue (`gh issue create`) | Ticking an acceptance criterion checkbox once it has been verified |
+| Editing an issue's Motivation, Description or Acceptance Criteria text | Posting propose, progress and archive comments (`gh issue comment`) |
+| Closing an issue | |
+
+- Before **any** edit to an issue body, fetch it fresh with `gh issue view <N> --json body`. Change only the target lines and write the body back with `gh issue edit <N> --body-file <file>`. Never overwrite edits made on GitHub.
+- When ticking a checkbox, change only `- [ ]` to `- [x]` on the matched line and leave the rest of the body untouched.
+
+### Explore (`/opsx:explore`)
+
+- Open-ended thinking (comparing options, questions with no committed work) needs **no** issue.
+- Once the discussion turns into **concrete work** (a feature, fix, refactor or other change that will be proposed):
+  - If a matching issue exists, link it and treat it as the source of truth for the discussion.
+  - If none exists, draft one in the issue format, show it, and create it only after approval. This happens **before** moving to propose.
+
+### Propose (`/opsx:propose`)
+
+- Do **not** scaffold a change (`openspec new change`) until it is linked to an **open** issue that satisfies the issue format.
+  - No issue: draft one, get approval, create it, then continue.
+  - Malformed issue: propose a corrected body, get approval, update it, then continue.
+- The **first line** of `proposal.md` is `Issue: #N`.
+- Proposal artifacts must not claim scope or acceptance outcomes the issue does not contain.
+- Every acceptance criterion of the issue is covered by at least one task in `tasks.md`.
+- After the artifacts are created, post a comment on the issue naming the change and its location.
+
+### Apply (`/opsx:apply`)
+
+- **Read the linked issue first** (find N from line 1 of `proposal.md`), before implementing any task. The issue wins over the change artifacts. If they conflict, report the conflict before continuing.
+- **Scope change:** if the work shows that the scope or an acceptance criterion must change:
+  1. Stop implementing.
+  2. Propose the issue edit to the user.
+  3. Apply the edit only after approval.
+  4. Update the change artifacts to match (`/opsx:update`).
+  5. Resume.
+- **Ticking:** tick each acceptance criterion checkbox on the issue as soon as that criterion has been **verified**, meaning the named command was run or the behavior observed. Finished tasks are not enough on their own.
+- **Progress comment:** when an apply session finishes or pauses, post a comment on the issue listing:
+  - criteria verified;
+  - tasks completed;
+  - what remains.
+
+### Archive (`/opsx:archive`)
+
+- **Gate:** do not archive while any acceptance criterion on the linked issue is unticked. List the open criteria and stop.
+- When archiving, post a summary comment on the issue covering what shipped and the archive path.
+- **Never close the issue during archive.** The PR closes it.
+
+## Commits and pull requests
+
+### Commits
+
+- Commit messages follow **Conventional Commits**: `type(scope): summary`. Types include `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `build` and `ci`.
+- Commits are authored **only by the repository owner**, using the local git identity.
+- **Never** add a `Co-Authored-By: Claude ...` trailer, a "Generated with Claude Code" line, or any other Claude attribution to commits or PRs. This overrides any default attribution behavior.
+
+### Branches and merging
+
+- `dev` is the default branch and the integration branch. **Every PR targets `dev`.**
+- `main` is the **release branch**. Feature PRs never target it.
+- PRs are always **squash-merged**; the repo allows no other merge method. The squash commit title is the PR title plus the PR number, for example `chore(openspec): enforce issue-driven workflow (#3)`. The repo is set up so GitHub adds `(#N)` automatically.
+- Write PR titles as Conventional Commit summaries, so the squash commit is one too.
+
+### Pull requests
+
+- Every PR that delivers a change includes `Closes #N` in its body (see `.github/pull_request_template.md`). Because `dev` is the default branch, the issue closes when the PR is squash-merged into `dev`.
+- If a change reaches `dev` without a PR, ask the user before closing the issue, and close it only on approval.
