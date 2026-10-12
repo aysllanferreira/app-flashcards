@@ -7,7 +7,11 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { validateEnv } from './config/env.js';
 import { DatabaseModule } from './database/database.module.js';
+import { CardsModule } from './modules/cards/cards.module.js';
+import { DecksModule } from './modules/decks/decks.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { NoteTypesModule } from './modules/note-types/note-types.module.js';
+import { NotesModule } from './modules/notes/notes.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 
 @Module({
@@ -16,6 +20,10 @@ import { UsersModule } from './modules/users/users.module.js';
     DatabaseModule,
     HealthModule,
     UsersModule,
+    DecksModule,
+    NoteTypesModule,
+    NotesModule,
+    CardsModule,
   ],
   providers: [
     // Registered here, not in main.ts, so every app built from AppModule
