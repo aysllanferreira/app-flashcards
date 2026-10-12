@@ -56,8 +56,10 @@ See proposal.md, Why. The current API and tooling, as observed:
    - `{ provide: APP_PIPE, useClass: StandardSchemaValidationPipe }` and `{ provide: APP_INTERCEPTOR, useClass: StandardSchemaSerializerInterceptor }`.
    - Any app built from `AppModule`, including the testing modules in e2e tests and the OpenAPI generator, gets the same pipeline. `app.useGlobalPipes` in `main.ts` would skip it in tests.
 4. **DTO convention (#25).**
-   - `dto/<name>.dto.ts` exports `XSchema = z.object({...}).meta({ id: 'X' })` and `type X = z.infer<typeof XSchema>`.
-   - The `id` becomes the OpenAPI component name, so documents use `$ref`s with readable names (`HealthResponse`, `ErrorResponse`).
+   - `dto/<name>.dto.ts` exports `XSchema = z.object({...})` and `type X = z.infer<typeof XSchema>`.
+   - **Body and response schemas** add `.meta({ id: 'X' })`. The `id` becomes the OpenAPI component name, so documents use `$ref`s with readable names (`HealthResponse`, `ErrorResponse`).
+   - **Query and path-parameter object schemas get no `id`.** `@nestjs/swagger` 12.0.2 expands an inline object schema into one parameter per field. A schema carrying an `id` comes back from the converter as a `$ref`, which it does not expand: it emits an unused component and no parameters. This was found by the fixture check in task 3.4.
+   - Redocly's `no-unused-components` rule, set to error (decision 11), catches a query schema that is given an `id` by mistake.
    - Handlers type their parameters with the inferred type: `@Body({ schema: CreateDeckSchema }) body: CreateDeck`.
 5. **Fixture routes prove validation and documentation without product endpoints (#25, #26).**
    - `test/fixtures/fixture.module.ts` declares a controller with a Zod body, a query, a UUID path parameter, and a response schema that omits a field the handler returns.
@@ -101,7 +103,8 @@ See proposal.md, Why. The current API and tooling, as observed:
       - `operation-operationId`;
       - `operation-2xx-response`;
       - a configurable rule that every 2xx response's media type has a `schema`;
-      - a configurable rule that every operation has a 4xx or 5xx response whose schema `$ref` ends with `/ErrorResponse`.
+      - a configurable rule that every operation has a 4xx or 5xx response whose schema `$ref` ends with `/ErrorResponse`;
+      - `no-unused-components` (a `warn` in `recommended`), so a named query or path-parameter schema, which ends up as an unused component (decision 4), fails the lint.
     - It also turns off three rules:
       - `operation-4xx-response`, because `/health` has no 4xx and the `ErrorResponse` rule replaces it;
       - `security-defined`, because no security scheme exists until API auth lands;
@@ -136,6 +139,9 @@ See proposal.md, Why. The current API and tooling, as observed:
 ## Risks / Trade-offs
 
 - **[Swagger's Standard Schema support is new (12.0.0, August 2026)]** → #26 starts with the fixture test that asserts all four schema kinds convert. If one fails, stop and raise it before building on it (scope-change rule), rather than working around it silently.
+  - That check found one limit: a query schema with a component `id` isn't expanded into parameters. Body, path-parameter and response schemas convert correctly.
+  - Resolved by convention (decision 4, approved by the owner) and guarded by the lint (decision 11).
+  - If a later `@nestjs/swagger` release expands referenced query schemas, the convention can be relaxed.
 - **[`zod-openapi` output differs from what Swagger expects for 3.1]** → The `/docs-json` checks in #26 and the Redocly validation in #27 catch an invalid document.
 - **[Redocly's `recommended` set may flag rules not listed here]** → Adjust `redocly.yaml` only to turn off rules that conflict with this design (no auth yet, no 4xx on `/health`), and list each one in a comment. Never turn off the four documentation rules.
 - **[Running e2e in `test` slows the root test]** → In-process tests, measured in milliseconds today. Revisit if a later e2e suite needs a database.

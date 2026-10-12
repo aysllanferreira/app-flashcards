@@ -47,29 +47,29 @@
 - [x] 2.7 Verify that `grep -cE '"(nestjs-zod|class-validator|class-transformer)"' apps/api/package.json` prints `0`. Tick #25 AC 1.
 - [x] 2.8 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #25 AC 5.
 - [x] 2.9 Commit and push `feat/api-zod-validation`. Open a PR into `feat/nestjs-setup` titled like #25, with `Refs #25` and no `Closes` line. Verify the base and body with `gh pr view --json baseRefName,body`.
-- [ ] 2.10 Post a progress comment on #25.
-- [ ] 2.11 Stop until the user confirms the #25 PR is merged. Verify `gh pr view <n> --json state` shows `MERGED`, then fast-forward the local `feat/nestjs-setup`.
+- [x] 2.10 Post a progress comment on #25.
+- [x] 2.11 Stop until the user confirms the #25 PR is merged. Verify `gh pr view <n> --json state` shows `MERGED`, then fast-forward the local `feat/nestjs-setup`.
 
 ## 3. Swagger UI and the OpenAPI 3.1 document (issue #26, AC 1 to 6)
 
-- [ ] 3.1 Read #23 and #26, report any conflict, then cut `feat/api-swagger-docs` from the updated `feat/nestjs-setup`.
-- [ ] 3.2 In `apps/api`, run `pnpm add @nestjs/swagger zod-openapi`. Verify that both appear under `dependencies` and the root `pnpm install --frozen-lockfile` exits 0. Tick #26 AC 1.
-- [ ] 3.3 Add `src/openapi/zod-converter.ts` and `src/openapi/build-document.ts` (`buildOpenApiDocument`, `setupDocs`; design.md, decision 7). Verify that `pnpm --filter api build` exits 0.
-- [ ] 3.4 Add `test/openapi-fixture.spec.ts`. It builds the document for `AppModule` plus `FixtureModule` and asserts that the document contains the converted schema for the fixture route's:
+- [x] 3.1 Read #23 and #26, report any conflict, then cut `feat/api-swagger-docs` from the updated `feat/nestjs-setup`.
+- [x] 3.2 In `apps/api`, run `pnpm add @nestjs/swagger zod-openapi`. Verify that both appear under `dependencies` and the root `pnpm install --frozen-lockfile` exits 0. Tick #26 AC 1.
+- [x] 3.3 Add `src/openapi/zod-converter.ts` and `src/openapi/build-document.ts` (`buildOpenApiDocument`, `setupDocs`; design.md, decision 7). Verify that `pnpm --filter api build` exits 0.
+- [x] 3.4 Add `test/openapi-fixture.spec.ts`. The fixture's query schema has no `.meta({ id })` (design.md, decision 4); its body and response schemas keep theirs. The test builds the document for `AppModule` plus `FixtureModule` and asserts that the document contains the converted schema for the fixture route's:
   - body (a `title` property);
-  - query parameter (`verbose`);
+  - query parameter (`verbose`, `in: query`);
   - path parameter (`id`, a UUID format);
   - 2xx response (`id` and `title`, no `secret`).
 
   Verify that it passes. If any of the four fails because of `@nestjs/swagger`'s Standard Schema support, stop and report it (design.md, Risks) instead of working around it. Tick #26 AC 2.
-- [ ] 3.5 Add `src/common/dto/error-response.dto.ts` (`ErrorResponseSchema`, id `ErrorResponse`) and the decorators in `src/common/decorators/` (`ApiResponseSchema`, `ApiErrorResponses`; design.md, decision 9). Then:
+- [x] 3.5 Add `src/common/dto/error-response.dto.ts` (`ErrorResponseSchema`, id `ErrorResponse`) and the decorators in `src/common/decorators/` (`ApiResponseSchema`, `ApiErrorResponses`; design.md, decision 9). Then:
   - the health controller gets `@ApiTags('health')`, and its route gets `@ApiOperation({ summary })`, `@ApiResponseSchema(200, HealthResponseSchema)` and `@ApiErrorResponses()`;
   - the route drops its plain `@SerializeOptions`;
   - the fixture route uses the same decorators, with `badRequest: true`.
 
   Verify that `pnpm --filter api test` passes.
-- [ ] 3.6 Add `SWAGGER_UI` to `EnvSchema` (`z.stringbool().default(false)`). In `main.ts`, call `setupDocs` when `NODE_ENV !== 'production'` or `SWAGGER_UI` is true, and log the API URL, plus the docs URLs when they're served (design.md, decision 8). Verify that `pnpm --filter api build` exits 0.
-- [ ] 3.7 Start `pnpm --filter api dev` and verify:
+- [x] 3.6 Add `SWAGGER_UI` to `EnvSchema` (`z.stringbool().default(false)`). In `main.ts`, call `setupDocs` when `NODE_ENV !== 'production'` or `SWAGGER_UI` is true, and log the API URL, plus the docs URLs when they're served (design.md, decision 8). Verify that `pnpm --filter api build` exits 0.
+- [x] 3.7 Start `pnpm --filter api dev` and verify:
   - `curl -s -w ' %{http_code}' localhost:3001/docs` returns 200 and the HTML contains `swagger-ui`;
   - `curl -s localhost:3001/docs-json | jq` shows `openapi` = `3.1.0`;
   - `paths["/health"].get` has `summary` and `operationId`;
@@ -77,14 +77,14 @@
   - its `responses["500"]` schema `$ref` ends with `/ErrorResponse`.
 
   Tick #26 AC 3.
-- [ ] 3.8 After `pnpm --filter api build`, run `NODE_ENV=production node apps/api/dist/main.js` and verify that `/docs` and `/docs-json` return 404. Restart with `NODE_ENV=production SWAGGER_UI=true` and verify both return 200. Tick #26 AC 4.
-- [ ] 3.9 Verify the startup output:
+- [x] 3.8 After `pnpm --filter api build`, run `NODE_ENV=production node apps/api/dist/main.js` and verify that `/docs` and `/docs-json` return 404. Restart with `NODE_ENV=production SWAGGER_UI=true` and verify both return 200. Tick #26 AC 4.
+- [x] 3.9 Verify the startup output:
   - for `pnpm --filter api dev`, it includes `http://localhost:3001`, `http://localhost:3001/docs` and `http://localhost:3001/docs-json`;
   - for the production run without `SWAGGER_UI` (task 3.8), it includes `http://localhost:3001` and no `/docs` URL.
 
   Stop all servers. Tick #26 AC 5.
-- [ ] 3.10 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #26 AC 6.
-- [ ] 3.11 Commit and push `feat/api-swagger-docs`. Open a PR into `feat/nestjs-setup` titled like #26, with `Refs #26` and no `Closes` line. Verify the base and body.
+- [x] 3.10 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #26 AC 6.
+- [x] 3.11 Commit and push `feat/api-swagger-docs`. Open a PR into `feat/nestjs-setup` titled like #26, with `Refs #26` and no `Closes` line. Verify the base and body.
 - [ ] 3.12 Post a progress comment on #26.
 - [ ] 3.13 Stop until the user confirms the #26 PR is merged. Verify `MERGED`, then fast-forward the local `feat/nestjs-setup`.
 
@@ -105,7 +105,7 @@
   - the 200 response's `content` schema;
   - the 500 response.
 
-  Tick #27 AC 3.
+  Also verify that a fifth copy, with an extra unused schema added under `components.schemas` (what a named query schema produces), exits non-zero because of `no-unused-components`. Tick #27 AC 3.
 - [ ] 4.5 Add `.claude/hooks/guard-openapi-file.mjs` and register it under the existing `Edit|Write` `PreToolUse` matcher in `.claude/settings.json` (design.md, decision 12). Verify:
   - piping `{"tool_name":"Edit","cwd":"<repo>","tool_input":{"file_path":"<repo>/apps/api/openapi.json"}}` into the script exits 2, with stderr mentioning `pnpm --filter api openapi`;
   - the same payload for `<repo>/apps/api/src/main.ts` exits 0;
@@ -122,13 +122,14 @@
 - [ ] 5.1 Read #23 and #28, report any conflict, then cut `docs/api-conventions` from the updated `feat/nestjs-setup`.
 - [ ] 5.2 Add `## API (apps/api)` to `CLAUDE.md` after `## System design`. It covers:
   - the module layout and cross-cutting folders;
-  - Zod DTOs in `dto/` (`XSchema` with `.meta({ id })` plus `type X`) and `schema/` for persistence only;
+  - Zod DTOs in `dto/` (`XSchema` plus `type X`), and `schema/` for persistence only;
+  - body and response schemas get `.meta({ id })`, but query and path-parameter object schemas never do, because Swagger would not expand them into parameters and the lint fails on the unused component;
   - the global validation pipe and serializer interceptor;
   - the decorators every route needs (`@ApiTags`, `@ApiOperation`, `@ApiResponseSchema`, `@ApiErrorResponses`);
   - regenerating `openapi.json` with `pnpm --filter api openapi` (never by hand; a hook blocks it);
   - the drift test, Redocly lint, architecture test and e2e schema tests.
 
-  Verify that `grep -n "^## API (apps/api)" CLAUDE.md` matches and that the section mentions `pnpm --filter api openapi`, `@ApiResponseSchema` and `dto/`. Tick #28 AC 1.
+  Verify that `grep -n "^## API (apps/api)" CLAUDE.md` matches and that the section mentions `pnpm --filter api openapi`, `@ApiResponseSchema`, `dto/` and the rule that query schemas get no `.meta({ id })`. Tick #28 AC 1.
 - [ ] 5.3 Add to `openspec/config.yaml`:
   - a `rules.proposal` entry: state "API contract: no change" or list the endpoints added, changed or removed;
   - a `rules.design` entry: request and response shapes are Zod schemas in the module's `dto/`, with no class-validator DTOs;
