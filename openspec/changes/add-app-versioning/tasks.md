@@ -22,7 +22,7 @@
 
 ## 4. Workflow (issue #12, AC 1, 2, 3 and 5)
 
-- [ ] 4.1 Add `.github/workflows/versioning.yml` as in design.md Decision 7:
+- [x] 4.1 Add `.github/workflows/versioning.yml` as in design.md Decision 7:
   - `on: push` to `dev` and `main`, with `permissions: contents: write`;
   - concurrency `versioning-${{ github.ref }}` with `cancel-in-progress: false`;
   - checkout with `fetch-depth: 0` and `fetch-tags: true`, pnpm and Node 24 setup, `pnpm install --frozen-lockfile`;
@@ -46,38 +46,38 @@
 ## 6. PR 1: versioning lands on dev (issue #12, AC 4, 7 and 8)
 
 - [x] 6.1 Commit groups 2 to 5 with Conventional Commits and no Claude attribution, push `feat/apps-versioning`, and open a PR to `dev` titled `feat(versioning): version api and web with dev prereleases and release tags`, with `Refs #12` in the body. Verify that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0 and that `gh pr view --json baseRefName,body` shows `dev` and `Refs #12`.
-- [ ] 6.2 After the user squash-merges the PR, check the workflow run on `dev`. Verify that `gh run list --workflow versioning.yml --branch dev --limit 1` shows success and that `git ls-remote --tags origin` lists `api@0.1.0-dev.1` and `web@0.1.0-dev.1`.
+- [x] 6.2 After the user squash-merges the PR, check the workflow run on `dev`. Verify that `gh run list --workflow versioning.yml --branch dev --limit 1` shows success and that `git ls-remote --tags origin` lists `api@0.1.0-dev.1` and `web@0.1.0-dev.1`.
 
 ## 7. PR 2: system design, no tag (issue #12, AC 2 and 8)
 
-- [ ] 7.1 Edit `system-design/07-cicd.excalidraw`:
+- [x] 7.1 Edit `system-design/07-cicd.excalidraw`:
   - "Branch and merge rules" box: squash into `dev`, merge commit for `dev -> main`;
   - add a versioning lane: push to `dev` creates `<app>@X.Y.Z-dev.N` and a prerelease; push to `main` promotes it to `<app>@X.Y.Z` and a GitHub Release.
 
   Re-export `system-design/07-cicd.png`. Verify by opening the PNG and confirming both edits appear and match the `.excalidraw` source.
-- [ ] 7.2 Update `system-design/README.md`:
+- [x] 7.2 Update `system-design/README.md`:
   - add a **Versioning** row to Decisions (per-app tags, promotion on `main`, no bot commits, `GITHUB_TOKEN` tags don't trigger workflows so future deploys must run in the same workflow or use `workflow_run`);
   - change the **CI/CD** row's merge wording;
   - update the 07 description.
 
   Verify with `grep -n "Versioning" system-design/README.md`.
-- [ ] 7.3 Commit (`docs(system-design): ...`) on a new branch from `dev`, open a PR to `dev` with `Refs #12`, and after the user squash-merges it verify that `git diff --name-only HEAD~1 HEAD` on `dev` lists only `system-design/` files, that the versioning run succeeded, and that `git tag --points-at origin/dev` prints nothing. Tick AC 2.
+- [x] 7.3 Commit (`docs(system-design): ...`) on a new branch from `dev`, open a PR to `dev` with `Refs #12`, and after the user squash-merges it verify that `git diff --name-only HEAD~1 HEAD` on `dev` lists only `system-design/` files, that the versioning run succeeded, and that `git tag --points-at origin/dev` prints nothing. Tick AC 2.
 
 ## 8. PR 3: api-only change and re-run (issue #12, AC 1 and 3)
 
-- [ ] 8.1 On a new branch from `dev`, fill the empty `description` and `author` fields in `apps/api/package.json`, commit as `chore(api): fill package description and author`, and open a PR to `dev` with `Refs #12`. Verify that `gh pr diff --name-only` lists only `apps/api/package.json`.
-- [ ] 8.2 After the user squash-merges it, verify that `git ls-remote --tags origin` lists `api@0.1.0-dev.2`, that `gh release list` shows it as a prerelease, and that no new `web@*` tag exists. Tick AC 1.
-- [ ] 8.3 Re-run that versioning run with `gh run rerun <id>`. Verify that it succeeds and that `git ls-remote --tags origin | grep -c "api@"` is unchanged. Tick AC 3.
+- [x] 8.1 On a new branch from `dev`, fill the empty `description` and `author` fields in `apps/api/package.json`, commit as `chore(api): fill package description and author`, and open a PR to `dev` with `Refs #12`. Verify that `gh pr diff --name-only` lists only `apps/api/package.json`.
+- [x] 8.2 After the user squash-merges it, verify that `git ls-remote --tags origin` lists `api@0.1.0-dev.2`, that `gh release list` shows it as a prerelease, and that no new `web@*` tag exists. Tick AC 1.
+- [x] 8.3 Re-run that versioning run with `gh run rerun <id>`. Verify that it succeeds and that `git ls-remote --tags origin | grep -c "api@"` is unchanged. Tick AC 3.
 
 ## 9. First release to main (issue #12, AC 5 and 6)
 
-- [ ] 9.1 Open a release PR from `dev` to `main` titled `chore(release): release api 0.1.0 and web 0.1.0`, with `Refs #12`. Verify that `gh pr view --json baseRefName,headRefName` shows `main` and `dev`, and that the merge box offers only "Create a merge commit".
-- [ ] 9.2 After the user merges it with a merge commit, verify that `git ls-remote --tags origin` lists `api@0.1.0` and `web@0.1.0` on the new `main` commit, that `gh release view api@0.1.0 --json isPrerelease` prints `false` and the notes list the cycle's commits, and that the same holds for `web@0.1.0`. Tick AC 5.
-- [ ] 9.3 Verify that `git fetch origin && git merge-base --is-ancestor origin/dev origin/main` exits 0. Tick AC 6. Tick AC 4, 7 and 8 too if they are not ticked yet: re-run `pnpm test` on `dev`, the `gh api` checks from 1.1 and 1.2, and the greps from 5.2 and 7.2.
+- [x] 9.1 Open a release PR from `dev` to `main` titled `chore(release): release api 0.1.0 and web 0.1.0`, with `Refs #12`. Verify that `gh pr view --json baseRefName,headRefName` shows `main` and `dev`, and that the merge box offers only "Create a merge commit".
+- [x] 9.2 After the user merges it with a merge commit, verify that `git ls-remote --tags origin` lists `api@0.1.0` and `web@0.1.0` on the new `main` commit, that `gh release view api@0.1.0 --json isPrerelease` prints `false` and the notes list the cycle's commits, and that the same holds for `web@0.1.0`. Tick AC 5.
+- [x] 9.3 Verify that `git fetch origin && git merge-base --is-ancestor origin/dev origin/main` exits 0. Tick AC 6. Tick AC 4, 7 and 8 too if they are not ticked yet: re-run `pnpm test` on `dev`, the `gh api` checks from 1.1 and 1.2, and the greps from 5.2 and 7.2.
 
 ## 10. GitHub Wiki
 
-- [ ] 10.1 Clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
+- [x] 10.1 Clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
   - `Status` (shipped change, #12, its PRs, date);
   - `Changelog` (new entry at the top);
   - `Development-Workflow` (squash into `dev`, merge commit for release PRs, `Refs`/`Closes` usage, versioning tags);
