@@ -5,9 +5,13 @@ import { cardTemplates } from '../../src/modules/note-types/schema/card-template
 import { noteTypeFields } from '../../src/modules/note-types/schema/note-type-fields.js';
 import { notes } from '../../src/modules/notes/schema/notes.js';
 import { users } from '../../src/modules/users/schema/users.js';
+import { importJobs } from '../../src/modules/imports/schema/import-jobs.js';
+import { noteMedia } from '../../src/modules/notes/schema/note-media.js';
 import {
   createCard,
+  createMedia,
   createNote,
+  createReviewLog,
   createUserWithContent,
   useTestDatabase,
 } from './helpers.js';
@@ -33,6 +37,30 @@ async function reversedNote(
     });
   }
   return note;
+}
+
+// One row of every user-owned kind: content, review history, media and an
+// import job.
+async function ownEveryKindOfRow(
+  a: Awaited<ReturnType<typeof createUserWithContent>>,
+) {
+  const note = await reversedNote(a);
+  const [card] = await cardsOf(note.id);
+  await createReviewLog(t.db, {
+    userId: a.user.id,
+    cardId: card.id,
+    deckId: a.deck.id,
+  });
+  const file = await createMedia(t.db, { userId: a.user.id });
+  await t.db
+    .insert(noteMedia)
+    .values({ userId: a.user.id, noteId: note.id, mediaId: file.id });
+  await t.db.insert(importJobs).values({
+    userId: a.user.id,
+    deckId: a.deck.id,
+    s3Key: 'imports/deck.csv',
+    format: 'csv',
+  });
 }
 
 const cardsOf = (noteId: string) =>
@@ -109,8 +137,9 @@ describe('deletes', () => {
   it("deleting a user deletes every row they own and nobody else's", async () => {
     const a = await createUserWithContent(t.db);
     const b = await createUserWithContent(t.db);
-    await reversedNote(a);
-    await reversedNote(b);
+    for (const owner of [a, b]) {
+      await ownEveryKindOfRow(owner);
+    }
 
     await t.db.delete(users).where(eq(users.id, a.user.id));
 
@@ -119,7 +148,8 @@ describe('deletes', () => {
       select table_name from information_schema.columns
       where table_schema = 'public' and column_name = 'user_id'
       order by table_name`);
-    expect(tables.length).toBeGreaterThanOrEqual(7);
+    // All 13 tables but users itself and the global tts_clips.
+    expect(tables.length).toBe(11);
     for (const { table_name } of tables) {
       const count = async (userId: string) => {
         const { rows } = await t.db.execute<{ n: string }>(

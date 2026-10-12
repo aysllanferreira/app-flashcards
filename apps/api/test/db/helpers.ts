@@ -3,9 +3,11 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { cards } from '../../src/modules/cards/schema/cards.js';
 import { deckPresets } from '../../src/modules/decks/schema/deck-presets.js';
 import { decks } from '../../src/modules/decks/schema/decks.js';
+import { media } from '../../src/modules/media/schema/media.js';
 import { cardTemplates } from '../../src/modules/note-types/schema/card-templates.js';
 import { copyStockNoteTypes } from '../../src/modules/note-types/stock-note-types.js';
 import { notes } from '../../src/modules/notes/schema/notes.js';
+import { reviewLogs } from '../../src/modules/reviews/schema/review-logs.js';
 import { users } from '../../src/modules/users/schema/users.js';
 import { connectTestDatabase } from './test-database.js';
 
@@ -119,4 +121,63 @@ export async function createCard(
 ) {
   const [card] = await db.insert(cards).values(values).returning();
   return card;
+}
+
+// A Basic note with its one card in the user's deck.
+export async function createNoteWithCard(
+  db: NodePgDatabase,
+  a: Awaited<ReturnType<typeof createUserWithContent>>,
+) {
+  const note = await createNote(db, {
+    userId: a.user.id,
+    noteTypeId: a.noteTypes.basic.id,
+    fields: { '1': 'hola', '2': 'hello' },
+  });
+  const card = await createCard(db, {
+    userId: a.user.id,
+    noteId: note.id,
+    templateId: a.templates.basic[0].id,
+    deckId: a.deck.id,
+  });
+  return { note, card };
+}
+
+export async function createReviewLog(
+  db: NodePgDatabase,
+  values: Partial<typeof reviewLogs.$inferInsert> & { userId: string },
+) {
+  const [log] = await db
+    .insert(reviewLogs)
+    .values({
+      rating: 3,
+      kind: 'learn',
+      stateBefore: 'new',
+      stateAfter: 'learning',
+      dueAfter: new Date(Date.now() + 600_000),
+      ...values,
+    })
+    .returning();
+  return log;
+}
+
+let mediaSeq = 0;
+
+// A media row with a unique file hash unless one is given.
+export async function createMedia(
+  db: NodePgDatabase,
+  values: Partial<typeof media.$inferInsert> & { userId: string },
+) {
+  const n = ++mediaSeq;
+  const [row] = await db
+    .insert(media)
+    .values({
+      sha256: n.toString(16).padStart(64, '0'),
+      s3Key: `media/test-${n}.png`,
+      filename: `image-${n}.png`,
+      contentType: 'image/png',
+      sizeBytes: 1024,
+      ...values,
+    })
+    .returning();
+  return row;
 }

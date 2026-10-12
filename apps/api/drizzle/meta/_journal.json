@@ -15,6 +15,13 @@
       "when": 1791776697128,
       "tag": "0001_content_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791776952378,
+      "tag": "0002_history_media_jobs",
+      "breakpoints": true
     }
   ]
 }

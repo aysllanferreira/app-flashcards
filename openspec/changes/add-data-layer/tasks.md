@@ -108,24 +108,24 @@
 
   Tick #39 AC 4.
 - [x] 3.11 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #39 AC 6.
-- [ ] 3.12 Check for sync duplicates, commit and push `feat/db-content-tables`. Open a PR into `feat/data-layer` titled like #39, with `Refs #39` and no `Closes` line. Verify the base and body.
-- [ ] 3.13 Post a progress comment on #39.
-- [ ] 3.14 Stop until the user confirms the #39 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
+- [x] 3.12 Check for sync duplicates, commit and push `feat/db-content-tables`. Open a PR into `feat/data-layer` titled like #39, with `Refs #39` and no `Closes` line. Verify the base and body.
+- [x] 3.13 Post a progress comment on #39.
+- [x] 3.14 Stop until the user confirms the #39 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
 
 ## 4. Review log, media, TTS cache and import job tables (issue #40, AC 1 to 6)
 
-- [ ] 4.1 Read #36 and #40, report any conflict, then cut `feat/db-history-media-jobs` from the updated `feat/data-layer`. Verify the merge base as in 2.1.
-- [ ] 4.2 Create the `reviews` module with `schema/review-logs.ts`: single-column SET NULL foreign keys for `card_id` and `deck_id`, the `rating` and `kind` checks, the before and after columns, and the `(user_id, reviewed_at)`, `(card_id, reviewed_at)` and `(deck_id, reviewed_at)` indexes (design.md, decisions 6 to 8). Verify that `pnpm --filter api build` exits 0.
-- [ ] 4.3 Create the `media` module with `schema/media.ts` (unique `(user_id, sha256)` and `s3_key`, the `sha256` format check) and `schema/tts-clips.ts` (no `user_id`). Add `schema/note-media.ts` to the `notes` module: `user_id`, composite CASCADE foreign keys to `notes` and `media`, primary key `(note_id, media_id)` and a `media_id` index. Verify that `pnpm --filter api build` exits 0.
-- [ ] 4.4 Create the `imports` module with `schema/import-jobs.ts`: the SET NULL `deck_id` foreign key and the `format` and `status` checks. Verify that `pnpm --filter api build` exits 0.
-- [ ] 4.5 Import the new modules in `AppModule` and run `pnpm --filter api db:generate`. Verify that exactly one new migration appears, that after a fresh volume and `db:migrate`, `\dt` also lists `review_logs`, `media`, `note_media`, `tts_clips` and `import_jobs`, and that `db:generate` reports no schema changes. Tick #40 AC 1.
-- [ ] 4.6 Add `test/db/review-logs.db-spec.ts`. Verify that:
+- [x] 4.1 Read #36 and #40, report any conflict, then cut `feat/db-history-media-jobs` from the updated `feat/data-layer`. Verify the merge base as in 2.1.
+- [x] 4.2 Create the `reviews` module with `schema/review-logs.ts`: single-column SET NULL foreign keys for `card_id` and `deck_id`, the `rating` and `kind` checks, the before and after columns, and the `(user_id, reviewed_at)`, `(card_id, reviewed_at)` and `(deck_id, reviewed_at)` indexes (design.md, decisions 6 to 8). Verify that `pnpm --filter api build` exits 0.
+- [x] 4.3 Create the `media` module with `schema/media.ts` (unique `(user_id, sha256)` and `s3_key`, the `sha256` format check) and `schema/tts-clips.ts` (no `user_id`). Add `schema/note-media.ts` to the `notes` module: `user_id`, composite CASCADE foreign keys to `notes` and `media`, primary key `(note_id, media_id)` and a `media_id` index. Verify that `pnpm --filter api build` exits 0.
+- [x] 4.4 Create the `imports` module with `schema/import-jobs.ts`: the SET NULL `deck_id` foreign key and the `format` and `status` checks. Verify that `pnpm --filter api build` exits 0.
+- [x] 4.5 Import the new modules in `AppModule` and run `pnpm --filter api db:generate`. Verify that exactly one new migration appears, that after a fresh volume and `db:migrate`, `\dt` also lists `review_logs`, `media`, `note_media`, `tts_clips` and `import_jobs`, and that `db:generate` reports no schema changes. Tick #40 AC 1.
+- [x] 4.6 Add `test/db/review-logs.db-spec.ts`. Verify that:
   - deleting a card keeps its logs with `card_id` NULL, and deleting a deck keeps them with `deck_id` NULL;
   - inserting a log with an existing id fails with `23505` and leaves one row;
   - `rating = 5` fails with `23514`.
 
   Tick #40 AC 2.
-- [ ] 4.7 Add `test/db/media-and-jobs.db-spec.ts`, and extend the user-deletion test in `content-deletes.db-spec.ts` to the new tables. Verify that:
+- [x] 4.7 Add `test/db/media-and-jobs.db-spec.ts`, and extend the user-deletion test in `content-deletes.db-spec.ts` to the new tables. Verify that:
   - a duplicate `sha256` fails with `23505` for the same user and succeeds for another user;
   - a `note_media` row linking user A's note to user B's media fails with `23503`;
   - deleting a note, or a media row, deletes its `note_media` rows;
@@ -134,18 +134,18 @@
   - deleting a user leaves no row with that `user_id` in any table.
 
   Tick #40 AC 3.
-- [ ] 4.8 Add `src/database/seed.ts` and the `db:seed` script (design.md, decision 14). Verify that:
+- [x] 4.8 Add `src/database/seed.ts` and the `db:seed` script (design.md, decision 14). Verify that:
   - `pnpm --filter api db:seed` exits 0;
   - `docker compose exec db psql -U flashcards -tAc 'select count(*) from cards'` prints at least 10000;
   - `NODE_ENV=production pnpm --filter api db:seed` exits non-zero, and the row counts of `users`, `cards` and `review_logs` are the same before and after it.
 
   Tick #40 AC 4.
-- [ ] 4.9 On the seeded database, take the `Verbs` deck id (`select id from decks where name = 'Verbs'`) and run both queue queries:
+- [x] 4.9 On the seeded database, take the `Verbs` deck id (`select id from decks where name = 'Verbs'`) and run both queue queries:
   - `EXPLAIN SELECT id FROM cards WHERE deck_id = '<id>' AND state <> 'new' AND suspended = false AND due_at <= now() ORDER BY due_at LIMIT 20`;
   - `EXPLAIN SELECT id FROM cards WHERE deck_id = '<id>' AND state = 'new' AND suspended = false ORDER BY position LIMIT 20`.
 
   Verify that the first plan uses `cards_review_queue_idx` and the second `cards_new_queue_idx`, and neither contains `Seq Scan on cards`. If the planner chooses otherwise, adjust the index or the seed's distribution. Never disable sequential scans to pass. Record both plans in the #40 progress comment. Tick #40 AC 5.
-- [ ] 4.10 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #40 AC 6.
+- [x] 4.10 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #40 AC 6.
 - [ ] 4.11 Check for sync duplicates, commit and push `feat/db-history-media-jobs`. Open a PR into `feat/data-layer` titled like #40, with `Refs #40` and no `Closes` line. Verify the base and body.
 - [ ] 4.12 Post a progress comment on #40, including the two `EXPLAIN` plans.
 - [ ] 4.13 Stop until the user confirms the #40 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
