@@ -63,11 +63,11 @@
 ## 6. Commit and pull request (issue #22, AC 1 to 6)
 
 - [x] 6.1 Confirm the system design is unchanged (proposal.md: "System design: no change"). Verify that `git diff --stat dev -- system-design/` prints nothing.
-- [ ] 6.2 Commit on `chore/sub-issue-delivery` with a Conventional Commit message, authored by the repo owner with no Claude attribution. Push, and open a PR to `dev` titled `chore(openspec): deliver large changes as sub-issues merged through an integration branch` with `Closes #22` in the body. Verify that `gh pr view --json baseRefName,body` shows `dev` and contains `Closes #22`, and that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0.
+- [x] 6.2 Commit on `chore/sub-issue-delivery` with a Conventional Commit message, authored by the repo owner with no Claude attribution. Push, and open a PR to `dev` titled `chore(openspec): deliver large changes as sub-issues merged through an integration branch` with `Closes #22` in the body. Verify that `gh pr view --json baseRefName,body` shows `dev` and contains `Closes #22`, and that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0.
 
 ## 7. GitHub Wiki (issue #22, AC 7)
 
-- [ ] 7.1 After the PR is open, clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
+- [x] 7.1 After the PR is open, clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
   - `Development-Workflow`: a "Sub-issues and integration branches" subsection with the flow (parent and sub-issues, sub-PRs into the integration branch with `Refs`, stop after each, final PR into `dev` closing all), a row in the "Branches, commits and pull requests" table, and a link in Contents;
   - `Decisions`: large changes may ship as sub-issues through an integration branch, with one OpenSpec change on the parent, `Refs` on sub-PRs and `Closes` for all on the final PR; linked to #22;
   - `Status`: #22 in review with its PR;
