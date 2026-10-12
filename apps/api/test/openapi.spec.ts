@@ -21,3 +21,26 @@ describe('openapi.json', () => {
     ).toEqual(built);
   });
 });
+
+describe('authenticated operations', () => {
+  it('document a 401 ErrorResponse (use @ApiErrorResponses({ unauthorized: true }))', async () => {
+    const app = await NestFactory.create(AppModule, { logger: false });
+    const doc = buildOpenApiDocument(app);
+    await app.close();
+
+    const missing: string[] = [];
+    for (const [path, item] of Object.entries(doc.paths)) {
+      for (const [method, operation] of Object.entries(item)) {
+        if (typeof operation !== 'object' || !('responses' in operation)) {
+          continue;
+        }
+        // An operation without its own `security` inherits the document's.
+        const security = operation.security ?? doc.security ?? [];
+        if (security.length > 0 && !operation.responses['401']) {
+          missing.push(`${method.toUpperCase()} ${path}`);
+        }
+      }
+    }
+    expect(missing).toEqual([]);
+  });
+});

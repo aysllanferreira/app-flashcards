@@ -29,16 +29,16 @@
   - an accepted trade-off for the window (up to the token lifetime, or a late `user.created` retry) in which a deleted account can be recreated empty.
 
   Verify that `grep -n "09-flow-user-sync.png\|first request\|deleted" system-design/README.md` matches the embed, the Auth row and the trade-off. Tick #49 AC 3.
-- [ ] 1.9 Check for sync duplicates as in 1.1, commit with a Conventional Commit message (no Claude attribution) and push `docs/auth-system-design`. Open a PR into `feat/api-auth` titled like #49, with `Refs #49` and no `Closes` line in the body. Verify that `gh pr view --json baseRefName,body` shows `feat/api-auth` and `Refs #49`.
-- [ ] 1.10 Post a progress comment on #49 (criteria verified, tasks completed, the PR link).
-- [ ] 1.11 Stop until the user confirms the #49 PR is merged. Verify that `gh pr view <n> --json state` shows `MERGED`, then `git switch feat/api-auth && git pull --ff-only`.
+- [x] 1.9 Check for sync duplicates as in 1.1, commit with a Conventional Commit message (no Claude attribution) and push `docs/auth-system-design`. Open a PR into `feat/api-auth` titled like #49, with `Refs #49` and no `Closes` line in the body. Verify that `gh pr view --json baseRefName,body` shows `feat/api-auth` and `Refs #49`.
+- [x] 1.10 Post a progress comment on #49 (criteria verified, tasks completed, the PR link).
+- [x] 1.11 Stop until the user confirms the #49 PR is merged. Verify that `gh pr view <n> --json state` shows `MERGED`, then `git switch feat/api-auth && git pull --ff-only`.
 
 ## 2. Token verification, first-request provisioning and GET /me (issue #50, AC 1 to 8)
 
-- [ ] 2.1 Read #48 and #50, report any conflict, then cut `feat/api-auth-guard` from the updated `feat/api-auth`. Verify the merge base as in 1.2.
-- [ ] 2.2 In `apps/api`, run `pnpm add -E @clerk/backend@<version>` with the version the lockfile already resolves for `@clerk/nextjs` (`ls node_modules/.pnpm | grep '^@clerk+backend@'`; 3.23.2 at proposal time). Verify that `apps/api/package.json` lists it without `^` or `~`, `pnpm install --frozen-lockfile` exits 0, and `ls node_modules/.pnpm | grep -c '^@clerk+backend@'` prints `1`.
-- [ ] 2.3 Spike (design.md, Risks): add `test/support/clerk.ts` with the key pair and `signSessionToken` (design.md, decision 9), and a unit test that verifies a signed token with `verifyToken(token, { jwtKey, authorizedParties: ['http://localhost:3000'] })` and rejects an expired one and one with `azp: 'https://evil.example'`. Verify that `pnpm --filter api exec vitest run test/support` passes. If a claim is missing, add it to the helper and note it in design.md.
-- [ ] 2.4 Extend `src/config/env.ts` with `WEB_ORIGIN`, `CLERK_JWT_KEY` and `CLERK_SECRET_KEY` and their production checks (design.md, decision 7; `CLERK_WEBHOOK_SIGNING_SECRET` comes in 3.2 with #51), and add them to `apps/api/.env.example` with empty values except `WEB_ORIGIN=http://localhost:3000`. Extend `env.spec.ts` with:
+- [x] 2.1 Read #48 and #50, report any conflict, then cut `feat/api-auth-guard` from the updated `feat/api-auth`. Verify the merge base as in 1.2.
+- [x] 2.2 In `apps/api`, run `pnpm add -E @clerk/backend@<version>` with the version the lockfile already resolves for `@clerk/nextjs` (`ls node_modules/.pnpm | grep '^@clerk+backend@'`; 3.23.2 at proposal time). Verify that `apps/api/package.json` lists it without `^` or `~`, `pnpm install --frozen-lockfile` exits 0, and `ls node_modules/.pnpm | grep -c '^@clerk+backend@'` prints `1`.
+- [x] 2.3 Spike (design.md, Risks): add `test/support/clerk.ts` with the key pair and `signSessionToken` (design.md, decision 9), and a unit test that verifies a signed token with `verifyToken(token, { jwtKey, authorizedParties: ['http://localhost:3000'] })` and rejects an expired one and one with `azp: 'https://evil.example'`. Verify that `pnpm --filter api exec vitest run test/support` passes. If a claim is missing, add it to the helper and note it in design.md.
+- [x] 2.4 Extend `src/config/env.ts` with `WEB_ORIGIN`, `CLERK_JWT_KEY` and `CLERK_SECRET_KEY` and their production checks (design.md, decision 7; `CLERK_WEBHOOK_SIGNING_SECRET` comes in 3.2 with #51), and add them to `apps/api/.env.example` with empty values except `WEB_ORIGIN=http://localhost:3000`. Extend `env.spec.ts` with:
   - the `WEB_ORIGIN` default;
   - a rejected `http://localhost:3000/app`;
   - a list of two origins parsing to two entries;
@@ -50,21 +50,21 @@
   - the same with `WEB_ORIGIN=https://app.example` and without `CLERK_JWT_KEY` exits non-zero naming `CLERK_JWT_KEY` and `CLERK_SECRET_KEY`.
 
   Tick #50 AC 5.
-- [ ] 2.5 Add `src/common/configure-app.ts` with `APP_OPTIONS` and `configureApp` (design.md, decision 6), and use them in `main.ts` and `openapi/generate.ts`. Add `test/support/create-app.ts`, which builds the app from `AppModule` with optional provider overrides, `APP_OPTIONS` and `configureApp`, and `test/support/env.ts`, registered as `setupFiles` in `vitest.config.e2e.ts` and `vitest.config.db.ts`. Switch the existing e2e tests to the helper. Verify that `pnpm --filter api test` passes and `pnpm --filter api openapi` leaves `git diff --exit-code apps/api/openapi.json` at 0.
-- [ ] 2.6 Add `src/modules/users/provision-user.ts` (`provisionUser`), `users.service.ts` (`ensureUser`, `syncFromClerk`) and export `UsersService` from `UsersModule` (design.md, decision 3). Add `test/db/provisioning.db-spec.ts`, which shows that:
+- [x] 2.5 Add `src/common/configure-app.ts` with `APP_OPTIONS` and `configureApp` (design.md, decision 6), and use them in `main.ts` and `openapi/generate.ts`. Add `test/support/create-app.ts`, which builds the app from `AppModule` with optional provider overrides, `APP_OPTIONS` and `configureApp`, and `test/support/env.ts`, registered as `setupFiles` in `vitest.config.e2e.ts` and `vitest.config.db.ts`. Switch the existing e2e tests to the helper. Verify that `pnpm --filter api test` passes and `pnpm --filter api openapi` leaves `git diff --exit-code apps/api/openapi.json` at 0.
+- [x] 2.6 Add `src/modules/users/provision-user.ts` (`provisionUser`), `users.service.ts` (`ensureUser`, `syncFromClerk`) and export `UsersService` from `UsersModule` (design.md, decision 3). Add `test/db/provisioning.db-spec.ts`, which shows that:
   - `provisionUser` creates one user, one preset named `Default` and three note types;
   - a second call creates nothing and returns the same id;
   - two concurrent calls (`Promise.all`) leave one user, one preset and three note types;
   - `syncFromClerk` sets and later changes `email`.
 
   Verify that `pnpm --filter api test:db` passes.
-- [ ] 2.7 Change `src/database/seed.ts` to create the demo user with `provisionUser` and use the returned preset and note types, removing its direct `deckPresets` "Default" insert and `copyStockNoteTypes` call. Verify that:
+- [x] 2.7 Change `src/database/seed.ts` to create the demo user with `provisionUser` and use the returned preset and note types, removing its direct `deckPresets` "Default" insert and `copyStockNoteTypes` call. Verify that:
   - `grep -n "copyStockNoteTypes" apps/api/src/database/seed.ts` prints nothing;
   - `pnpm --filter api db:seed` exits 0;
   - `docker compose exec db psql -U flashcards -tAc "select count(*) from deck_presets where name = 'Default'"` prints `1` and `select count(*) from note_types` prints `3`.
 
   Tick #50 AC 7.
-- [ ] 2.8 Add `src/common/decorators/public.decorator.ts` (`@Public()`) and `current-user.decorator.ts` (`@CurrentUser()`), and `src/modules/auth/` with `auth.module.ts` (registers `AuthGuard` as `APP_GUARD`), `auth.service.ts` (token verification, design.md, decision 1) and `auth.guard.ts` (skips `@Public()`, verifies, runs `ensureUser`, attaches the user). Import `AuthModule` in `AppModule` and mark `HealthController` `@Public()`. Add `auth.service.spec.ts` unit tests for:
+- [x] 2.8 Add `src/common/decorators/public.decorator.ts` (`@Public()`) and `current-user.decorator.ts` (`@CurrentUser()`), and `src/modules/auth/` with `auth.module.ts` (registers `AuthGuard` as `APP_GUARD`), `auth.service.ts` (token verification, design.md, decision 1) and `auth.guard.ts` (skips `@Public()`, verifies, runs `ensureUser`, attaches the user). Import `AuthModule` in `AppModule` and mark `HealthController` `@Public()`. Add `auth.service.spec.ts` unit tests for:
   - a missing header;
   - a non-bearer header;
   - a malformed token;
@@ -73,14 +73,14 @@
   - no key configured.
 
   Verify that the unit tests and the architecture test pass.
-- [ ] 2.9 Add the `users` HTTP layer: `dto/me-response.dto.ts` (`MeResponseSchema` with `.meta({ id: 'MeResponse' })`: `id`, `email` nullable, `timezone`, `dayRolloverHour`, `remindersOn`, `createdAt` as an ISO string) and `users.controller.ts` with `GET /me`, decorated with:
+- [x] 2.9 Add the `users` HTTP layer: `dto/me-response.dto.ts` (`MeResponseSchema` with `.meta({ id: 'MeResponse' })`: `id`, `email` nullable, `timezone`, `dayRolloverHour`, `remindersOn`, `createdAt` as an ISO string) and `users.controller.ts` with `GET /me`, decorated with:
   - `@ApiTags('users')`;
   - `@ApiOperation({ summary: "Get the caller's account" })`;
   - `@ApiResponseSchema(200, MeResponseSchema)`;
   - `@ApiErrorResponses({ unauthorized: true })`.
 
   Verify that `pnpm --filter api build` exits 0.
-- [ ] 2.10 OpenAPI security (design.md, decision 8):
+- [x] 2.10 OpenAPI security (design.md, decision 8):
   - in `buildOpenApiDocument`, add `.addBearerAuth()` and the global bearer requirement;
   - make `@Public()` emit `security: []`, or use the post-processing fallback and record which in design.md;
   - add `unauthorized` to `ApiErrorResponses`;
@@ -97,21 +97,21 @@
   - deleting the `security` key from `/health` in a temporary copy of `openapi.json` makes `redocly lint --config apps/api/redocly.yaml <copy>` exit non-zero.
 
   Tick #50 AC 6.
-- [ ] 2.11 Add `test/auth.e2e-spec.ts`, built with `test/support/create-app.ts`, which shows that:
+- [x] 2.11 Add `test/auth.e2e-spec.ts`, built with `test/support/create-app.ts`, which shows that:
   - `GET /me` with no header, `Bearer not-a-jwt`, an expired token and a token with `azp: 'https://evil.example'` each returns 401 with a body that `ErrorResponseSchema.parse` accepts;
   - `GET /health` and `GET /docs-json` (docs set up with `setupDocs` in the test app) return 200 without a token;
   - `OPTIONS /me` from `http://localhost:3000` returns `Access-Control-Allow-Origin: http://localhost:3000` and allows `authorization`;
   - the same preflight from `https://evil.example` has no `Access-Control-Allow-Origin`.
 
   Verify that `pnpm --filter api test:e2e` passes. Tick #50 AC 3 and 4.
-- [ ] 2.12 Add `test/db/me.db-spec.ts`, which builds the app with `overrideProvider(DB).useValue(ctx.db)` and shows that:
+- [x] 2.12 Add `test/db/me.db-spec.ts`, which builds the app with `overrideProvider(DB).useValue(ctx.db)` and shows that:
   - a valid token returns 200, and `MeResponseSchema.parse(res.body)` accepts it with `email` null, `timezone` `UTC` and `dayRolloverHour` 4;
   - a second request returns the same `id`;
   - after the first request the database holds one user, one `Default` preset and three note types (Basic, Basic (and reversed card), Cloze) for that `clerk_user_id`;
   - two concurrent first requests both return 200 with one `id` and the same counts.
 
   Verify that `pnpm --filter api test:db` passes. Together with 2.11, tick #50 AC 1 and 2.
-- [ ] 2.13 Verify that `pnpm turbo run lint test build --filter=api` exits 0 with the `db` container healthy. Tick #50 AC 8.
+- [x] 2.13 Verify that `pnpm turbo run lint test build --filter=api` exits 0 with the `db` container healthy. Tick #50 AC 8.
 - [ ] 2.14 Check for sync duplicates, commit and push `feat/api-auth-guard`. Open a PR into `feat/api-auth` titled like #50, with `Refs #50` and no `Closes` line. Verify the base and body with `gh pr view --json baseRefName,body`.
 - [ ] 2.15 Post a progress comment on #50.
 - [ ] 2.16 Stop until the user confirms the #50 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.

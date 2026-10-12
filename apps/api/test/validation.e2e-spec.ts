@@ -1,9 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types.js';
-import { AppModule } from './../src/app.module.js';
 import { FixtureModule } from './fixtures/fixture.module.js';
+import { createTestApp } from './support/create-app.js';
 
 const ID = '3f1c2a4e-8b7d-4c6a-9e2f-1a2b3c4d5e6f';
 
@@ -11,12 +10,7 @@ describe('Request validation and response shaping (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule, FixtureModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    app = await createTestApp({ imports: [FixtureModule] });
   });
 
   afterEach(async () => {
