@@ -204,17 +204,17 @@
   - a link to the "Clerk webhooks (local)" section.
 
   Verify that the README names all four variables. Tick #53 AC 3.
-- [ ] 5.5 Check for sync duplicates, commit and push `docs/auth-conventions`. Open a PR into `feat/api-auth` titled like #53, with `Refs #53` and no `Closes` line. Verify the base and body.
-- [ ] 5.6 Post a progress comment on #53.
-- [ ] 5.7 Stop until the user confirms the #53 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.
+- [x] 5.5 Check for sync duplicates, commit and push `docs/auth-conventions`. Open a PR into `feat/api-auth` titled like #53, with `Refs #53` and no `Closes` line. Verify the base and body.
+- [x] 5.6 Post a progress comment on #53.
+- [x] 5.7 Stop until the user confirms the #53 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.
 
 ## 6. Integration, final PR and wiki (issue #48, AC 1 to 7)
 
-- [ ] 6.1 If `dev` moved, merge `origin/dev` into `feat/api-auth` (no rebase) and push. With `docker compose up -d --wait db` run first, verify that `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm test` and `pnpm build` at the repo root each exit 0. Tick #48 AC 2.
-- [ ] 6.2 Verify that `jq -r '.paths | keys[]' apps/api/openapi.json` prints exactly `/health`, `/me` and `/webhooks/clerk`. Tick #48 AC 3.
-- [ ] 6.3 Verify that `pnpm --filter api db:generate` reports no schema changes and `git diff dev...feat/api-auth -- apps/api/drizzle` prints nothing. Tick #48 AC 4.
-- [ ] 6.4 Verify that `gh issue view <n> --json body --jq .body | grep -c '^- \[ \]'` prints `0` for each of #49–#53. Tick #48 AC 1.
-- [ ] 6.5 Open the PR from `feat/api-auth` into `dev`. Its title is `feat(auth): verify Clerk sessions in the API and sync users from Clerk webhooks`, and its body has `Closes #48`, `Closes #49`, `Closes #50`, `Closes #51`, `Closes #52` and `Closes #53`, with no Claude attribution. Verify that `gh pr view --json baseRefName,body` shows `dev` and all six `Closes` lines. Tick #48 AC 5.
+- [x] 6.1 If `dev` moved, merge `origin/dev` into `feat/api-auth` (no rebase) and push. With `docker compose up -d --wait db` run first, verify that `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm test` and `pnpm build` at the repo root each exit 0. Tick #48 AC 2.
+- [x] 6.2 Verify that `jq -r '.paths | keys[]' apps/api/openapi.json` prints exactly `/health`, `/me` and `/webhooks/clerk`. Tick #48 AC 3.
+- [x] 6.3 Verify that `pnpm --filter api db:generate` reports no schema changes and `git diff dev...feat/api-auth -- apps/api/drizzle` prints nothing. Tick #48 AC 4.
+- [x] 6.4 Verify that `gh issue view <n> --json body --jq .body | grep -c '^- \[ \]'` prints `0` for each of #49–#53. Tick #48 AC 1.
+- [x] 6.5 Open the PR from `feat/api-auth` into `dev`. Its title is `feat(auth): verify Clerk sessions in the API and sync users from Clerk webhooks`, and its body has `Closes #48`, `Closes #49`, `Closes #50`, `Closes #51`, `Closes #52` and `Closes #53`, with no Claude attribution. Verify that `gh pr view --json baseRefName,body` shows `dev` and all six `Closes` lines. Tick #48 AC 5.
 - [ ] 6.6 Run `openspec validate add-api-auth --strict`, then sync the deltas with `/opsx:sync`. Verify that:
   - `openspec list --specs` lists `api-authentication` and `clerk-user-sync`;
   - `openspec/specs/web-authentication/spec.md` has the "Signed-in users see their account" requirement;
