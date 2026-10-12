@@ -159,10 +159,11 @@ The NestJS API follows these conventions. The OpenAPI contract `apps/api/openapi
   - `schema/`: the module's Drizzle tables, one file per table, added once the module needs them. This is the only place a table (`pgTable`) may be defined.
 - Code that belongs to no single feature lives in:
   - `src/config/`: the Zod environment schema, validated at startup by `@nestjs/config`;
-  - `src/common/`: shared decorators and schemas, such as `ErrorResponse`;
+  - `src/common/`: shared decorators and schemas, such as `ErrorResponse`, `@Public()` and `@CurrentUser()`, plus `configure-app.ts` (the app options and CORS that `main.ts`, the `openapi.json` generator and the tests share);
   - `src/openapi/`: the document builder and the `openapi.json` generator;
   - `src/database/`: the global `DatabaseModule` (the Drizzle client, injected as `DB`), the shared column builders (`id()`, `createdAt()`, `updatedAt()`) and the dev seed.
 - `app.module.ts` and `main.ts` stay at the `src/` root. A new module is imported in `AppModule`.
+- `src/modules/auth/` registers the global auth guard, and `src/modules/users/` owns account provisioning (see "Auth").
 - `test/architecture.spec.ts` fails when:
   - a `*.controller.ts` or `*.service.ts` sits outside `src/modules/<name>/`;
   - a module folder lacks `<name>.module.ts`;
@@ -184,16 +185,25 @@ Every route needs:
 - `@ApiTags('<module>')` on its controller;
 - `@ApiOperation({ summary })`;
 - `@ApiResponseSchema(status, XSchema)`, once per route, for the success response. It documents the schema and shapes the response with it, so never add a separate `@SerializeOptions` or `@ApiResponse` for the success response.
-- `@ApiErrorResponses()` for the shared `ErrorResponse`: 500 on every route, plus `{ badRequest: true }` for 400 on routes that take input.
+- `@ApiErrorResponses()` for the shared `ErrorResponse`: 500 on every route, plus `{ badRequest: true }` for 400 on routes that take input and `{ unauthorized: true }` for 401 on every route that isn't `@Public()`.
 
 Swagger UI is at `/docs` and the JSON at `/docs-json`. Both are served unless `NODE_ENV=production`; `SWAGGER_UI=true` turns them on in production. The startup log prints the URLs.
+
+### Auth
+
+Clerk is the identity provider; `system-design/09-flow-user-sync` shows the flow.
+- **Every route needs a valid Clerk session token** (`Authorization: Bearer <jwt>`) unless it is marked `@Public()`. The global guard (`APP_GUARD` in `src/modules/auth/`) answers 401 with `ErrorResponse` for a missing, invalid or expired token, or one whose `azp` isn't in `WEB_ORIGIN`.
+- **`@Public()`** (`src/common/decorators/`) is only for health, docs and signed third-party callbacks such as webhooks, which verify their own signature. It also makes the OpenAPI operation declare `security: []`; every other operation requires the bearer scheme.
+- **Read the caller with `@CurrentUser()`**, which gives the caller's `users` row. Never decode the token in a route, and scope every query by that user's `id`.
+- **Accounts are created only through `ensureUser`** (`UsersService`), which wraps `provisionUser`: the user, the "Default" deck preset and the stock note types, in one transaction, exactly once. The guard calls it on the first request, the Clerk webhook calls it on `user.created`, and the seed uses `provisionUser`. Never insert into `users` anywhere else. Email updates and deletes come only from the `user.*` webhooks.
+- **Variables:** `WEB_ORIGIN` (web origins, comma-separated; used for CORS and the `azp` check; `http://localhost:3000` outside production), `CLERK_JWT_KEY` (Clerk's PEM public key, for verification without a network call) or `CLERK_SECRET_KEY` (fallback), and `CLERK_WEBHOOK_SIGNING_SECRET`. Production requires `WEB_ORIGIN`, one of the two keys and the webhook secret. The API README explains the local webhook setup.
 
 ### The contract: openapi.json
 
 - After any change to routes, schemas or Swagger decorators, run `pnpm --filter api openapi` and commit the regenerated `apps/api/openapi.json` with the change.
 - **Never** edit `openapi.json` by hand. A `PreToolUse` hook (`.claude/hooks/guard-openapi-file.mjs`) blocks Claude's `Edit` and `Write` on it.
 - `pnpm --filter api test` runs a drift test that fails when the file doesn't match the code.
-- `pnpm --filter api lint` runs Redocly (`apps/api/redocly.yaml`) on the file. Every operation needs a `summary`, an `operationId`, a 2xx response with a schema and an `ErrorResponse` error response, and unused components fail. Turn a `recommended` rule off only with a comment explaining why.
+- `pnpm --filter api lint` runs Redocly (`apps/api/redocly.yaml`) on the file. Every operation needs a `summary`, an `operationId`, a 2xx response with a schema, an `ErrorResponse` error response and declared `security`, and unused components fail. A unit test also fails when an authenticated operation doesn't document 401. Turn a `recommended` rule off only with a comment explaining why.
 - The document's `info.version` is the contract version, set in `src/openapi/build-document.ts`. It is not the release tag, and it changes only on a deliberate contract change.
 
 ### Tests
@@ -204,6 +214,7 @@ Swagger UI is at `/docs` and the JSON at `/docs-json`. Both are served unless `N
   - database (`test/db/*.db-spec.ts`, against `flashcards_test`). It needs `docker compose up -d --wait db` and fails with that instruction when the database is down. `pnpm --filter api test:db` runs it alone.
 - Every endpoint has an e2e test that parses its response body with the route's response schema (`XSchema.parse(res.body)`).
 - Test-only routes live under `test/fixtures/` and never reach `dist/` or `openapi.json`.
+- Tests never call Clerk. `test/support/clerk.ts` signs session tokens and Svix webhooks locally, `test/support/env.ts` (a `setupFiles` entry of the e2e and database suites) gives the API the matching keys, and `createTestApp()` (`test/support/create-app.ts`) builds the app as `main.ts` does. Database e2e tests override `DB` with the test database.
 
 ### Database
 
@@ -230,7 +241,7 @@ Postgres 18 runs in Docker for local development and tests: `docker compose up -
 
 ### OpenSpec
 
-- Proposals state the API contract impact: "API contract: no change", or the endpoints added, changed or removed.
+- Proposals state the API contract impact: "API contract: no change", or the endpoints added, changed or removed, each stated as public or authenticated.
 - Proposals state the data model impact: "Data model: no change", or the tables and columns added, changed or removed. When the schema changes, `tasks.md` includes tasks to generate and commit the migration, apply it to a fresh database and add database tests for new constraints.
 - When endpoints change, `tasks.md` includes tasks for:
   - their schemas and Swagger decorators;

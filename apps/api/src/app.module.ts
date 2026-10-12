@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { validateEnv } from './config/env.js';
 import { DatabaseModule } from './database/database.module.js';
+import { AuthModule } from './modules/auth/auth.module.js';
 import { CardsModule } from './modules/cards/cards.module.js';
 import { DecksModule } from './modules/decks/decks.module.js';
 import { HealthModule } from './modules/health/health.module.js';
@@ -16,6 +17,7 @@ import { NoteTypesModule } from './modules/note-types/note-types.module.js';
 import { NotesModule } from './modules/notes/notes.module.js';
 import { ReviewsModule } from './modules/reviews/reviews.module.js';
 import { UsersModule } from './modules/users/users.module.js';
+import { WebhooksModule } from './modules/webhooks/webhooks.module.js';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { UsersModule } from './modules/users/users.module.js';
     DatabaseModule,
     HealthModule,
     UsersModule,
+    AuthModule,
+    WebhooksModule,
     DecksModule,
     NoteTypesModule,
     NotesModule,

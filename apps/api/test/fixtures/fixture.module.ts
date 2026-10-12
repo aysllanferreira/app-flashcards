@@ -3,6 +3,7 @@ import { ApiOperation } from '@nestjs/swagger';
 import { z } from 'zod';
 import { ApiErrorResponses } from '../../src/common/decorators/api-error-responses.decorator.js';
 import { ApiResponseSchema } from '../../src/common/decorators/api-response-schema.decorator.js';
+import { Public } from '../../src/common/decorators/public.decorator.js';
 
 // Test-only routes that exercise every kind of declared schema (body, query,
 // path parameter, response) without adding product endpoints. Lives under
@@ -24,6 +25,8 @@ export const FixtureResponseSchema = z
   .meta({ id: 'FixtureResponse' });
 export type FixtureResponse = z.infer<typeof FixtureResponseSchema>;
 
+// Public, so the validation tests exercise the pipe without a token.
+@Public()
 @Controller('fixtures')
 export class FixtureController {
   @Post(':id')

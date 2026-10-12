@@ -11,6 +11,8 @@ export default defineConfig({
     root: './',
     include: ['test/db/**/*.db-spec.ts'],
     globalSetup: ['./test/db/global-setup.ts'],
+    // Points the app at the locally signed test tokens (test/support/clerk.ts).
+    setupFiles: ['./test/support/env.ts'],
     fileParallelism: false,
   },
 });

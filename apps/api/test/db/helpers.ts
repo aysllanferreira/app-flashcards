@@ -5,6 +5,7 @@ import { deckPresets } from '../../src/modules/decks/schema/deck-presets.js';
 import { decks } from '../../src/modules/decks/schema/decks.js';
 import { media } from '../../src/modules/media/schema/media.js';
 import { cardTemplates } from '../../src/modules/note-types/schema/card-templates.js';
+import { noteTypes } from '../../src/modules/note-types/schema/note-types.js';
 import { copyStockNoteTypes } from '../../src/modules/note-types/stock-note-types.js';
 import { notes } from '../../src/modules/notes/schema/notes.js';
 import { reviewLogs } from '../../src/modules/reviews/schema/review-logs.js';
@@ -181,3 +182,35 @@ export async function createMedia(
     .returning();
   return row;
 }
+
+// What one Clerk account owns right after provisioning.
+export async function provisionedCounts(
+  db: NodePgDatabase,
+  clerkUserId: string,
+) {
+  const owned = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.clerkUserId, clerkUserId));
+  if (owned.length === 0) return { users: 0, presets: [], noteTypes: [] };
+  const userId = owned[0].id;
+  const presets = await db
+    .select({ name: deckPresets.name })
+    .from(deckPresets)
+    .where(eq(deckPresets.userId, userId));
+  const types = await db
+    .select({ name: noteTypes.name })
+    .from(noteTypes)
+    .where(eq(noteTypes.userId, userId));
+  return {
+    users: owned.length,
+    presets: presets.map((p) => p.name),
+    noteTypes: types.map((n) => n.name).sort(),
+  };
+}
+
+export const PROVISIONED = {
+  users: 1,
+  presets: ['Default'],
+  noteTypes: ['Basic', 'Basic (and reversed card)', 'Cloze'],
+};
