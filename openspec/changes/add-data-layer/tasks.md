@@ -179,8 +179,8 @@
   - a pointer to `CLAUDE.md` for the rules.
 
   Verify that the README contains `docker compose up -d --wait db`, `pnpm --filter api db:migrate`, `pnpm --filter api db:seed` and `pnpm --filter api db:generate`. Tick #41 AC 3.
-- [ ] 5.5 Check for sync duplicates, commit and push `docs/database-conventions`. Open a PR into `feat/data-layer` titled like #41, with `Refs #41` and no `Closes` line. Verify the base and body.
-- [ ] 5.6 Post a progress comment on #41.
+- [x] 5.5 Check for sync duplicates, commit and push `docs/database-conventions`. Open a PR into `feat/data-layer` titled like #41, with `Refs #41` and no `Closes` line. Verify the base and body.
+- [x] 5.6 Post a progress comment on #41.
 - [x] 5.7 Stop until the user confirms the #41 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
 
 ## 6. Integration, final PR and wiki (issue #36, AC 1 to 7)
@@ -195,8 +195,8 @@
   - `openspec validate --specs --strict` exits 0.
 
   Commit and push to `feat/data-layer`. Tick #36 AC 6.
-- [ ] 6.6 Open the PR from `feat/data-layer` into `dev`. Its title is `feat(api): add the data layer with Postgres in Docker, Drizzle migrations and an Anki-style schema`, and its body has `Closes #36`, `Closes #37`, `Closes #38`, `Closes #39`, `Closes #40` and `Closes #41`, with no Claude attribution. Verify that `gh pr view --json baseRefName,body` shows `dev` and all six `Closes` lines. Tick #36 AC 5.
-- [ ] 6.7 Clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
+- [x] 6.6 Open the PR from `feat/data-layer` into `dev`. Its title is `feat(api): add the data layer with Postgres in Docker, Drizzle migrations and an Anki-style schema`, and its body has `Closes #36`, `Closes #37`, `Closes #38`, `Closes #39`, `Closes #40` and `Closes #41`, with no Claude attribution. Verify that `gh pr view --json baseRefName,body` shows `dev` and all six `Closes` lines. Tick #36 AC 5.
+- [x] 6.7 Clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
   - `Status`: #36 in review, awaiting squash-merge, with the final PR and the sub-PRs listed;
   - `Changelog`: a new top entry;
   - `Roadmap`: the Data layer item linked to #36;
