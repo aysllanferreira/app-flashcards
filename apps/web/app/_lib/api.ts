@@ -58,3 +58,13 @@ async function authorization(): Promise<Record<string, string>> {
   const token = await getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+
+/** The API's message for a failed call, fit to show the user. */
+export function errorMessage(
+  error: unknown,
+  fallback = "Something went wrong. Try again.",
+): string {
+  const message = (error as { message?: unknown } | undefined)?.message;
+  if (Array.isArray(message) && message.length > 0) return message.join(". ");
+  return typeof message === "string" && message !== "" ? message : fallback;
+}

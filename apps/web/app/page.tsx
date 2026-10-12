@@ -1,26 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { AccountSummary } from "./_components/account-summary";
 
 export default async function Home() {
   const { userId } = await auth();
 
-  if (userId) {
-    return (
-      <div className="grid max-w-[920px] gap-6">
-        <h1 className="font-heading text-[28px] leading-tight font-medium tracking-tight md:text-[34px]">
-          Welcome back
-        </h1>
-        <AccountSummary />
-        <div>
-          <Button asChild>
-            <Link href="/decks">Go to your decks</Link>
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  // Signed-in users start at their decks.
+  if (userId) redirect("/decks");
 
   return (
     <div className="grid max-w-[920px] items-center gap-10 py-4 md:grid-cols-[minmax(0,1fr)_320px] md:py-10">

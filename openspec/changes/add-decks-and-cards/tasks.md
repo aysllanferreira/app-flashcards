@@ -190,21 +190,21 @@
   - `pnpm lint` and `pnpm test` at the root show `card-templates` tasks.
 
   Tick #64 AC 8.
-- [ ] 4.15 Check for sync duplicates, commit, push `feat/api-notes` and open a PR into `feat/decks-and-cards` titled like #64, with `Refs #64` and no `Closes`. Verify with `gh pr view --json baseRefName,body`.
-- [ ] 4.16 Post a progress comment on #64 (criteria verified, tasks completed, the PR link).
-- [ ] 4.17 Stop until the user confirms the #64 PR is merged. Verify `MERGED`, then update `feat/decks-and-cards`.
+- [x] 4.15 Check for sync duplicates, commit, push `feat/api-notes` and open a PR into `feat/decks-and-cards` titled like #64, with `Refs #64` and no `Closes`. Verify with `gh pr view --json baseRefName,body`.
+- [x] 4.16 Post a progress comment on #64 (criteria verified, tasks completed, the PR link).
+- [x] 4.17 Stop until the user confirms the #64 PR is merged. Verify `MERGED`, then update `feat/decks-and-cards`.
 
 ## 5. Web: deck list, deck page, note editor and card browser (issue #65, AC 1 to 6)
 
-- [ ] 5.1 Read #60 and #65, report any conflict, then cut `feat/web-decks` from the updated `feat/decks-and-cards`. Verify the merge base as in 1.2. Run `pnpm --filter web generate:api` so the client knows the new routes, and verify that `pnpm --filter web test` passes.
-- [ ] 5.2 Protect the app routes in `proxy.ts` with `createRouteMatcher` and `auth.protect()` (design.md, decision 12). Make `/` redirect signed-in users to `/decks`, and remove the account summary, its component and its test, as the `web-authentication` delta specifies. Add `e2e/redirects.spec.ts`: signed out, each of `/decks`, `/decks/<uuid>`, `/notes/new`, `/notes/<uuid>/edit` and `/cards` lands on `/sign-in`, and `/` renders with status 200. Verify that it passes. Tick #65 AC 1.
-- [ ] 5.3 Build `/decks` (design.md, decision 10), replacing the placeholder:
+- [x] 5.1 Read #60 and #65, report any conflict, then cut `feat/web-decks` from the updated `feat/decks-and-cards`. Verify the merge base as in 1.2. Run `pnpm --filter web generate:api` so the client knows the new routes, and verify that `pnpm --filter web test` passes.
+- [x] 5.2 Protect the app routes in `proxy.ts` with `createRouteMatcher` and `auth.protect()` (design.md, decision 12). Make `/` redirect signed-in users to `/decks`, and remove the account summary, its component and its test, as the `web-authentication` delta specifies. Add `e2e/redirects.spec.ts`: signed out, each of `/decks`, `/decks/<uuid>`, `/notes/new`, `/notes/<uuid>/edit` and `/cards` lands on `/sign-in`, and `/` renders with status 200. Verify that it passes. Tick #65 AC 1.
+- [x] 5.3 Build `/decks` (design.md, decision 10), replacing the placeholder:
   - a Server Component that loads `GET /decks` and renders the tree with subtree new, due and total counts (due in terracotta, new in green, numbers in Geist Mono);
   - a create-deck dialog (name and optional parent) backed by a Server Action;
   - the empty state, a `loading.tsx` skeleton, and an error state with a retry action when the API fails.
 
   Verify against the prototype in the built-in browser at 375 px and 1280 px in both themes, with `pnpm dev` and the seeded database, and with the API stopped for the error state.
-- [ ] 5.4 Build `/decks/[id]`:
+- [x] 5.4 Build `/decks/[id]`:
   - name, description, counts and subdecks;
   - its cards from `GET /cards?deckId=`;
   - rename and move dialogs that show a 409 or 400 reason while keeping the input;
@@ -212,29 +212,29 @@
   - a delete alert-dialog stating `deleteImpact` (subdecks, cards, notes) before calling `DELETE`.
 
   Verify each action in the built-in browser against the prototype, including a duplicate-name rename.
-- [ ] 5.5 Build the editor pieces (design.md, decisions 3 and 13):
+- [x] 5.5 Build the editor pieces (design.md, decisions 3 and 13):
   - `FieldEditor` (Tiptap with `StarterKit` reduced to paragraphs, hard breaks, bold and italic, plus `Underline`, and a toolbar);
   - the cloze action, shown only for `clozeFields`;
   - `CardPreview`, which renders each side of each card from `cardsFor` and `render` in an `<iframe sandbox="" srcdoc>` with the note type's CSS, debounced;
   - a tags input.
 
   Build `/notes/new` (note type and deck pickers, deck preselected from `?deckId`) and `/notes/[id]/edit`, both saving through Server Actions that sanitize first and show the API's 400 reason when no card would be produced. Verify in the built-in browser that a Basic (and reversed card) note previews 2 cards before saving and that the saved note opens in the editor.
-- [ ] 5.6 Add a Vitest component test for the cloze action: selecting `Madrid` and applying it gives `{{c1::Madrid}}`, then selecting `Spain` gives `{{c2::Spain}}`. Verify that `pnpm --filter web test` passes. Tick #65 AC 3.
-- [ ] 5.7 Build `/cards`:
+- [x] 5.6 Add a Vitest component test for the cloze action: selecting `Madrid` and applying it gives `{{c1::Madrid}}`, then selecting `Spain` gives `{{c2::Spain}}`. Verify that `pnpm --filter web test` passes. Tick #65 AC 3.
+- [x] 5.7 Build `/cards`:
   - search, deck filter and sort controls kept in the URL's search params;
   - a dense table from 768 px and stacked rows below it;
   - "Load more" following `nextCursor`;
   - per-row actions: open in the editor, move to a deck (select dialog), and delete the note behind an alert-dialog that states its card count from `GET /notes/{id}`.
 
   Verify in the built-in browser at both widths and in both themes against the prototype.
-- [ ] 5.8 Set up the signed-in Playwright suite (design.md, decision 14):
-  - `@clerk/testing` (dev), with `clerkSetup()` in a global setup and a `signIn` fixture reading `E2E_CLERK_USER_USERNAME` and `E2E_CLERK_USER_PASSWORD` from `apps/web/.env.test.local` (git-ignored; names documented in `.env.example`);
+- [x] 5.8 Set up the signed-in Playwright suite (design.md, decision 14):
+  - `@clerk/testing` (dev), with `clerkSetup()` in a global setup and a `signIn` helper that signs in by email (`E2E_CLERK_USER_EMAIL` from the git-ignored `apps/web/.env.test.local`, documented in `.env.example`; no password needed);
   - `test.skip` when they're missing;
   - a `webServer` entry for the API;
   - a per-run deck prefix with cleanup in `afterAll`.
 
-  Ask the user to add the test user and keys; never enter them yourself. Verify that without the variables `pnpm --filter web test:e2e` reports the signed-in tests as skipped and passes.
-- [ ] 5.9 Add `e2e/decks-flow.spec.ts` for the full flow in #65 AC 2:
+  Ask the user to create the test user and set the variable; never create accounts or enter credentials yourself. Verify that without the variables `pnpm --filter web test:e2e` reports the signed-in tests as skipped and passes.
+- [x] 5.9 Add `e2e/decks-flow.spec.ts` for the full flow in #65 AC 2:
   1. create a deck and a subdeck;
   2. fill a Basic (and reversed card) note and see 2 preview cards before saving;
   3. add a Cloze note with `c1` and `c2`;
@@ -245,9 +245,9 @@
   8. delete the deck.
 
   It checks the deck list counts after each step. Verify that it passes with the user's test keys set. Tick #65 AC 2.
-- [ ] 5.10 Add `e2e/screens.spec.ts`: for each new route, in both projects and both themes, signed in with seeded content, it checks that there's no horizontal overflow and runs an axe scan with no serious or critical violations. Also add a keyboard-only pass over the deck list and the editor (tab to each action, activate with Enter). Verify that it passes. Tick #65 AC 4.
-- [ ] 5.11 Capture screenshots of the four screens in both projects and both themes into `design/decks-and-cards/screenshots/web-screens/` (16 PNGs) with the on-demand script from 2.12. Verify that `ls design/decks-and-cards/screenshots/web-screens/*.png | wc -l` prints `16`.
-- [ ] 5.12 Verify that `pnpm turbo run lint test build --filter=web` and `pnpm --filter web test:e2e` each exit 0. Tick #65 AC 6.
+- [x] 5.10 Add `e2e/screens.spec.ts`: for each new route, in both projects and both themes, signed in with seeded content, it checks that there's no horizontal overflow and runs an axe scan with no serious or critical violations. Also add a keyboard-only pass over the deck list and the editor (tab to each action, activate with Enter). Verify that it passes. Tick #65 AC 4.
+- [x] 5.11 Capture screenshots of the four screens in both projects and both themes into `design/decks-and-cards/screenshots/web-screens/` (16 PNGs) with the on-demand script from 2.12. Verify that `ls design/decks-and-cards/screenshots/web-screens/*.png | wc -l` prints `16`.
+- [x] 5.12 Verify that `pnpm turbo run lint test build --filter=web` and `pnpm --filter web test:e2e` each exit 0. Tick #65 AC 6.
 - [ ] 5.13 Check for sync duplicates, commit, push `feat/web-decks` and open a PR into `feat/decks-and-cards` titled like #65. The body has `Refs #65`, no `Closes`, the 16 screenshots embedded and the prototype link. Verify with `gh pr view --json baseRefName,body`.
 - [ ] 5.14 Stop and ask the user to review the screenshots against the prototype. Fix what they ask for (re-capturing the screenshots), then post a PR comment quoting their review. Verify that the comment exists. Tick #65 AC 5.
 - [ ] 5.15 Post a progress comment on #65 (criteria verified, tasks completed, the PR link).

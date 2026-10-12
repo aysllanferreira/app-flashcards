@@ -14,6 +14,9 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.9.14",
+    "@tiptap/pm": "^3.31.4",
+    "@tiptap/react": "^3.31.4",
+    "@tiptap/starter-kit": "^3.31.4",
     "card-templates": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
@@ -30,6 +33,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
+    "@clerk/testing": "^2.2.45",
     "@playwright/test": "^1.64.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/dom": "^10.4.2",
