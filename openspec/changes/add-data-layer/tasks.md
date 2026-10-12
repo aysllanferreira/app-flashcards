@@ -67,39 +67,39 @@
   Verify that `pnpm --filter api test` runs three suites and passes, and that with `docker compose stop db` it exits non-zero with the `docker compose up -d --wait db` message (then `docker compose start db`). Tick #38 AC 5.
 - [x] 2.10 Extend `test/architecture.spec.ts` with the table-location rule (design.md, decision 4). Verify that it passes as is, fails naming the file after adding `apps/api/src/stray-table.ts` containing a `pgTable(` call, and passes again once the file is removed. Tick #38 AC 6.
 - [x] 2.11 Verify that `pnpm turbo run lint test build --filter=api` exits 0 with the `db` container healthy. Tick #38 AC 7.
-- [ ] 2.12 Check for sync duplicates, commit and push `feat/db-foundation`. Open a PR into `feat/data-layer` titled like #38, with `Refs #38` and no `Closes` line. Verify the base and body with `gh pr view --json baseRefName,body`.
-- [ ] 2.13 Post a progress comment on #38.
-- [ ] 2.14 Stop until the user confirms the #38 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
+- [x] 2.12 Check for sync duplicates, commit and push `feat/db-foundation`. Open a PR into `feat/data-layer` titled like #38, with `Refs #38` and no `Closes` line. Verify the base and body with `gh pr view --json baseRefName,body`.
+- [x] 2.13 Post a progress comment on #38.
+- [x] 2.14 Stop until the user confirms the #38 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
 
 ## 3. Deck, note type, note and card tables (issue #39, AC 1 to 6)
 
-- [ ] 3.1 Read #36 and #39, report any conflict, then cut `feat/db-content-tables` from the updated `feat/data-layer`. Verify the merge base as in 2.1.
-- [ ] 3.2 Create the `decks` module with `schema/deck-presets.ts` and `schema/decks.ts`: composite `UNIQUE (id, user_id)`, the parent and preset composite foreign keys (CASCADE and NO ACTION), `UNIQUE NULLS NOT DISTINCT (user_id, parent_id, name)` and the preset checks (design.md, decisions 6 and 7). Verify that the API compiles with `pnpm --filter api build`.
-- [ ] 3.3 Create the `note-types` module with `schema/note-types.ts`, `schema/note-type-fields.ts` and `schema/card-templates.ts`, including `user_id` on the child tables, unique `(note_type_id, key)` and `(note_type_id, name)`, and the `kind` check (design.md, decisions 6 and 7). Verify that `pnpm --filter api build` exits 0.
-- [ ] 3.4 Create the `notes` module with `schema/notes.ts`: the NO ACTION note type foreign key, the `fields` object check, the `tags` GIN index and unique `(user_id, guid)`. Verify that `pnpm --filter api build` exits 0.
-- [ ] 3.5 Create the `cards` module with `schema/cards.ts`: the note, template and deck composite foreign keys (CASCADE), unique `(note_id, template_id, cloze_index)`, the `state` and `flag` checks, the three partial queue indexes and the `template_id` and `deck_id` indexes (design.md, decisions 6 to 8). Verify that `pnpm --filter api build` exits 0.
-- [ ] 3.6 Import the four new modules in `AppModule` and run `pnpm --filter api db:generate`. Verify that:
+- [x] 3.1 Read #36 and #39, report any conflict, then cut `feat/db-content-tables` from the updated `feat/data-layer`. Verify the merge base as in 2.1.
+- [x] 3.2 Create the `decks` module with `schema/deck-presets.ts` and `schema/decks.ts`: composite `UNIQUE (id, user_id)`, the parent and preset composite foreign keys (CASCADE and NO ACTION), `UNIQUE NULLS NOT DISTINCT (user_id, parent_id, name)` and the preset checks (design.md, decisions 6 and 7). Verify that the API compiles with `pnpm --filter api build`.
+- [x] 3.3 Create the `note-types` module with `schema/note-types.ts`, `schema/note-type-fields.ts` and `schema/card-templates.ts`, including `user_id` on the child tables, unique `(note_type_id, key)` and `(note_type_id, name)`, and the `kind` check (design.md, decisions 6 and 7). Verify that `pnpm --filter api build` exits 0.
+- [x] 3.4 Create the `notes` module with `schema/notes.ts`: the NO ACTION note type foreign key, the `fields` object check, the `tags` GIN index and unique `(user_id, guid)`. Verify that `pnpm --filter api build` exits 0.
+- [x] 3.5 Create the `cards` module with `schema/cards.ts`: the note, template and deck composite foreign keys (CASCADE), unique `(note_id, template_id, cloze_index)`, the `state` and `flag` checks, the three partial queue indexes and the `template_id` and `deck_id` indexes (design.md, decisions 6 to 8). Verify that `pnpm --filter api build` exits 0.
+- [x] 3.6 Import the four new modules in `AppModule` and run `pnpm --filter api db:generate`. Verify that:
   - exactly one new migration appears;
   - its SQL has the composite `FOREIGN KEY ... REFERENCES ... (id, user_id)` clauses, `NULLS NOT DISTINCT` and the three `WHERE` partial indexes;
   - after `docker compose down -v && docker compose up -d --wait db && pnpm --filter api db:migrate`, `\dt` lists `users`, `deck_presets`, `decks`, `note_types`, `note_type_fields`, `card_templates`, `notes` and `cards`;
   - `db:generate` then reports no schema changes.
 
   If `drizzle-kit` can't resolve the cross-module `.js` imports, apply the fallback in design.md (Risks) and record it there before continuing. Tick #39 AC 1.
-- [ ] 3.7 Add `src/modules/note-types/stock-note-types.ts` with the three built-in note types and `copyStockNoteTypes(db, userId)` (design.md, decision 12), and `test/db/stock-note-types.db-spec.ts`. Verify that the test passes: after copying, the user owns Basic with 1 template, Basic (and reversed) with 2 and Cloze with kind `cloze`. Tick #39 AC 5.
-- [ ] 3.8 Add `test/db/ownership.db-spec.ts`. Verify that each of these cross-user inserts fails with `23503`:
+- [x] 3.7 Add `src/modules/note-types/stock-note-types.ts` with the three built-in note types and `copyStockNoteTypes(db, userId)` (design.md, decision 12), and `test/db/stock-note-types.db-spec.ts`. Verify that the test passes: after copying, the user owns Basic with 1 template, Basic (and reversed) with 2 and Cloze with kind `cloze`. Tick #39 AC 5.
+- [x] 3.8 Add `test/db/ownership.db-spec.ts`. Verify that each of these cross-user inserts fails with `23503`:
   - a deck with another user's preset or parent deck;
   - a note with another user's note type;
   - a card with another user's note, deck or template.
 
   Tick #39 AC 2.
-- [ ] 3.9 Add `test/db/content-constraints.db-spec.ts`. Verify that the database rejects:
+- [x] 3.9 Add `test/db/content-constraints.db-spec.ts`. Verify that the database rejects:
   - a duplicate `(note_id, template_id, cloze_index)` and a duplicate field `key` in one note type (`23505`);
   - two top-level decks, and two sibling decks, with the same name (`23505`), while the same name under different parents is accepted;
   - `state = 'graduated'` and `flag = 8` (`23514`);
   - deleting a note type that has notes (`23503`).
 
   Tick #39 AC 3.
-- [ ] 3.10 Add `test/db/content-deletes.db-spec.ts`. Verify that:
+- [x] 3.10 Add `test/db/content-deletes.db-spec.ts`. Verify that:
   - deleting the second template of a Basic (and reversed) note type deletes only its cards;
   - deleting a note deletes its cards;
   - deleting a deck deletes its subdecks and their cards;
@@ -107,7 +107,7 @@
   - deleting a user leaves no row with that `user_id` in any of these tables.
 
   Tick #39 AC 4.
-- [ ] 3.11 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #39 AC 6.
+- [x] 3.11 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #39 AC 6.
 - [ ] 3.12 Check for sync duplicates, commit and push `feat/db-content-tables`. Open a PR into `feat/data-layer` titled like #39, with `Refs #39` and no `Closes` line. Verify the base and body.
 - [ ] 3.13 Post a progress comment on #39.
 - [ ] 3.14 Stop until the user confirms the #39 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
