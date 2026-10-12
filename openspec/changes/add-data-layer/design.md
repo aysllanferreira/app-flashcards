@@ -181,10 +181,9 @@ Enumerations are `text` with a TypeScript union (`text({ enum: [...] })`) and a 
   - `card_id uuid` null, `deck_id uuid` null;
   - `rating smallint`, check 1–4;
   - `kind text`, `learn|review|relearn|manual`;
-  - `state_before text`, `state_after text`;
+  - `state_before text`, `state_after text`, both checked against the card states;
   - `due_before timestamptz` null, `due_after timestamptz`;
-  - `stability_before real` null, `stability_after real`;
-  - `difficulty_before real` null, `difficulty_after real`;
+  - `stability_before`, `stability_after`, `difficulty_before` and `difficulty_after`, all `real` and nullable. The `*_before` values are null on a card's first review, and the `*_after` values are null after a manual reset, which returns a card to `new`;
   - `elapsed_days real`;
   - `scheduled_days integer`;
   - `duration_ms integer`, ≥ 0;
@@ -210,7 +209,8 @@ Enumerations are `text` with a TypeScript union (`text({ enum: [...] })`) and a 
   - `status text`, `pending|running|done|failed`, default `pending`;
   - `notes_total integer` null, `notes_done integer` default 0;
   - `error text` null;
-  - `finished_at timestamptz` null.
+  - `finished_at timestamptz` null;
+  - an index on `deck_id`, so a deck delete doesn't scan every job.
 
 ### 8. Indexes
 
@@ -256,7 +256,7 @@ The local URLs are `postgres://flashcards:flashcards@localhost:5432/flashcards` 
 **`src/database/`:**
 - `database.module.ts`: a `@Global()` module exporting a `DB` injection token (the Drizzle instance, typed `Database`).
 - `database.providers.ts`: builds the `Pool` from `ConfigService` and the Drizzle client with `casing: 'snake_case'`, and closes the pool in `onApplicationShutdown`.
-- It imports nothing from `src/modules`, and no file is named `*.service.ts`, so the existing layout rule holds. `AppModule` imports `DatabaseModule`.
+- The module and its providers import nothing from `src/modules`, and no file is named `*.service.ts`, so the existing layout rule holds. `AppModule` imports `DatabaseModule`. The seed script (decision 14) is the one file here that imports module tables, because it fills them.
 
 **`.env` handling:**
 - `apps/api/.env.example` documents `DATABASE_URL`.
@@ -312,7 +312,7 @@ This change adds no DTOs. Later features keep hand-writing Zod schemas in `dto/`
 
 `src/database/seed.ts`:
 - **Refuses to run** when `NODE_ENV=production`, and also when the URL's host isn't `localhost` or `127.0.0.1`, so a mistyped URL can't reach Neon.
-- **Clears everything** with `TRUNCATE users, tts_clips CASCADE`, then creates, with a fixed-seed random generator so runs are reproducible:
+- **Clears everything** by truncating every table in the `public` schema, then creates, with a fixed-seed random generator so runs are reproducible:
   - user `seed_demo_user` and a "Default" preset;
   - decks `Spanish`, `Spanish::Verbs`, `Spanish::Nouns` and `French` (nested through `parent_id`);
   - the built-in note types;

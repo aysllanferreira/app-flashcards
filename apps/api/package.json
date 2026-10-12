@@ -24,6 +24,7 @@
     "openapi": "nest build && node dist/openapi/generate.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:seed": "nest build && node dist/database/seed.js",
     "test:db": "vitest run --config ./vitest.config.db.ts"
   },
   "dependencies": {
