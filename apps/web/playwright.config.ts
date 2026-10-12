@@ -40,9 +40,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    // The real build, not the dev server. Port 3000 is the origin the API and
-    // Clerk expect (WEB_ORIGIN), so stop `pnpm dev` before running these.
-    command: `pnpm build && pnpm start --port ${PORT}`,
+    // The real build, not the dev server; turbo builds the workspace packages
+    // the app imports first. Port 3000 is the origin the API and Clerk expect
+    // (WEB_ORIGIN), so stop `pnpm dev` before running these.
+    command: `pnpm exec turbo run build --filter=web && pnpm start --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false,
     timeout: 180_000,

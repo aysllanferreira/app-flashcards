@@ -26,7 +26,7 @@ import type { Deck, DeckCounts, DeckDetail } from './dto/deck.dto.js';
 import { deckPresets } from './schema/deck-presets.js';
 import { decks } from './schema/decks.js';
 
-type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];
+export type Tx = Parameters<Parameters<Database['transaction']>[0]>[0];
 
 const SIBLING_NAME_UNIQUE = 'decks_user_id_parent_id_name_unique';
 
@@ -170,7 +170,8 @@ export class DecksService {
     }
   }
 
-  private async requireDeck(tx: Tx, userId: string, id: string) {
+  /** Throws 404 unless `id` is one of the user's decks. */
+  async requireDeck(tx: Tx | Database, userId: string, id: string) {
     const [deck] = await tx
       .select({ id: decks.id })
       .from(decks)
@@ -199,8 +200,15 @@ export class DecksService {
     return rows[0].found;
   }
 
+  /** The deck and all its subdecks; 404 unless the deck is the user's. */
+  async subtree(userId: string, rootId: string): Promise<string[]> {
+    const ids = await this.subtreeIdsInDb(this.db, userId, rootId);
+    if (ids.length === 0) throw deckNotFound();
+    return ids;
+  }
+
   private async subtreeIdsInDb(
-    tx: Tx,
+    tx: Tx | Database,
     userId: string,
     rootId: string,
   ): Promise<string[]> {
