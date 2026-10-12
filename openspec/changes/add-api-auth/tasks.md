@@ -1,17 +1,17 @@
 ## 1. System design: the user sync flow and the API auth guard (issue #49, AC 1 to 3)
 
-- [ ] 1.1 Cut `feat/api-auth` from `dev`, commit this change's artifacts as `chore(openspec): propose add-api-auth` and push the branch, so the integration branch exists before the first sub-PR. Before committing, run `find . -name "* [0-9].*" -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*"` and remove any sync duplicates. Verify that `git ls-remote --heads origin feat/api-auth` prints the same SHA as `git rev-parse feat/api-auth`.
-- [ ] 1.2 Read #48 and #49 with `gh issue view`, report any conflict with these artifacts, then cut `docs/auth-system-design` from `feat/api-auth`. Verify that `git merge-base --is-ancestor origin/feat/api-auth HEAD` exits 0.
-- [ ] 1.3 Read the Excalidraw+ diagram format guide (`read_diagram_format`), list the scenes of the `app-flashcards` collection with `list_collection_scenes`, and read `03-flow-study-session` with `get_scene_content` to reuse its sequence-diagram layout, colours and fonts. Verify that the listing shows `03-flow-study-session` and `08-api-structure` and no `09-*` scene.
-- [ ] 1.4 Create the scene `09-flow-user-sync` in the `app-flashcards` collection and draw it with `edit_scene_content` in the style of 03 (design.md, decisions 3 to 5):
+- [x] 1.1 Cut `feat/api-auth` from `dev`, commit this change's artifacts as `chore(openspec): propose add-api-auth` and push the branch, so the integration branch exists before the first sub-PR. Before committing, run `find . -name "* [0-9].*" -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*"` and remove any sync duplicates. Verify that `git ls-remote --heads origin feat/api-auth` prints the same SHA as `git rev-parse feat/api-auth`.
+- [x] 1.2 Read #48 and #49 with `gh issue view`, report any conflict with these artifacts, then cut `docs/auth-system-design` from `feat/api-auth`. Verify that `git merge-base --is-ancestor origin/feat/api-auth HEAD` exits 0.
+- [x] 1.3 Read the Excalidraw+ diagram format guide (`read_diagram_format`), list the scenes of the `app-flashcards` collection with `list_collection_scenes`, and read `03-flow-study-session` with `get_scene_content` to reuse its sequence-diagram layout, colours and fonts. Verify that the listing shows `03-flow-study-session` and `08-api-structure` and no `09-*` scene.
+- [x] 1.4 Create the scene `09-flow-user-sync` in the `app-flashcards` collection and draw it with `edit_scene_content` in the style of 03 (design.md, decisions 3 to 5):
   - lifelines: learner browser, Next.js on Amplify, Clerk, NGINX -> NestJS api, Postgres;
   - part (a): sign-up with Clerk, then `GET /me` with a Bearer JWT, the guard verifying the JWT (`azp` in `WEB_ORIGIN`), `ensureUser` running `INSERT users ... ON CONFLICT DO NOTHING` and, for a new user, the "Default" preset and stock note types in one transaction, then 200 `MeResponse`;
   - part (b): Clerk posting `user.created`, `user.updated` and `user.deleted` to `POST /webhooks/clerk`, the Svix signature check (400 on failure), `ensureUser` plus the email update, the cascading `DELETE FROM users`, and the 200 acknowledgement, with a note that Svix retries non-2xx;
   - a note that local delivery needs a tunnel and production waits for `api.*`.
 
   Check it with `take_screenshot` and fix overlaps with `edit_scene_content`. Verify that the screenshot shows both parts and all three event names.
-- [ ] 1.5 Export the pair through the shell, never hand-editing or rendering locally: `system-design/09-flow-user-sync.excalidraw` from `get_scene_content` and `system-design/09-flow-user-sync.png` from `take_screenshot`. Verify that `jq empty` passes on the `.excalidraw`, `file` reports the `.png` as PNG image data, and `grep -c "ensureUser\|user.created\|user.deleted" system-design/09-flow-user-sync.excalidraw` prints a number greater than 0. Tick #49 AC 1.
-- [ ] 1.6 With `edit_scene_content`, change:
+- [x] 1.5 Export the pair through the shell, never hand-editing or rendering locally: `system-design/09-flow-user-sync.excalidraw` from `get_scene_content` and `system-design/09-flow-user-sync.png` from `take_screenshot`. Verify that `jq empty` passes on the `.excalidraw`, `file` reports the `.png` as PNG image data, and `grep -c "ensureUser\|user.created\|user.deleted" system-design/09-flow-user-sync.excalidraw` prints a number greater than 0. Tick #49 AC 1.
+- [x] 1.6 With `edit_scene_content`, change:
   - in `08-api-structure`:
     - add a global auth guard (`APP_GUARD`, Clerk JWT -> `users` row) between `main.ts` and the validation pipe;
     - add a red "401 ErrorResponse" box fed by the guard, like the 400 one;
@@ -21,8 +21,8 @@
   - in `03-flow-study-session`: the `ClerkAuthGuard` note to "verify JWT with cached JWKS, map sub -> users.id (create + provision on first request)".
 
   Check each with `take_screenshot`. Verify that the 08 screenshot shows `401` and `@Public` and the 03 screenshot shows "first request".
-- [ ] 1.7 Export the `08` and `03` pairs from their scenes as in 1.5. Verify that `grep -c 401 system-design/08-api-structure.excalidraw`, `grep -c @Public system-design/08-api-structure.excalidraw` and `grep -c "first request" system-design/03-flow-study-session.excalidraw` each print a number above 0, and `git diff --stat origin/feat/api-auth -- 'system-design/0[124567]-*'` prints nothing. Tick #49 AC 2.
-- [ ] 1.8 Update `system-design/README.md`:
+- [x] 1.7 Export the `08` and `03` pairs from their scenes as in 1.5. Verify that `grep -c 401 system-design/08-api-structure.excalidraw`, `grep -c @Public system-design/08-api-structure.excalidraw` and `grep -c "first request" system-design/03-flow-study-session.excalidraw` each print a number above 0, and `git diff --stat origin/feat/api-auth -- 'system-design/0[124567]-*'` prints nothing. Tick #49 AC 2.
+- [x] 1.8 Update `system-design/README.md`:
   - a "09. Flow: user sync" section that describes and embeds `09-flow-user-sync.png`;
   - the 08 description mentions the auth guard and the 401 path;
   - the Auth decision row adds first-request provisioning through one shared `ensureUser` and that updates and deletes come only from webhooks;
