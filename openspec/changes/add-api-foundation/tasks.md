@@ -1,27 +1,27 @@
 ## 1. Feature modules, `/health` and validated config (issue #24, AC 1 to 5)
 
-- [ ] 1.1 Commit this change's artifacts on `feat/nestjs-setup` as `chore(openspec): propose add-api-foundation` and push the branch to origin, so the integration branch exists before the first sub-PR. Verify that `git ls-remote --heads origin feat/nestjs-setup` prints the same SHA as `git rev-parse feat/nestjs-setup`.
-- [ ] 1.2 Read #23 and #24 with `gh issue view`, report any conflict with these artifacts, then cut `feat/api-modules-health` from `feat/nestjs-setup`. Verify that `git merge-base --is-ancestor origin/feat/nestjs-setup HEAD` exits 0.
-- [ ] 1.3 In `apps/api`, run `pnpm add zod @nestjs/config`. Verify that both appear under `dependencies` in `apps/api/package.json` and `pnpm install --frozen-lockfile` at the root exits 0.
-- [ ] 1.4 Add `src/config/env.ts` (`EnvSchema` with `NODE_ENV` and `PORT`, plus `type Env`; design.md, decision 2). Register `ConfigModule.forRoot({ isGlobal: true, validate })` in `AppModule`, and make `main.ts` read the port through `ConfigService`. Verify that after `pnpm --filter api build`, `PORT=abc node apps/api/dist/main.js` exits non-zero and its output contains `PORT`. Tick #24 AC 4.
-- [ ] 1.5 Create `src/modules/health/` with:
+- [x] 1.1 Commit this change's artifacts on `feat/nestjs-setup` as `chore(openspec): propose add-api-foundation` and push the branch to origin, so the integration branch exists before the first sub-PR. Verify that `git ls-remote --heads origin feat/nestjs-setup` prints the same SHA as `git rev-parse feat/nestjs-setup`.
+- [x] 1.2 Read #23 and #24 with `gh issue view`, report any conflict with these artifacts, then cut `feat/api-modules-health` from `feat/nestjs-setup`. Verify that `git merge-base --is-ancestor origin/feat/nestjs-setup HEAD` exits 0.
+- [x] 1.3 In `apps/api`, run `pnpm add zod @nestjs/config`. Verify that both appear under `dependencies` in `apps/api/package.json` and `pnpm install --frozen-lockfile` at the root exits 0.
+- [x] 1.4 Add `src/config/env.ts` (`EnvSchema` with `NODE_ENV` and `PORT`, plus `type Env`; design.md, decision 2). Register `ConfigModule.forRoot({ isGlobal: true, validate })` in `AppModule`, and make `main.ts` read the port through `ConfigService`. Verify that after `pnpm --filter api build`, `PORT=abc node apps/api/dist/main.js` exits non-zero and its output contains `PORT`. Tick #24 AC 4.
+- [x] 1.5 Create `src/modules/health/` with:
   - `health.module.ts`;
   - `health.controller.ts` (`@Controller('health')`, `@Get()`);
   - `health.service.ts` (returns `{ status: 'ok' }`);
   - `dto/health-response.dto.ts` (`HealthResponseSchema = z.object({ status: z.literal('ok') }).meta({ id: 'HealthResponse' })` and `type HealthResponse`).
 
   Import `HealthModule` in `AppModule`, and delete `src/app.controller.ts`, `src/app.service.ts` and `src/app.controller.spec.ts`. Verify that those three files are gone, the four health files exist, and `find apps/api/src \( -name '*.controller.ts' -o -name '*.service.ts' \) -not -path 'apps/api/src/modules/*'` prints nothing. Tick #24 AC 1.
-- [ ] 1.6 Replace `test/app.e2e-spec.ts` with `test/health.e2e-spec.ts` (`GET /health` → 200 and `{ status: 'ok' }`), and add `src/modules/health/health.service.spec.ts`. Change the `test` script to `vitest run && vitest run --config ./vitest.config.e2e.ts` (design.md, decision 6). Verify that `pnpm --filter api test` output shows both runs passing, including the health e2e test.
-- [ ] 1.7 Add `test/architecture.spec.ts` (design.md, decision 1). Verify it:
+- [x] 1.6 Replace `test/app.e2e-spec.ts` with `test/health.e2e-spec.ts` (`GET /health` → 200 and `{ status: 'ok' }`), and add `src/modules/health/health.service.spec.ts`. Change the `test` script to `vitest run && vitest run --config ./vitest.config.e2e.ts` (design.md, decision 6). Verify that `pnpm --filter api test` output shows both runs passing, including the health e2e test.
+- [x] 1.7 Add `test/architecture.spec.ts` (design.md, decision 1). Verify it:
   - passes as is;
   - fails with the file name after `touch apps/api/src/stray.controller.ts`;
   - fails with the folder name after `mkdir apps/api/src/modules/empty`;
   - passes again once both are removed.
 
   Tick #24 AC 2.
-- [ ] 1.8 Start `pnpm --filter api dev`. Verify that `curl -s -w ' %{http_code}' http://localhost:3001/health` prints `{"status":"ok"} 200`, then stop the server. Tick #24 AC 3.
-- [ ] 1.9 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #24 AC 5.
-- [ ] 1.10 Commit with a Conventional Commit message (no Claude attribution) and push `feat/api-modules-health`. Open a PR into `feat/nestjs-setup` titled like #24, with `Refs #24` and no `Closes` line in the body. Verify that `gh pr view --json baseRefName,body` shows `feat/nestjs-setup` and `Refs #24`.
+- [x] 1.8 Start `pnpm --filter api dev`. Verify that `curl -s -w ' %{http_code}' http://localhost:3001/health` prints `{"status":"ok"} 200`, then stop the server. Tick #24 AC 3.
+- [x] 1.9 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #24 AC 5.
+- [x] 1.10 Commit with a Conventional Commit message (no Claude attribution) and push `feat/api-modules-health`. Open a PR into `feat/nestjs-setup` titled like #24, with `Refs #24` and no `Closes` line in the body. Verify that `gh pr view --json baseRefName,body` shows `feat/nestjs-setup` and `Refs #24`.
 - [ ] 1.11 Post a progress comment on #24 (criteria verified, tasks completed, the PR link).
 - [ ] 1.12 Stop until the user confirms the #24 PR is merged. Verify that `gh pr view <n> --json state` shows `MERGED`, then `git switch feat/nestjs-setup && git pull --ff-only`.
 
