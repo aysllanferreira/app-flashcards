@@ -105,10 +105,11 @@ See proposal.md, Why. The current API and tooling, as observed:
       - a configurable rule that every 2xx response's media type has a `schema`;
       - a configurable rule that every operation has a 4xx or 5xx response whose schema `$ref` ends with `/ErrorResponse`;
       - `no-unused-components` (a `warn` in `recommended`), so a named query or path-parameter schema, which ends up as an unused component (decision 4), fails the lint.
-    - It also turns off three rules:
+    - It also turns off four rules:
       - `operation-4xx-response`, because `/health` has no 4xx and the `ErrorResponse` rule replaces it;
       - `security-defined`, because no security scheme exists until API auth lands;
-      - `info-license`.
+      - `info-license`;
+      - `no-empty-servers`, because there is no fixed server URL until the domain is decided (an open question in `system-design/README.md`), and Swagger UI uses the origin it is served from. This one was found when the lint was first run in #27.
     - The `lint` script becomes `oxlint --type-aware src/ test/ && redocly lint openapi.json`, with `REDOCLY_TELEMETRY=off` set in the script.
     - If a configurable rule can't express a check, a local Redocly plugin (`apps/api/redocly/plugin.js`) implements it instead. The AC is checked against lint outcomes, not the rule mechanism.
 12. **Hand-edit guard (#27).**
