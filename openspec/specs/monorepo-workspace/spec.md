@@ -19,12 +19,12 @@ Running `pnpm install` at the repository root SHALL install the dependencies of 
 - **THEN** `pnpm-lock.yaml` exists at the root and no lockfile exists under `apps/web` or `apps/api`
 
 ### Requirement: One command runs both apps for development
-Running `pnpm dev` at the root SHALL start the web app on `http://localhost:3000` and the API on `http://localhost:3001` at the same time, from a single process the developer can stop with one interrupt.
+Running `pnpm dev` at the root SHALL start the web app on `http://localhost:3000` and the API on `http://localhost:3001` at the same time, from a single process the developer can stop with one interrupt. The API's liveness check SHALL be `GET /health`.
 
 #### Scenario: Both apps respond
 - **WHEN** a developer runs `pnpm dev` at the root and waits for both apps to start
 - **THEN** an HTTP GET to `http://localhost:3000` returns status 200 with the web home page
-- **AND** an HTTP GET to `http://localhost:3001` returns status 200 from the API
+- **AND** an HTTP GET to `http://localhost:3001/health` returns status 200 with the body `{"status":"ok"}`
 
 ### Requirement: One command builds both apps
 Running `pnpm build` at the root SHALL produce a production build of the web app and of the API and exit with code 0.
