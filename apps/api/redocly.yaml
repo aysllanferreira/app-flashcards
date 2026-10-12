@@ -1,0 +1,67 @@
+# Lint rules for the committed contract, apps/api/openapi.json.
+# `pnpm --filter api lint` runs these. See design decision 11 of the
+# add-api-foundation change and the "API (apps/api)" section of CLAUDE.md.
+extends:
+  - recommended
+
+rules:
+  # Every operation is fully documented.
+  operation-summary: error
+  operation-operationId: error
+  operation-2xx-response: error
+  rule/success-response-has-schema:
+    subject:
+      type: Response
+      property: content
+      filterInParentKeys: ['200', '201', '202']
+    assertions:
+      defined: true
+    message: 2xx responses must declare a response schema (use @ApiResponseSchema).
+  rule/success-media-type-has-schema:
+    subject:
+      type: MediaType
+      property: schema
+    where:
+      - subject:
+          type: Response
+          filterInParentKeys: ['200', '201', '202']
+        assertions:
+          defined: true
+    assertions:
+      defined: true
+    message: 2xx responses must declare a response schema (use @ApiResponseSchema).
+  rule/operation-has-error-response:
+    subject:
+      type: Responses
+    assertions:
+      requireAny: ['400', '401', '403', '404', '409', '422', '500']
+    message: Every operation documents an error response (use @ApiErrorResponses).
+  rule/error-response-uses-error-schema:
+    subject:
+      type: MediaType
+      property: schema
+    where:
+      - subject:
+          type: Response
+          filterInParentKeys:
+            ['400', '401', '403', '404', '409', '422', '500']
+        assertions:
+          defined: true
+    assertions:
+      ref: /\/ErrorResponse$/
+    message: Error responses use the shared ErrorResponse schema (use @ApiErrorResponses).
+
+  # A named (.meta({ id })) query or path-parameter schema ends up as an
+  # unused component instead of parameters; fail on it (design decision 4).
+  no-unused-components: error
+
+  # Turned off on purpose:
+  # - /health can't return a 4xx; rule/operation-has-error-response replaces it.
+  operation-4xx-response: off
+  # - No security scheme exists until API auth (Clerk JWT) lands.
+  security-defined: off
+  # - The API is private to this project; no license to declare.
+  info-license: off
+  # - No fixed server URL yet (the domain is an open question in
+  #   system-design/README.md); Swagger UI uses the origin it is served from.
+  no-empty-servers: off

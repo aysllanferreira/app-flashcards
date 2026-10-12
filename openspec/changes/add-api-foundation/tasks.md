@@ -85,35 +85,35 @@
   Stop all servers. Tick #26 AC 5.
 - [x] 3.10 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #26 AC 6.
 - [x] 3.11 Commit and push `feat/api-swagger-docs`. Open a PR into `feat/nestjs-setup` titled like #26, with `Refs #26` and no `Closes` line. Verify the base and body.
-- [ ] 3.12 Post a progress comment on #26.
-- [ ] 3.13 Stop until the user confirms the #26 PR is merged. Verify `MERGED`, then fast-forward the local `feat/nestjs-setup`.
+- [x] 3.12 Post a progress comment on #26.
+- [x] 3.13 Stop until the user confirms the #26 PR is merged. Verify `MERGED`, then fast-forward the local `feat/nestjs-setup`.
 
 ## 4. Committed OpenAPI contract and its checks (issue #27, AC 1 to 5)
 
-- [ ] 4.1 Read #23 and #27, report any conflict, then cut `feat/api-openapi-contract` from the updated `feat/nestjs-setup`.
-- [ ] 4.2 Add `src/openapi/generate.ts` and the `openapi` script `nest build && node dist/openapi/generate.js` (design.md, decision 10). Run it and commit `apps/api/openapi.json`. Verify that `git ls-files apps/api/openapi.json` prints the file, and that running `pnpm --filter api openapi` again leaves `git diff --exit-code apps/api/openapi.json` at exit 0. Tick #27 AC 1.
-- [ ] 4.3 Add `test/openapi.spec.ts` (the drift test). Verify that:
+- [x] 4.1 Read #23 and #27, report any conflict, then cut `feat/api-openapi-contract` from the updated `feat/nestjs-setup`.
+- [x] 4.2 Add `src/openapi/generate.ts` and the `openapi` script `nest build && node dist/openapi/generate.js` (design.md, decision 10). Run it and commit `apps/api/openapi.json`. Verify that `git ls-files apps/api/openapi.json` prints the file, and that running `pnpm --filter api openapi` again leaves `git diff --exit-code apps/api/openapi.json` at exit 0. Tick #27 AC 1.
+- [x] 4.3 Add `test/openapi.spec.ts` (the drift test). Verify that:
   - it passes;
   - after changing the health route's summary without regenerating, `pnpm --filter api test` fails with a message that mentions `pnpm --filter api openapi`;
   - after `pnpm --filter api openapi`, it passes;
   - after reverting the summary and regenerating, `git diff apps/api/openapi.json` is empty.
 
   Tick #27 AC 2.
-- [ ] 4.4 Add `@redocly/cli` as a dev dependency and `apps/api/redocly.yaml` (design.md, decision 11), then extend `lint` to run Redocly on `openapi.json`. Verify that `pnpm --filter api lint` exits 0. Then, for four scratch copies of `openapi.json` (made with `jq`), each removing one item from `GET /health`, verify that `redocly lint --config apps/api/redocly.yaml <copy>` exits non-zero. The four removals are:
+- [x] 4.4 Add `@redocly/cli` as a dev dependency and `apps/api/redocly.yaml` (design.md, decision 11), then extend `lint` to run Redocly on `openapi.json`. Verify that `pnpm --filter api lint` exits 0. Then, for four scratch copies of `openapi.json` (made with `jq`), each removing one item from `GET /health`, verify that `redocly lint --config apps/api/redocly.yaml <copy>` exits non-zero. The four removals are:
   - its `summary`;
   - its `operationId`;
   - the 200 response's `content` schema;
   - the 500 response.
 
   Also verify that a fifth copy, with an extra unused schema added under `components.schemas` (what a named query schema produces), exits non-zero because of `no-unused-components`. Tick #27 AC 3.
-- [ ] 4.5 Add `.claude/hooks/guard-openapi-file.mjs` and register it under the existing `Edit|Write` `PreToolUse` matcher in `.claude/settings.json` (design.md, decision 12). Verify:
+- [x] 4.5 Add `.claude/hooks/guard-openapi-file.mjs` and register it under the existing `Edit|Write` `PreToolUse` matcher in `.claude/settings.json` (design.md, decision 12). Verify:
   - piping `{"tool_name":"Edit","cwd":"<repo>","tool_input":{"file_path":"<repo>/apps/api/openapi.json"}}` into the script exits 2, with stderr mentioning `pnpm --filter api openapi`;
   - the same payload for `<repo>/apps/api/src/main.ts` exits 0;
   - `jq empty .claude/settings.json` exits 0.
 
   Tick #27 AC 4.
-- [ ] 4.6 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #27 AC 5.
-- [ ] 4.7 Commit and push `feat/api-openapi-contract`. Open a PR into `feat/nestjs-setup` titled like #27, with `Refs #27` and no `Closes` line. Verify the base and body.
+- [x] 4.6 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #27 AC 5.
+- [x] 4.7 Commit and push `feat/api-openapi-contract`. Open a PR into `feat/nestjs-setup` titled like #27, with `Refs #27` and no `Closes` line. Verify the base and body.
 - [ ] 4.8 Post a progress comment on #27.
 - [ ] 4.9 Stop until the user confirms the #27 PR is merged. Verify `MERGED`, then fast-forward the local `feat/nestjs-setup`.
 
