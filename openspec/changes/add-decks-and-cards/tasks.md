@@ -86,22 +86,22 @@
 - [x] 2.11 Add `e2e/layout.spec.ts`. For `/`, `/sign-in` and `/sign-up`, in both projects and both themes, it asserts that `document.documentElement.scrollWidth <= document.documentElement.clientWidth`, that the navigation is behind the menu button in `phone`, and that it's visible in `desktop`. Verify that it passes. Tick #62 AC 3.
 - [x] 2.12 Capture screenshots of `/` and `/sign-in` in both projects and both themes into `design/decks-and-cards/screenshots/web-foundation/` (eight PNGs) with a Playwright script that runs on demand and isn't part of `test:e2e`. Commit them so the PR body can embed them. Verify that `ls design/decks-and-cards/screenshots/web-foundation/*.png | wc -l` prints `8`.
 - [x] 2.13 Verify that `pnpm turbo run lint test build --filter=web` and `pnpm --filter web test:e2e` each exit 0. Tick #62 AC 6.
-- [ ] 2.14 Check for sync duplicates as in 1.1, commit and push `feat/web-foundation`, and open a PR into `feat/decks-and-cards` titled like #62. The body has `Refs #62`, no `Closes` line, and the eight screenshots embedded from the pushed branch. Verify that `gh pr view --json baseRefName,body` shows `feat/decks-and-cards`, `Refs #62` and eight image links, and that the images load on the PR page. Tick #62 AC 4.
-- [ ] 2.15 Post a progress comment on #62 (criteria verified, tasks completed, the PR link).
-- [ ] 2.16 Stop until the user confirms the #62 PR is merged. Verify `MERGED` as in 1.11, then update `feat/decks-and-cards`.
+- [x] 2.14 Check for sync duplicates as in 1.1, commit and push `feat/web-foundation`, and open a PR into `feat/decks-and-cards` titled like #62. The body has `Refs #62`, no `Closes` line, and the eight screenshots embedded from the pushed branch. Verify that `gh pr view --json baseRefName,body` shows `feat/decks-and-cards`, `Refs #62` and eight image links, and that the images load on the PR page. Tick #62 AC 4.
+- [x] 2.15 Post a progress comment on #62 (criteria verified, tasks completed, the PR link).
+- [x] 2.16 Stop until the user confirms the #62 PR is merged. Verify `MERGED` as in 1.11, then update `feat/decks-and-cards`.
 
 ## 3. API: decks (issue #63, AC 1 to 7)
 
-- [ ] 3.1 Read #60 and #63, report any conflict, then cut `feat/api-decks` from the updated `feat/decks-and-cards`. Verify the merge base as in 1.2.
-- [ ] 3.2 Extend `ApiErrorResponses` with `notFound` (404) and `conflict` (409), with `ErrorResponse` bodies (design.md, decision 8). Verify that the unit tests pass and that `pnpm --filter api openapi` leaves `openapi.json` unchanged, since no route uses them yet.
-- [ ] 3.3 Add the decks DTOs in `src/modules/decks/dto/`:
+- [x] 3.1 Read #60 and #63, report any conflict, then cut `feat/api-decks` from the updated `feat/decks-and-cards`. Verify the merge base as in 1.2.
+- [x] 3.2 Extend `ApiErrorResponses` with `notFound` (404) and `conflict` (409), with `ErrorResponse` bodies (design.md, decision 8). Verify that the unit tests pass and that `pnpm --filter api openapi` leaves `openapi.json` unchanged, since no route uses them yet.
+- [x] 3.3 Add the decks DTOs in `src/modules/decks/dto/`:
   - `DeckCountsSchema` (`new`, `due`, `total`);
   - `DeckSchema` (`id`, `parentId`, `name`, `description`, `own`, `subtree`) with `.meta({ id: 'Deck' })`;
   - `DeckDetailSchema` (`Deck` plus `deleteImpact` with `subdecks`, `cards` and `notes`), `DeckListResponseSchema` (`{ decks }`), `CreateDeckBodySchema` and `UpdateDeckBodySchema` (trimmed, non-blank `name`, at least one field on update), each with an `id`;
   - `DeckIdParamSchema` (uuid) with no `id`.
 
   Verify that `pnpm --filter api exec tsc --noEmit -p tsconfig.json` exits 0.
-- [ ] 3.4 Add `decks.service.ts` (design.md, decisions 6 and 7):
+- [x] 3.4 Add `decks.service.ts` (design.md, decisions 6 and 7):
   - `list` with own and subtree counts at one `$now`;
   - `get` with `deleteImpact`;
   - `create` using the caller's "Default" preset;
@@ -115,18 +115,18 @@
   - `@ApiErrorResponses` with the flags from the decision 8 table.
 
   Wire both in `DecksModule`. Verify that the architecture test passes.
-- [ ] 3.5 Add `test/db/decks.db-spec.ts` (the database e2e pattern of `me.db-spec.ts`). It calls each of the five routes with a signed token and parses each success body with its schema, and calls each without a token and expects 401. Verify that `pnpm --filter api test:db` passes. Tick #63 AC 1.
-- [ ] 3.6 In the same file: user X's `GET`, `PATCH` and `DELETE` on user Y's deck, and a `POST` with Y's deck as `parentId`, each return 404 with an `ErrorResponse` body, and Y's deck is unchanged. Verify that it passes. Tick #63 AC 2.
-- [ ] 3.7 Add tests:
+- [x] 3.5 Add `test/db/decks.db-spec.ts` (the database e2e pattern of `me.db-spec.ts`). It calls each of the five routes with a signed token and parses each success body with its schema, and calls each without a token and expects 401. Verify that `pnpm --filter api test:db` passes. Tick #63 AC 1.
+- [x] 3.6 In the same file: user X's `GET`, `PATCH` and `DELETE` on user Y's deck, and a `POST` with Y's deck as `parentId`, each return 404 with an `ErrorResponse` body, and Y's deck is unchanged. Verify that it passes. Tick #63 AC 2.
+- [x] 3.7 Add tests:
   - creating a duplicate top-level name, renaming to a sibling's name, and moving next to a same-named sibling each return 409 and change nothing;
   - `"   "` returns 400;
   - `Verbs` under two different parents returns 201 twice.
 
   Verify that they pass. Tick #63 AC 3.
-- [ ] 3.8 Add tests where moving A under itself or under its subdeck B returns 400 and both decks are unchanged. Also add a test where two concurrent opposite moves (A under B, B under A, with `Promise.all`) leave no cycle: a recursive query from each deck reaches a root. Verify that they pass. Tick #63 AC 4.
-- [ ] 3.9 Add a database test for the delete scenario in the `deck-management` spec: A with subdeck B, note N1 only in A and B, note N2 in A and C, and review logs on the deleted cards. After `DELETE`, A, B, their cards and N1 are gone, N2 remains with its card in C, and the logs remain with `card_id` and `deck_id` null. Verify that it passes. Tick #63 AC 5.
-- [ ] 3.10 Add a database test with cards in every state (new, learning due now, review due an hour ago, review due tomorrow, suspended, buried until tomorrow), spread over A and its subdeck B. It asserts the own and subtree counts from the "Counts for a deck with a subdeck" and "Buried card is not due" scenarios, and the `deleteImpact` from the "Delete impact" scenario. Verify that it passes. Tick #63 AC 6.
-- [ ] 3.11 Run `pnpm --filter api openapi` and commit `openapi.json`. Verify that:
+- [x] 3.8 Add tests where moving A under itself or under its subdeck B returns 400 and both decks are unchanged. Also add a test where two concurrent opposite moves (A under B, B under A, with `Promise.all`) leave no cycle: a recursive query from each deck reaches a root. Verify that they pass. Tick #63 AC 4.
+- [x] 3.9 Add a database test for the delete scenario in the `deck-management` spec: A with subdeck B, note N1 only in A and B, note N2 in A and C, and review logs on the deleted cards. After `DELETE`, A, B, their cards and N1 are gone, N2 remains with its card in C, and the logs remain with `card_id` and `deck_id` null. Verify that it passes. Tick #63 AC 5.
+- [x] 3.10 Add a database test with cards in every state (new, learning due now, review due an hour ago, review due tomorrow, suspended, buried until tomorrow), spread over A and its subdeck B. It asserts the own and subtree counts from the "Counts for a deck with a subdeck" and "Buried card is not due" scenarios, and the `deleteImpact` from the "Delete impact" scenario. Verify that it passes. Tick #63 AC 6.
+- [x] 3.11 Run `pnpm --filter api openapi` and commit `openapi.json`. Verify that:
   - `jq '.paths["/decks/{id}"].patch.responses | keys' apps/api/openapi.json` includes `404` and `409`;
   - `jq '.paths["/decks"].get.responses | keys'` includes neither;
   - running `pnpm --filter api openapi` again leaves `git status` clean;
