@@ -12,7 +12,9 @@ context: |
   Creating or editing issue text needs user approval. Ticking verified criteria
   and posting progress comments are automatic. The full rules are in the
   "Issue-driven workflow" section of CLAUDE.md at the repo root, and they take
-  precedence over this file.
+  precedence over this file. A large change may instead ship as a parent issue
+  with sub-issues delivered through an integration branch, when the user
+  chooses it (see "Sub-issues and integration branches" in CLAUDE.md).
 
   System design: system-design/ (PNG diagrams, their .excalidraw sources and
   README.md) is the source of truth for architecture, flows, data model and
@@ -33,6 +35,7 @@ rules:
     - 'The first line of proposal.md is exactly "Issue: #N", where N is the linked open GitHub issue. Do not write the proposal without one (see CLAUDE.md, Propose).'
     - 'The proposal must not claim scope or acceptance outcomes that the linked issue does not contain. If the issue needs to change, propose the issue edit to the user first.'
     - 'State the system design alignment after checking system-design/ (README.md and the relevant diagrams): write "System design: no change", or list each diagram to add or update and what changes in it (see CLAUDE.md, System design).'
+    - 'When the change ships as sub-issues, line 1 is "Issue: #P" (the parent issue) and line 2 is "Sub-issues: #S1, #S2, ..." listing every sub-issue in delivery order (see CLAUDE.md, Sub-issues and integration branches).'
   design:
     - 'Do not describe architecture, flows, data model or CI/CD that contradict system-design/ unless proposal.md lists the matching diagram updates.'
   tasks:
@@ -40,6 +43,7 @@ rules:
     - 'Each task group heading names the issue acceptance criteria it covers, for example "(issue #N, AC 1 and 2)".'
     - 'When proposal.md lists system-design diagram updates, include tasks to edit or create each NN-name scene in the Excalidraw+ collection app-flashcards through the Excalidraw+ MCP (checked with take_screenshot), export NN-name.excalidraw and NN-name.png from that scene, and update system-design/README.md. Never hand-edit or locally render the diagram files.'
     - 'The last task creates or updates the GitHub Wiki, after the commits and the PR: always Status and Changelog, plus Roadmap, Architecture and Decisions when the change affects them; name the pages it updates (see CLAUDE.md, GitHub Wiki).'
+    - 'When the change ships as sub-issues: write one task group per sub-issue in delivery order, its heading naming that sub-issue''s criteria (for example "(issue #S1, AC 1 and 2)"). End each group with tasks that push the sub-branch, open a PR into the integration branch with "Refs #S" (no Closes), post a progress comment on the sub-issue, and stop until the user confirms the merge (gh pr view <n> --json state shows MERGED). Add a final group that opens the PR from the integration branch into dev with "Closes #P" and "Closes #S" for every sub-issue, followed by the wiki task.'
 
 operations:
   apply:
@@ -48,9 +52,11 @@ operations:
       - 'If the scope or an acceptance criterion must change, stop. Propose the issue edit to the user, apply it only after approval, update the artifacts to match, then resume.'
       - 'Tick each acceptance criterion checkbox on the issue as soon as it is verified (command run or behavior observed), without asking. Fetch the body fresh and change only that line.'
       - 'When the apply session finishes or pauses, post a progress comment on the issue (criteria verified, tasks completed, what remains) without asking.'
+      - 'For a change shipped as sub-issues: before each task group, read the parent issue and that group''s sub-issue; tick each criterion on the issue that holds it. After opening a sub-PR, post the progress comment on the sub-issue and stop until the user confirms the merge; then cut the next sub-branch from the updated integration branch. When dev moves, merge dev into the integration branch, never rebase it.'
   archive:
     guidance:
       - 'Do not archive while any acceptance criterion on the linked issue is unticked; list the open criteria and stop.'
+      - 'For a change shipped as sub-issues: do not archive while any criterion on the parent or on any sub-issue is unticked; list them and stop. Post the summary comment on the parent, and commit the archive on the integration branch (the head of the final PR into dev) before that PR merges.'
       - 'Do not archive while system-design/ does not reflect what the change delivered; list any outstanding diagram updates from proposal.md and stop.'
       - 'Do not archive while the change''s GitHub Wiki task (the last task in tasks.md) is unticked; report it and stop.'
       - 'After archiving, post a summary comment on the issue covering what shipped and the archive path, listing the system-design files that changed (or stating that none did), and linking the wiki pages that changed.'

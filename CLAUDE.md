@@ -73,6 +73,36 @@ not in an extra section.
 - When archiving, post a summary comment on the issue covering what shipped and the archive path.
 - **Never close the issue during archive.** The PR closes it.
 
+### Sub-issues and integration branches
+
+One issue with one PR into `dev` stays the **default**. When a change is too large for one reviewable PR, the user can choose, during explore or propose, to split it into sub-issues delivered through an integration branch. The rules above still apply, with these additions:
+
+- **Issues:**
+  - one parent issue plus one sub-issue per slice, each in the issue format and each created only after approval;
+  - create sub-issues with `gh issue create --parent <parent>`;
+  - the parent's criteria cover integration (the whole branch passes, specs, wiki), and each sub-issue's criteria cover its slice.
+- **Change:**
+  - one OpenSpec change is linked to the parent;
+  - `proposal.md` has `Issue: #P` on line 1 and `Sub-issues: #S1, #S2, ...` on line 2, in delivery order;
+  - the propose comment goes on the parent.
+- **Tasks:**
+  - `tasks.md` has one task group per sub-issue, in delivery order, whose heading names that sub-issue's criteria, e.g. "(issue #S1, AC 1 and 2)".
+  - Each group ends with tasks that:
+    1. push the sub-branch;
+    2. open a PR into the integration branch with `Refs #S`;
+    3. post a progress comment on the sub-issue;
+    4. **stop until the user confirms the merge** (verified with `gh pr view <n> --json state` showing `MERGED`).
+  - A final group opens the PR from the integration branch into `dev`, with `Closes #P` and `Closes #S` for every sub-issue, then holds the wiki task.
+- **Apply:**
+  - before each group, read the parent and that group's sub-issue;
+  - tick each criterion on the issue that holds it;
+  - end the session at each stop task;
+  - cut the next sub-branch from the updated integration branch.
+- **Archive:**
+  - **Gate:** do not archive while any criterion on the parent or on any sub-issue is unticked;
+  - the summary comment goes on the parent;
+  - archive and the wiki land on the integration branch, which is the head of the final PR, before it merges.
+
 ## System design
 
 `system-design/` is the **source of truth** for the system's architecture, request and job flows, data model and CI/CD. It holds:
@@ -174,7 +204,12 @@ When a page has to be added, link it from `_Sidebar` in the same push.
 
 ### Branches and merging
 
-- `dev` is the default branch and the integration branch. **Every feature PR targets `dev`.**
+- `dev` is the default branch and the integration branch. **Every feature PR targets `dev`**, except sub-PRs of a change split into sub-issues (next bullet).
+- A change split into sub-issues has its own **integration branch** (see "Sub-issues and integration branches"):
+  - it is cut from `dev` and pushed before the first sub-PR;
+  - each sub-PR targets the integration branch, and the user squash-merges it;
+  - when `dev` moves, `dev` is merged into the integration branch, **never rebased**, because the sub-branches are based on it;
+  - the integration branch reaches `dev` through one normal feature PR: squash merge, one version bump.
 - `main` is the **release branch**. The only PRs that target it are **release PRs from `dev`**. Feature PRs never target it.
 - Feature PRs into `dev` are always **squash-merged**; the `dev` ruleset allows no other method. The squash commit title is the PR title plus the PR number, for example `chore(openspec): enforce issue-driven workflow (#3)`. The repo is set up so GitHub adds `(#N)` automatically.
 - Release PRs `dev -> main` are merged with a **merge commit**, titled by the PR title; the `main` ruleset allows no other method. This keeps every `dev` commit in `main`'s history.
@@ -191,4 +226,7 @@ When a page has to be added, link it from `_Sidebar` in the same push.
 
 - The PR that completes a change includes `Closes #N` in its body (see `.github/pull_request_template.md`). Because `dev` is the default branch, the issue closes when the PR is squash-merged into `dev`.
 - When a change ships across several PRs, the earlier ones (and any release PR) use `Refs #N`, so the issue stays open until the last one merges.
+- For a change split into sub-issues:
+  - a sub-PR into the integration branch uses `Refs #S` and **no** `Closes`, because `Closes` only fires on a merge into `dev`;
+  - the final PR from the integration branch into `dev` lists `Closes #P` and a `Closes #S` for every sub-issue, so all of them close when it merges.
 - If a change reaches `dev` without a PR, ask the user before closing the issue, and close it only on approval.
