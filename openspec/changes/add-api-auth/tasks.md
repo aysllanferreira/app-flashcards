@@ -221,7 +221,7 @@
   - `openspec validate --specs --strict` exits 0.
 
   Commit and push to `feat/api-auth` (it lands in the open PR). Tick #48 AC 6.
-- [ ] 6.7 Clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
+- [x] 6.7 Clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
   - `Status`: #48 in review, awaiting squash-merge, with the final PR and the sub-PRs listed;
   - `Changelog`: a new top entry;
   - `Roadmap`: the Auth item linked to #48, with API JWT verification and user sync in review;
