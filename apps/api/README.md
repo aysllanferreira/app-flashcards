@@ -54,6 +54,35 @@ Tables are defined in each module's `schema/` folder. After changing one, run `d
 
 If `docker compose up` fails because port 5432 is taken, stop the other Postgres (for example `brew services stop postgresql`) and try again.
 
+## Clerk webhooks (local)
+
+Clerk sends `user.created`, `user.updated` and `user.deleted` to `POST /webhooks/clerk`, which keeps the `users` table in sync: it stores the account's email, and deletes the account and everything it owns. Without webhooks the API still works, because an account is created on its first authenticated request, but emails stay empty and deletions never arrive. The flow is in [`system-design/09-flow-user-sync.png`](../../system-design/09-flow-user-sync.png).
+
+Clerk can't reach `localhost`, so exposing your local API takes a tunnel and an endpoint in Clerk's **development** instance:
+
+1. **Start a tunnel to port 3001.** [ngrok](https://ngrok.com) with your free static domain keeps the URL the same between runs, so the Clerk endpoint never needs editing:
+
+   ```bash
+   ngrok http 3001 --url <your-static-domain>.ngrok-free.app
+   ```
+
+   `cloudflared tunnel --url http://localhost:3001` works without an account, but its URL changes on every run.
+2. **Add the endpoint in the Clerk dashboard** (development instance): **Webhooks > Add Endpoint**, with the URL `https://<your-tunnel-host>/webhooks/clerk`, subscribed to `user.created`, `user.updated` and `user.deleted`.
+3. **Copy the endpoint's signing secret** (it starts with `whsec_`) into `apps/api/.env`:
+
+   ```bash
+   CLERK_WEBHOOK_SIGNING_SECRET=whsec_...
+   ```
+
+   While you're there, set `CLERK_JWT_KEY` to the instance's JWT public key (**API keys > Show JWT public key > PEM**), so the API can verify session tokens. `apps/api/.env` is git-ignored; never commit these values.
+4. **Restart the API** (`pnpm --filter api dev`) and sign up a new account in the web app. The endpoint's **Message Attempts** in the dashboard should show a `200`, and the account's email should be in the database:
+
+   ```bash
+   docker compose exec db psql -U flashcards -c "select clerk_user_id, email from users order by created_at desc limit 1"
+   ```
+
+A missing or wrong `CLERK_WEBHOOK_SIGNING_SECRET` makes every delivery fail with `400`, and Clerk retries it. Each environment has its own endpoint and secret; the production endpoint is created with the production deployment.
+
 ## Check it
 
 ```bash

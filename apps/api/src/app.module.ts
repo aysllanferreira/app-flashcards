@@ -17,6 +17,7 @@ import { NoteTypesModule } from './modules/note-types/note-types.module.js';
 import { NotesModule } from './modules/notes/notes.module.js';
 import { ReviewsModule } from './modules/reviews/reviews.module.js';
 import { UsersModule } from './modules/users/users.module.js';
+import { WebhooksModule } from './modules/webhooks/webhooks.module.js';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { UsersModule } from './modules/users/users.module.js';
     HealthModule,
     UsersModule,
     AuthModule,
+    WebhooksModule,
     DecksModule,
     NoteTypesModule,
     NotesModule,

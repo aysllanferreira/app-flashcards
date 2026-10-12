@@ -112,27 +112,27 @@
 
   Verify that `pnpm --filter api test:db` passes. Together with 2.11, tick #50 AC 1 and 2.
 - [x] 2.13 Verify that `pnpm turbo run lint test build --filter=api` exits 0 with the `db` container healthy. Tick #50 AC 8.
-- [ ] 2.14 Check for sync duplicates, commit and push `feat/api-auth-guard`. Open a PR into `feat/api-auth` titled like #50, with `Refs #50` and no `Closes` line. Verify the base and body with `gh pr view --json baseRefName,body`.
-- [ ] 2.15 Post a progress comment on #50.
-- [ ] 2.16 Stop until the user confirms the #50 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.
+- [x] 2.14 Check for sync duplicates, commit and push `feat/api-auth-guard`. Open a PR into `feat/api-auth` titled like #50, with `Refs #50` and no `Closes` line. Verify the base and body with `gh pr view --json baseRefName,body`.
+- [x] 2.15 Post a progress comment on #50.
+- [x] 2.16 Stop until the user confirms the #50 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.
 
 ## 3. Clerk webhook sync (issue #51, AC 1 to 7)
 
-- [ ] 3.1 Read #48 and #51, report any conflict, then cut `feat/clerk-webhooks` from the updated `feat/api-auth`. Verify the merge base as in 1.2.
-- [ ] 3.2 Add `CLERK_WEBHOOK_SIGNING_SECRET` to `src/config/env.ts` (optional, required in production; design.md, decision 7), to `apps/api/.env.example` with an empty value and to `env.spec.ts` (the production failure), and set a test secret in `test/support/env.ts`. In `apps/api`, run `pnpm add -D -E svix@<latest>`, and add `signWebhook(event, { secret? })` to `test/support/clerk.ts` (design.md, decision 9), with test `user.*` payload builders shaped like Clerk's (`id`, `email_addresses`, `primary_email_address_id`; `deleted: true` for `user.deleted`). Verify that the unit tests pass, `apps/api/package.json` lists `svix` without `^` or `~` and `pnpm install --frozen-lockfile` exits 0.
-- [ ] 3.3 Add `src/modules/webhooks/`:
+- [x] 3.1 Read #48 and #51, report any conflict, then cut `feat/clerk-webhooks` from the updated `feat/api-auth`. Verify the merge base as in 1.2.
+- [x] 3.2 Add `CLERK_WEBHOOK_SIGNING_SECRET` to `src/config/env.ts` (optional, required in production; design.md, decision 7), to `apps/api/.env.example` with an empty value and to `env.spec.ts` (the production failure), and set a test secret in `test/support/env.ts`. In `apps/api`, run `pnpm add -D -E svix@<latest>`, and add `signWebhook(event, { secret? })` to `test/support/clerk.ts` (design.md, decision 9), with test `user.*` payload builders shaped like Clerk's (`id`, `email_addresses`, `primary_email_address_id`; `deleted: true` for `user.deleted`). Verify that the unit tests pass, `apps/api/package.json` lists `svix` without `^` or `~` and `pnpm install --frozen-lockfile` exits 0.
+- [x] 3.3 Add `src/modules/webhooks/`:
   - `webhooks.module.ts`, importing `UsersModule`;
   - `webhooks.controller.ts`: `POST /webhooks/clerk` with `@Public()`, `@ApiTags('webhooks')`, `@ApiOperation({ summary: 'Receive Clerk user events' })`, `@ApiResponseSchema(200, WebhookAckSchema)` and `@ApiErrorResponses({ badRequest: true })`. It verifies over `req.rawBody` with `verifyWebhook` and turns failures into 400 (design.md, decision 5);
   - `webhooks.service.ts`, dispatching the events (design.md, decision 4);
   - `dto/webhook-ack.dto.ts`.
 
   Import the module in `AppModule` and run `pnpm --filter api openapi`. Verify that `jq '.paths["/webhooks/clerk"].post.security' apps/api/openapi.json` prints `[]`, its responses include `400` and not `401`, and `pnpm --filter api lint` exits 0.
-- [ ] 3.4 Add `test/webhooks.e2e-spec.ts`, which shows that:
+- [x] 3.4 Add `test/webhooks.e2e-spec.ts`, which shows that:
   - a payload signed with another secret, and one without `svix-*` headers, each return 400 with a body that `ErrorResponseSchema.parse` accepts, and never 401;
   - a signed `session.created` returns 200, and its body parses with `WebhookAckSchema`.
 
   Verify that `pnpm --filter api test:e2e` passes. Tick #51 AC 1.
-- [ ] 3.5 Add `test/db/webhooks.db-spec.ts` (app with `overrideProvider(DB)`), which shows that:
+- [x] 3.5 Add `test/db/webhooks.db-spec.ts` (app with `overrideProvider(DB)`), which shows that:
   - a signed `user.created` creates one user with the event's primary email, one `Default` preset and three note types, and sending it again changes no counts;
   - `user.created` for a user first created by `GET /me` fills `email` and keeps the counts;
   - `user.updated` changes `email`;
@@ -141,16 +141,16 @@
   - a bad signature creates no user.
 
   Every 200 body is parsed with `WebhookAckSchema`. Verify that `pnpm --filter api test:db` passes. Tick #51 AC 2, 3 and 4.
-- [ ] 3.6 After `pnpm --filter api build`, verify that `NODE_ENV=production DATABASE_URL=postgres://u:p@localhost:5432/x WEB_ORIGIN=https://app.example CLERK_JWT_KEY=k node apps/api/dist/main.js` exits non-zero naming `CLERK_WEBHOOK_SIGNING_SECRET`. Tick #51 AC 5.
-- [ ] 3.7 Add a "Clerk webhooks (local)" section to `apps/api/README.md` with the tunnel, Clerk dashboard and `.env` steps (design.md, decision 11). Verify that the section names `ngrok`, `/webhooks/clerk`, `user.created`, `user.updated`, `user.deleted`, `CLERK_WEBHOOK_SIGNING_SECRET` and `CLERK_JWT_KEY`.
-- [ ] 3.8 Live check with the user. Ask them to:
+- [x] 3.6 After `pnpm --filter api build`, verify that `NODE_ENV=production DATABASE_URL=postgres://u:p@localhost:5432/x WEB_ORIGIN=https://app.example CLERK_JWT_KEY=k node apps/api/dist/main.js` exits non-zero naming `CLERK_WEBHOOK_SIGNING_SECRET`. Tick #51 AC 5.
+- [x] 3.7 Add a "Clerk webhooks (local)" section to `apps/api/README.md` with the tunnel, Clerk dashboard and `.env` steps (design.md, decision 11). Verify that the section names `ngrok`, `/webhooks/clerk`, `user.created`, `user.updated`, `user.deleted`, `CLERK_WEBHOOK_SIGNING_SECRET` and `CLERK_JWT_KEY`.
+- [x] 3.8 Live check with the user. Ask them to:
   - start a tunnel;
   - add the development-instance endpoint;
   - put `CLERK_WEBHOOK_SIGNING_SECRET` and `CLERK_JWT_KEY` in `apps/api/.env` as the README says;
   - with `pnpm dev` running both apps, sign up a new account in the web app.
 
   Then verify that `docker compose exec db psql -U flashcards -tAc "select email from users order by created_at desc limit 1"` prints that account's email, and that the Clerk dashboard shows the delivery as succeeded. Do not handle the user's credentials. Tick #51 AC 6.
-- [ ] 3.9 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #51 AC 7.
+- [x] 3.9 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #51 AC 7.
 - [ ] 3.10 Check for sync duplicates, commit and push `feat/clerk-webhooks`. Open a PR into `feat/api-auth` titled like #51, with `Refs #51` and no `Closes` line. Verify the base and body.
 - [ ] 3.11 Post a progress comment on #51.
 - [ ] 3.12 Stop until the user confirms the #51 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.

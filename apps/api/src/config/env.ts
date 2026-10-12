@@ -67,9 +67,12 @@ export const EnvSchema = z
     ),
     // Fallback when there is no CLERK_JWT_KEY: fetches and caches Clerk's JWKS.
     CLERK_SECRET_KEY: unsetIfEmpty(z.string()),
+    // Signing secret of the Clerk webhook endpoint (whsec_...). Without it,
+    // every webhook request is rejected.
+    CLERK_WEBHOOK_SIGNING_SECRET: unsetIfEmpty(z.string()),
   })
-  // Production must name its database, web origins and a token verification
-  // key; anywhere else the local defaults apply, so dev, tests and the OpenAPI
+  // Production must name its database, web origins, a token verification
+  // key and the webhook signing secret; anywhere else the local defaults apply, so dev, tests and the OpenAPI
   // generator need no .env file. Without a key, every non-public route
   // answers 401.
   .superRefine((env, ctx) => {
@@ -93,6 +96,13 @@ export const EnvSchema = z
         code: 'custom',
         path: ['CLERK_JWT_KEY'],
         message: 'set CLERK_JWT_KEY or CLERK_SECRET_KEY in production',
+      });
+    }
+    if (!env.CLERK_WEBHOOK_SIGNING_SECRET) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['CLERK_WEBHOOK_SIGNING_SECRET'],
+        message: 'required in production',
       });
     }
   })

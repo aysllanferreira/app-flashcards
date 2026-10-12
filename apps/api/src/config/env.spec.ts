@@ -35,6 +35,7 @@ const PRODUCTION = {
   DATABASE_URL: 'postgres://app:secret@db.example.com:5432/flashcards',
   WEB_ORIGIN: 'https://app.example.com',
   CLERK_JWT_KEY: 'pem',
+  CLERK_WEBHOOK_SIGNING_SECRET: 'whsec_test',
 };
 
 describe('validateEnv: WEB_ORIGIN', () => {
@@ -101,5 +102,17 @@ describe('validateEnv: Clerk token verification keys', () => {
     expect(() =>
       validateEnv({ ...PRODUCTION, CLERK_JWT_KEY: undefined }),
     ).toThrow(/CLERK_JWT_KEY.*CLERK_SECRET_KEY/);
+  });
+});
+
+describe('validateEnv: CLERK_WEBHOOK_SIGNING_SECRET', () => {
+  it('is optional outside production', () => {
+    expect(validateEnv({}).CLERK_WEBHOOK_SIGNING_SECRET).toBeUndefined();
+  });
+
+  it('is required in production, naming the variable', () => {
+    expect(() =>
+      validateEnv({ ...PRODUCTION, CLERK_WEBHOOK_SIGNING_SECRET: undefined }),
+    ).toThrow(/CLERK_WEBHOOK_SIGNING_SECRET: required in production/);
   });
 });

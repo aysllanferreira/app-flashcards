@@ -31,4 +31,16 @@ export class UsersService {
       .returning();
     return updated;
   }
+
+  /**
+   * Applies a Clerk user.deleted event: deletes the account, which cascades
+   * to every row it owns. Returns false when there was no such account.
+   */
+  async deleteByClerkId(clerkUserId: string): Promise<boolean> {
+    const deleted = await this.db
+      .delete(users)
+      .where(eq(users.clerkUserId, clerkUserId))
+      .returning({ id: users.id });
+    return deleted.length > 0;
+  }
 }

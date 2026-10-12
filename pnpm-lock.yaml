@@ -111,6 +111,9 @@ importers:
       supertest:
         specifier: ^7.0.0
         version: 7.3.1
+      svix:
+        specifier: 2.8.0
+        version: 2.8.0
       typescript:
         specifier: ^6.0.2
         version: 6.0.3
@@ -4511,6 +4514,10 @@ packages:
   supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
+
+  svix@2.8.0:
+    resolution: {integrity: sha512-3bvu4FoVP9szUn5WBXUXUs97lLVC+Jyr0+jm+Q+DVcPMLXmeoZepbmbCzJVqGDNf9i00P7WLAH6m0q9HrzH1+g==}
+    engines: {node: '>=22'}
 
   swagger-ui-dist@5.33.0:
     resolution: {integrity: sha512-wpdK+m6BU5yj6pmUdMskZVTSWYG4DLglAx3sIhylloY37i8O37IrH+YEpqdXNfpaTGxILRBFzUqLF2jKqbfI7A==}
@@ -9059,6 +9066,10 @@ snapshots:
       has-flag: 4.0.0
 
   supports-preserve-symlinks-flag@1.0.0: {}
+
+  svix@2.8.0:
+    dependencies:
+      standardwebhooks: 1.1.1
 
   swagger-ui-dist@5.33.0:
     dependencies:
