@@ -30,11 +30,11 @@
 
 ## 6. Commit and pull request
 
-- [ ] 6.1 Commit as `feat(web): add Clerk authentication to the Next.js app`, authored by the repo owner with no Claude attribution, then push and open a PR to `dev` with that title and `Closes #13` in the body. Verify that `gh pr view --json baseRefName,body` shows `dev` and contains `Closes #13`, and that `gh pr diff --name-only` contains no `.env.local`.
+- [x] 6.1 Commit as `feat(web): add Clerk authentication to the Next.js app`, authored by the repo owner with no Claude attribution, then push and open a PR to `dev` with that title and `Closes #13` in the body. Verify that `gh pr view --json baseRefName,body` shows `dev` and contains `Closes #13`, and that `gh pr diff --name-only` contains no `.env.local`.
 
 ## 7. GitHub Wiki
 
-- [ ] 7.1 After the PR is merged, clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
+- [x] 7.1 After the PR is merged, clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
   - `Status` (shipped change, #13, its PR, date);
   - `Changelog` (new entry at the top);
   - `Decisions` (in-app `/sign-in` and `/sign-up` pages over the hosted Account Portal; all routes public until the first user-owned page; Clerk keys declared in `turbo.json` `build.env`; linked to #13);
