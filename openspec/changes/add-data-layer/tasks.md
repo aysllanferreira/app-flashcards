@@ -181,15 +181,15 @@
   Verify that the README contains `docker compose up -d --wait db`, `pnpm --filter api db:migrate`, `pnpm --filter api db:seed` and `pnpm --filter api db:generate`. Tick #41 AC 3.
 - [ ] 5.5 Check for sync duplicates, commit and push `docs/database-conventions`. Open a PR into `feat/data-layer` titled like #41, with `Refs #41` and no `Closes` line. Verify the base and body.
 - [ ] 5.6 Post a progress comment on #41.
-- [ ] 5.7 Stop until the user confirms the #41 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
+- [x] 5.7 Stop until the user confirms the #41 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
 
 ## 6. Integration, final PR and wiki (issue #36, AC 1 to 7)
 
-- [ ] 6.1 If `dev` moved, merge `origin/dev` into `feat/data-layer` (no rebase) and push. With `docker compose up -d --wait db` run first, verify that `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm test` and `pnpm build` at the repo root each exit 0. Tick #36 AC 2.
-- [ ] 6.2 Run `docker compose down -v && docker compose up -d --wait db`, then `pnpm --filter api db:migrate` and `pnpm --filter api db:seed`. Verify that both exit 0 and that `pnpm --filter api db:generate` then reports no schema changes. Tick #36 AC 3.
-- [ ] 6.3 Verify that `git diff dev...feat/data-layer -- apps/api/openapi.json` prints nothing. Tick #36 AC 4.
-- [ ] 6.4 Verify that `gh issue view <n> --json body --jq .body | grep -c '^- \[ \]'` prints `0` for each of #37–#41. Tick #36 AC 1.
-- [ ] 6.5 Run `openspec validate add-data-layer --strict`, then sync the deltas with `/opsx:sync`. Verify that:
+- [x] 6.1 If `dev` moved, merge `origin/dev` into `feat/data-layer` (no rebase) and push. With `docker compose up -d --wait db` run first, verify that `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm test` and `pnpm build` at the repo root each exit 0. Tick #36 AC 2.
+- [x] 6.2 Run `docker compose down -v && docker compose up -d --wait db`, then `pnpm --filter api db:migrate` and `pnpm --filter api db:seed`. Verify that both exit 0 and that `pnpm --filter api db:generate` then reports no schema changes. Tick #36 AC 3.
+- [x] 6.3 Verify that `git diff dev...feat/data-layer -- apps/api/openapi.json` prints nothing. Tick #36 AC 4.
+- [x] 6.4 Verify that `gh issue view <n> --json body --jq .body | grep -c '^- \[ \]'` prints `0` for each of #37–#41. Tick #36 AC 1.
+- [x] 6.5 Run `openspec validate add-data-layer --strict`, then sync the deltas with `/opsx:sync`. Verify that:
   - `openspec list --specs` lists `data-model` and `database-tooling`;
   - `openspec/specs/api-module-structure/spec.md` names `src/database/` and the stray-table scenario;
   - `openspec validate --specs --strict` exits 0.
