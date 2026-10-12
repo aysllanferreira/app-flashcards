@@ -2,6 +2,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module.js';
+import { APP_OPTIONS, configureApp } from './common/configure-app.js';
 import type { Env } from './config/env.js';
 import {
   buildOpenApiDocument,
@@ -11,7 +12,8 @@ import {
 } from './openapi/build-document.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, APP_OPTIONS);
+  configureApp(app);
   // Runs onApplicationShutdown on SIGTERM/SIGINT, which closes the database pool.
   app.enableShutdownHooks();
   const config = app.get<ConfigService<Env, true>>(ConfigService);

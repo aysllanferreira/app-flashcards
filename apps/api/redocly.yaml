@@ -58,8 +58,6 @@ rules:
   # Turned off on purpose:
   # - /health can't return a 4xx; rule/operation-has-error-response replaces it.
   operation-4xx-response: off
-  # - No security scheme exists until API auth (Clerk JWT) lands.
-  security-defined: off
   # - The API is private to this project; no license to declare.
   info-license: off
   # - No fixed server URL yet (the domain is an open question in

@@ -1,15 +1,14 @@
-import { sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { drizzle, type NodePgDatabase } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import { v7 as uuidv7 } from 'uuid';
 import { validateEnv } from '../config/env.js';
 import { cards, CARD_STATES } from '../modules/cards/schema/cards.js';
-import { deckPresets } from '../modules/decks/schema/deck-presets.js';
 import { decks } from '../modules/decks/schema/decks.js';
 import { cardTemplates } from '../modules/note-types/schema/card-templates.js';
-import { copyStockNoteTypes } from '../modules/note-types/stock-note-types.js';
 import { notes } from '../modules/notes/schema/notes.js';
 import { reviewLogs } from '../modules/reviews/schema/review-logs.js';
+import { provisionUser } from '../modules/users/provision-user.js';
 import { users } from '../modules/users/schema/users.js';
 import { DB_CASING } from './database.providers.js';
 
@@ -70,18 +69,18 @@ async function seed(db: NodePgDatabase) {
     ),
   );
 
-  const [user] = await db
-    .insert(users)
-    .values({
-      clerkUserId: 'seed_demo_user',
-      email: 'demo@example.com',
-      timezone: 'Europe/Madrid',
-    })
-    .returning();
-  const [preset] = await db
-    .insert(deckPresets)
-    .values({ userId: user.id, name: 'Default' })
-    .returning();
+  // Provisioned like an account that signs up: the user, its Default preset
+  // and its copies of the stock note types.
+  const provisioned = await provisionUser(db, {
+    clerkUserId: 'seed_demo_user',
+    email: 'demo@example.com',
+  });
+  if (!provisioned.created) throw new Error('The seed user already exists.');
+  const { user, preset } = provisioned;
+  await db
+    .update(users)
+    .set({ timezone: 'Europe/Madrid' })
+    .where(eq(users.id, user.id));
   const deck = async (name: string, parentId?: string) =>
     (
       await db
@@ -94,7 +93,7 @@ async function seed(db: NodePgDatabase) {
   const nouns = await deck('Nouns', spanish.id);
   const french = await deck('French');
 
-  const [basic, reversed, cloze] = await copyStockNoteTypes(db, user.id);
+  const [basic, reversed, cloze] = provisioned.noteTypes;
   const templates = await db.select().from(cardTemplates);
   const templatesOf = (noteTypeId: string) =>
     templates
