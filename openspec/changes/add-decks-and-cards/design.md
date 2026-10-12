@@ -212,9 +212,9 @@ No index is added. A `%q%` pattern can't use a B-tree, and ordering one user's r
 - **Servers:** `webServer` builds and starts the web app on port 3000 and, for the signed-in suite, the API on port 3001. Both expect `docker compose up -d --wait db` and the developer's local `.env` files, as `pnpm dev` does.
 - **Signed out:** these tests always run: theme, overflow, redirects and landing.
 - **Signed in:** these use `@clerk/testing`:
-  - `clerkSetup()` in global setup;
-  - `clerk.signIn()` with a test user of the Clerk development instance, from `E2E_CLERK_USER_USERNAME` and `E2E_CLERK_USER_PASSWORD` in the git-ignored `apps/web/.env.test.local`;
-  - `test.skip` when the variables are missing.
+  - `clerkSetup()` in global setup, with the Clerk keys from `apps/web/.env.local`;
+  - `clerk.signIn({ page, emailAddress })` for a test user of the Clerk development instance, from `E2E_CLERK_USER_EMAIL` in the git-ignored `apps/web/.env.test.local`. Clerk signs the user in through its backend with the secret key, so no password is stored or typed;
+  - `test.skip` when the variable is missing.
 
   They create decks with a per-run unique prefix and delete them in `afterAll`, so they can run against the developer's database.
 - **Accessibility:** `@axe-core/playwright` scans each screen in both themes, and serious and critical violations fail the test.

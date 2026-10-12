@@ -7,14 +7,17 @@ vi.mock("@clerk/nextjs/server", () => ({
   auth: async () => ({ userId: session.userId }),
 }));
 
-// An async server component, covered on its own in account-summary.test.tsx.
-vi.mock("../app/_components/account-summary", () => ({
-  AccountSummary: () => null,
-}));
+const redirect = vi.hoisted(() =>
+  vi.fn((url: string) => {
+    throw new Error(`NEXT_REDIRECT ${url}`);
+  }),
+);
+vi.mock("next/navigation", () => ({ redirect }));
 
 afterEach(() => {
   cleanup();
   session.userId = null;
+  redirect.mockClear();
 });
 
 // An async server component: await it, then render what it returns.
@@ -28,15 +31,11 @@ test("renders the landing page for signed-out visitors", async () => {
   expect(
     screen.getByRole("link", { name: "Create your account" }).getAttribute("href"),
   ).toBe("/sign-up");
+  expect(redirect).not.toHaveBeenCalled();
 });
 
-test("welcomes signed-in users and links to their decks", async () => {
+test("sends signed-in users to their decks", async () => {
   session.userId = "user_1";
 
-  await renderHome();
-
-  expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("Welcome back");
-  expect(
-    screen.getByRole("link", { name: "Go to your decks" }).getAttribute("href"),
-  ).toBe("/decks");
+  await expect(renderHome()).rejects.toThrow("NEXT_REDIRECT /decks");
 });
