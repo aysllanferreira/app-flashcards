@@ -51,6 +51,17 @@ From pull request to production for the backend image and the Amplify-hosted web
 
 ![CI/CD](07-cicd.png)
 
+### 08. API structure
+
+How the NestJS API is organized inside its container:
+- the entry points (`main.ts` now, `worker.ts` planned);
+- the global request pipeline: validation pipe, then controller and service, then serializer interceptor;
+- the feature modules in `src/modules/<name>/` (health built, the rest planned);
+- the cross-cutting code in `src/config`, `src/common` and `src/openapi`;
+- the committed OpenAPI contract, `apps/api/openapi.json`, with the checks that keep it current.
+
+![API structure](08-api-structure.png)
+
 ## Decisions
 
 | Area | Decision | Why |
@@ -69,6 +80,9 @@ From pull request to production for the backend image and the Amplify-hosted web
 | Secrets | **SSM Parameter Store** for api and worker, **Amplify environment variables** for web | Nothing secret lives in the repo or the Docker image |
 | CI/CD | **GitHub Actions** CI on every PR to `dev`. Feature PRs are squash-merged into `dev`; release PRs `dev -> main` are merged with a **merge commit**. A merge to `main` builds the image, pushes it to **ECR**, runs migrations and redeploys through **SSM Run Command**. Amplify builds `main` on its own | AWS access uses GitHub OIDC, with no long-lived keys. Merge commits keep every `dev` commit in `main`'s history, so release PRs show only what is new |
 | Versioning | `api` and `web` are versioned **independently** with Semantic Versioning, stored **only as git tags** (`<app>@X.Y.Z`) with GitHub Releases. The `versioning` workflow tags each app that `turbo ls --affected` reports on a push to `dev` with `<app>@X.Y.Z-dev.N` (bump from the commit type), and on a push to `main` promotes the latest dev version to `<app>@X.Y.Z` | The turbo graph catches shared-package, lockfile and root-config changes. No bot commits, so the `dev`/`main` rulesets need no bypass. Tags created with `GITHUB_TOKEN` don't trigger other workflows, so future deploy jobs must run in the same workflow or use `workflow_run` |
+| API layout | NestJS **feature modules** in `apps/api/src/modules/<name>/` (`<name>.module.ts`, `.controller.ts`, `.service.ts`, `dto/`, plus `schema/` for persistence once the ORM is chosen). Cross-cutting code lives in `src/config`, `src/common` and `src/openapi`, and an architecture test enforces the layout | Every MVP feature gets the same predictable home. Controllers stay HTTP-only and services hold the logic, without the ceremony of per-module ports and adapters |
+| API validation | **Zod 4 through Nest 12's built-in Standard Schema support**: `@Body/@Query/@Param({ schema })`, a global `StandardSchemaValidationPipe` (400 with one message per field) and a global `StandardSchemaSerializerInterceptor` that shapes responses. No `class-validator`, `class-transformer` or `nestjs-zod` | One schema gives the TypeScript type, the validation, the response shape and the OpenAPI schema. `nestjs-zod` doesn't support Nest 12, and `class-transformer` has had no release since 2022 |
+| API contract | **OpenAPI 3.1 generated from the code** (`@nestjs/swagger` 12 with `zod-openapi`) and committed as `apps/api/openapi.json`. A drift test and Redocly lint keep it current and complete. Swagger UI is at `/docs`, off in production unless `SWAGGER_UI=true` | The contract is reviewable in PRs and can't silently drift from the code or lose documentation. Only body and response schemas are named components, because Swagger doesn't expand a named query schema into parameters |
 
 ## Accepted trade-offs
 
