@@ -37,6 +37,7 @@ rules:
     - 'Every acceptance criterion of the linked issue is covered by at least one task.'
     - 'Each task group heading names the issue acceptance criteria it covers, for example "(issue #N, AC 1 and 2)".'
     - 'When proposal.md lists system-design diagram updates, include tasks to edit or create each NN-name.excalidraw source, re-export its NN-name.png, and update system-design/README.md.'
+    - 'The last task creates or updates the GitHub Wiki, after the commits and the PR: always Status and Changelog, plus Roadmap, Architecture and Decisions when the change affects them; name the pages it updates (see CLAUDE.md, GitHub Wiki).'
 
 operations:
   apply:
@@ -49,6 +50,7 @@ operations:
     guidance:
       - 'Do not archive while any acceptance criterion on the linked issue is unticked; list the open criteria and stop.'
       - 'Do not archive while system-design/ does not reflect what the change delivered; list any outstanding diagram updates from proposal.md and stop.'
-      - 'After archiving, post a summary comment on the issue covering what shipped and the archive path, and listing the system-design files that changed (or stating that none did).'
+      - 'Do not archive while the change''s GitHub Wiki task (the last task in tasks.md) is unticked; report it and stop.'
+      - 'After archiving, post a summary comment on the issue covering what shipped and the archive path, listing the system-design files that changed (or stating that none did), and linking the wiki pages that changed.'
       - 'Do not close the issue. The PR''s "Closes #N" closes it when the PR is squash-merged into dev, the default branch. If the change reached dev without a PR, ask the user before closing.'
       - 'The delivering PR targets dev (never main, the release branch), has a Conventional Commit title, is squash-merged so the commit title ends in (#N), and carries no Claude co-author or "Generated with Claude Code" line.'
