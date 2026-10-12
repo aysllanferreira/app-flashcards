@@ -82,7 +82,8 @@ A shared column helper in `src/database/columns.ts` returns `uuid().primaryKey()
 - `$defaultFn` runs only inside Drizzle inserts, so the app knows IDs before it writes. That lets one transaction insert a note and its cards, and lets clients supply review log IDs.
 - The SQL default (Postgres 18's native `uuidv7()`) covers raw SQL and the seed.
 - Node's `crypto.randomUUID()` produces v4, which scatters inserts across the index; v7 is time-ordered.
-- The same file also exports the `userId` column (`uuid().notNull()` referencing `users` with ON DELETE CASCADE) and the `createdAt`/`updatedAt` pair (`timestamp({ withTimezone: true }).notNull().defaultNow()`, with `updatedAt` using `$onUpdate(() => new Date())`).
+- The same file also exports the `createdAt`/`updatedAt` pair (`timestamp({ withTimezone: true }).notNull().defaultNow()`, with `updatedAt` using `$onUpdate(() => new Date())`).
+- The `userId()` owner column (`uuid().notNull()` referencing `users` with ON DELETE CASCADE) is exported next to the table, from `src/modules/users/schema/users.ts`. That way `src/database/` never imports from `src/modules`.
 
 ### 6. Ownership through composite foreign keys, with NO ACTION for "in use"
 
@@ -268,7 +269,8 @@ The local URLs are `postgres://flashcards:flashcards@localhost:5432/flashcards` 
 - `db:generate`: `drizzle-kit generate`;
 - `db:migrate`: `drizzle-kit migrate`;
 - `db:seed`: `nest build && node dist/database/seed.js`;
-- `test`: `vitest run && vitest run --config ./vitest.config.e2e.ts && vitest run --config ./vitest.config.db.ts`.
+- `test`: `vitest run && vitest run --config ./vitest.config.e2e.ts && vitest run --config ./vitest.config.db.ts`;
+- `test:db`: the database suite alone.
 
 **`vitest.config.db.ts`:**
 - includes `test/db/**/*.db-spec.ts`. The unit pattern `**/*.spec.ts` doesn't match `*.db-spec.ts`, so the suites don't overlap;
@@ -281,8 +283,10 @@ The local URLs are `postgres://flashcards:flashcards@localhost:5432/flashcards` 
 - on a connection failure, throws `Database unreachable at <host>:<port>. Start it with "docker compose up -d --wait db" from the repo root.`;
 - otherwise runs `migrate(db, { migrationsFolder: 'drizzle' })`. It uses the same migrations table as `drizzle-kit migrate`.
 
+**`test/db/test-database.ts`:** the test URL, the `_test` name guard and a `connectTestDatabase()` helper shared by the global setup and the test files.
+
 **`test/db/helpers.ts`:**
-- `resetDatabase()` runs `TRUNCATE users, tts_clips CASCADE` in `beforeEach`;
+- `resetDatabase()` truncates every table in the `public` schema in `beforeEach`, so tables added later are covered without changing it;
 - small factories (`createUser`, `createDeck`, `createNote` and so on);
 - `expectPgError(promise, code)`, which reads the code from `err.cause.code` (Drizzle 0.45 wraps driver errors in `DrizzleQueryError`) or `err.code`: `23505` unique, `23503` foreign key, `23514` check.
 
