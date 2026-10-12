@@ -11,6 +11,9 @@
       "persistent": true
     },
     "lint": {},
-    "test": {}
+    "test": {},
+    "test:e2e": {
+      "cache": false
+    }
   }
 }

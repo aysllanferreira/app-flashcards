@@ -54,7 +54,7 @@ test("shows the email and time zone from GET /me", async () => {
 
   expect(screen.getByText("learner@example.com")).toBeTruthy();
   expect(screen.getByText("Time zone: UTC")).toBeTruthy();
-  expect(String(fetchMock.mock.lastCall?.[0])).toMatch(/\/me$/);
+  expect((fetchMock.mock.lastCall?.[0] as Request).url).toMatch(/\/me$/);
 });
 
 test("shows a fallback label when the account has no email yet", async () => {

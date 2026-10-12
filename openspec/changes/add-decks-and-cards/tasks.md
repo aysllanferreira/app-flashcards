@@ -31,31 +31,31 @@
   - a "Note content" decision row (notes as the authoring unit, card generation rules, the sanitized HTML allowlist, template HTML rendered only in a sandboxed iframe).
 
   Verify that `grep -n "| Shared code |\|| Web UI |\|| Note content |" system-design/README.md` prints three lines. Tick #61 AC 4.
-- [ ] 1.9 Check for sync duplicates as in 1.1, commit with a Conventional Commit message (no Claude attribution) and push `docs/decks-design`. Open a PR into `feat/decks-and-cards` titled like #61, with `Refs #61` and no `Closes` line in the body. Verify that `gh pr view --json baseRefName,body` shows `feat/decks-and-cards` and `Refs #61`.
-- [ ] 1.10 Post a progress comment on #61 (criteria verified, tasks completed, the PR link).
-- [ ] 1.11 Stop until the user confirms the #61 PR is merged. Verify that `gh pr view <n> --json state` shows `MERGED`, then `git switch feat/decks-and-cards && git pull --ff-only`.
+- [x] 1.9 Check for sync duplicates as in 1.1, commit with a Conventional Commit message (no Claude attribution) and push `docs/decks-design`. Open a PR into `feat/decks-and-cards` titled like #61, with `Refs #61` and no `Closes` line in the body. Verify that `gh pr view --json baseRefName,body` shows `feat/decks-and-cards` and `Refs #61`.
+- [x] 1.10 Post a progress comment on #61 (criteria verified, tasks completed, the PR link).
+- [x] 1.11 Stop until the user confirms the #61 PR is merged. Verify that `gh pr view <n> --json state` shows `MERGED`, then `git switch feat/decks-and-cards && git pull --ff-only`.
 
 ## 2. Web foundation: Tailwind, shadcn, theme, shell, typed client and Playwright (issue #62, AC 1 to 6)
 
-- [ ] 2.1 Read #60 and #62, report any conflict, then cut `feat/web-foundation` from the updated `feat/decks-and-cards`. Verify the merge base as in 1.2.
-- [ ] 2.2 Add Tailwind v4 to `apps/web` (`tailwindcss`, `@tailwindcss/postcss`, `postcss.config.mjs`). Rewrite `app/globals.css` with:
+- [x] 2.1 Read #60 and #62, report any conflict, then cut `feat/web-foundation` from the updated `feat/decks-and-cards`. Verify the merge base as in 1.2.
+- [x] 2.2 Add Tailwind v4 to `apps/web` (`tailwindcss`, `@tailwindcss/postcss`, `postcss.config.mjs`). Rewrite `app/globals.css` with:
   - `@import "tailwindcss"`;
   - `@custom-variant dark (&:where(.dark, .dark *))`;
   - the prototype's `:root` and `.dark` token blocks copied unchanged;
   - an `@theme inline` block that maps them to Tailwind colors, radius and fonts.
 
   Load Fraunces, Geist and Geist Mono with `next/font/google` as CSS variables in `app/layout.tsx` (design.md, decision 11). Verify that `pnpm --filter web build` exits 0, and that `diff` of the `:root` and `.dark` blocks extracted from the prototype and from `globals.css` prints nothing.
-- [ ] 2.3 Initialize shadcn/ui (`components.json` with the `ui` alias `@/components/ui`) and add the components from design.md, decision 11. Verify that `jq -r .aliases.ui apps/web/components.json` prints `@/components/ui`, the component files exist under `apps/web/components/ui/`, and `pnpm --filter web lint` exits 0.
-- [ ] 2.4 Add `next-themes`: a `ThemeProvider` in the root layout (`attribute="class"`, `defaultTheme="system"`, `enableSystem`), `suppressHydrationWarning` on `<html>`, and a theme toggle (light, dark, system) built on the dropdown-menu component. Verify with `pnpm --filter web dev`, in the built-in browser, that each choice applies and survives a reload.
-- [ ] 2.5 Build the app shell (design.md, decision 11):
+- [x] 2.3 Initialize shadcn/ui (`components.json` with the `ui` alias `@/components/ui`) and add the components from design.md, decision 11. Verify that `jq -r .aliases.ui apps/web/components.json` prints `@/components/ui`, the component files exist under `apps/web/components/ui/`, and `pnpm --filter web lint` exits 0.
+- [x] 2.4 Add `next-themes`: a `ThemeProvider` in the root layout (`attribute="class"`, `defaultTheme="system"`, `enableSystem`), `suppressHydrationWarning` on `<html>`, and a theme toggle (light, dark, system) built on the dropdown-menu component. Verify with `pnpm --filter web dev`, in the built-in browser, that each choice applies and survives a reload.
+- [x] 2.5 Build the app shell (design.md, decision 11):
   - a header on every page with the brand, the theme toggle and the auth controls (`<UserButton>` signed in, "Sign in" and "Sign up" signed out);
   - navigation links to `/decks` and `/cards`, visible in a sidebar from 1024 px and behind a menu button opening a `Sheet` below it;
   - minimal placeholder pages at `/decks` and `/cards` that #65 replaces.
 
   Verify in the built-in browser at 375 px and 1280 px that the navigation behaves as described and that the existing header tests in `apps/web/__tests__` still pass.
-- [ ] 2.6 Theme Clerk with `appearance` (`cssLayerName: 'clerk'` and `variables` from the tokens), and center the `/sign-in` and `/sign-up` pages in the shell. Verify in the built-in browser that the sign-in form uses the card color and the app fonts in both themes.
-- [ ] 2.7 Remove the template: `app/page.module.css`, `app/_components/*.module.css` and the template images in `public/`. Rebuild `/` with Tailwind and shadcn as a signed-out landing page (heading, one-line pitch, sign-up action), keeping the restyled account summary for signed-in users until #65. Update `__tests__/page.test.tsx` and `account-summary.test.tsx` to the new markup. Verify that `find apps/web -name '*.module.css' -not -path '*/node_modules/*'` prints nothing, `test -f apps/web/components.json` succeeds, and `pnpm --filter web test` exits 0. Tick #62 AC 1.
-- [ ] 2.8 Add the typed API client (design.md, decision 10):
+- [x] 2.6 Theme Clerk with `appearance` (`cssLayerName: 'clerk'` and `variables` from the tokens), and center the `/sign-in` and `/sign-up` pages in the shell. Verify in the built-in browser that the sign-in form uses the card color and the app fonts in both themes.
+- [x] 2.7 Remove the template: `app/page.module.css`, `app/_components/*.module.css` and the template images in `public/`. Rebuild `/` with Tailwind and shadcn as a signed-out landing page (heading, one-line pitch, sign-up action), keeping the restyled account summary for signed-in users until #65. Update `__tests__/page.test.tsx` and `account-summary.test.tsx` to the new markup. Verify that `find apps/web -name '*.module.css' -not -path '*/node_modules/*'` prints nothing, `test -f apps/web/components.json` succeeds, and `pnpm --filter web test` exits 0. Tick #62 AC 1.
+- [x] 2.8 Add the typed API client (design.md, decision 10):
   - `openapi-typescript` (dev) and `openapi-fetch`;
   - a `generate:api` script that writes `app/_lib/api-types.ts` from `../api/openapi.json`;
   - a typed client in `app/_lib/api.ts` built on the existing `apiFetch` (same base URL and bearer token, still `server-only`);
@@ -68,7 +68,7 @@
   - `grep -rn "interface Me" apps/web/app` prints nothing.
 
   Tick #62 AC 5.
-- [ ] 2.9 Add Playwright (design.md, decision 14):
+- [x] 2.9 Add Playwright (design.md, decision 14):
   - `@playwright/test` and `@axe-core/playwright` (dev);
   - `playwright.config.ts` with `phone` (375 x 812) and `desktop` (1280 x 800) projects and a `webServer` that builds and starts the web app;
   - a `test:e2e` script;
@@ -83,9 +83,9 @@
   - with system and an emulated dark color scheme, check the dark theme.
 
   Verify that `pnpm --filter web test:e2e e2e/theme.spec.ts` passes. Tick #62 AC 2.
-- [ ] 2.11 Add `e2e/layout.spec.ts`. For `/`, `/sign-in` and `/sign-up`, in both projects and both themes, it asserts that `document.documentElement.scrollWidth <= document.documentElement.clientWidth`, that the navigation is behind the menu button in `phone`, and that it's visible in `desktop`. Verify that it passes. Tick #62 AC 3.
-- [ ] 2.12 Capture screenshots of `/` and `/sign-in` in both projects and both themes into `design/decks-and-cards/screenshots/web-foundation/` (eight PNGs) with a Playwright script that runs on demand and isn't part of `test:e2e`. Commit them so the PR body can embed them. Verify that `ls design/decks-and-cards/screenshots/web-foundation/*.png | wc -l` prints `8`.
-- [ ] 2.13 Verify that `pnpm turbo run lint test build --filter=web` and `pnpm --filter web test:e2e` each exit 0. Tick #62 AC 6.
+- [x] 2.11 Add `e2e/layout.spec.ts`. For `/`, `/sign-in` and `/sign-up`, in both projects and both themes, it asserts that `document.documentElement.scrollWidth <= document.documentElement.clientWidth`, that the navigation is behind the menu button in `phone`, and that it's visible in `desktop`. Verify that it passes. Tick #62 AC 3.
+- [x] 2.12 Capture screenshots of `/` and `/sign-in` in both projects and both themes into `design/decks-and-cards/screenshots/web-foundation/` (eight PNGs) with a Playwright script that runs on demand and isn't part of `test:e2e`. Commit them so the PR body can embed them. Verify that `ls design/decks-and-cards/screenshots/web-foundation/*.png | wc -l` prints `8`.
+- [x] 2.13 Verify that `pnpm turbo run lint test build --filter=web` and `pnpm --filter web test:e2e` each exit 0. Tick #62 AC 6.
 - [ ] 2.14 Check for sync duplicates as in 1.1, commit and push `feat/web-foundation`, and open a PR into `feat/decks-and-cards` titled like #62. The body has `Refs #62`, no `Closes` line, and the eight screenshots embedded from the pushed branch. Verify that `gh pr view --json baseRefName,body` shows `feat/decks-and-cards`, `Refs #62` and eight image links, and that the images load on the PR page. Tick #62 AC 4.
 - [ ] 2.15 Post a progress comment on #62 (criteria verified, tasks completed, the PR link).
 - [ ] 2.16 Stop until the user confirms the #62 PR is merged. Verify `MERGED` as in 1.11, then update `feat/decks-and-cards`.

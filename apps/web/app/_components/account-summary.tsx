@@ -1,12 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { apiFetch } from "../_lib/api";
-import styles from "./account-summary.module.css";
-
-// The fields of the API's MeResponse (GET /me) this section shows.
-interface Me {
-  email: string | null;
-  timezone: string;
-}
+import { apiClient, type ApiSchemas } from "../_lib/api";
 
 /**
  * The signed-in user's account as the API returns it. Renders nothing when
@@ -19,15 +12,18 @@ export async function AccountSummary() {
 
   const me = await loadMe();
   return (
-    <section className={styles.account} aria-label="Your account">
+    <section
+      aria-label="Your account"
+      className="grid gap-1 rounded-xl border bg-card p-5 text-card-foreground"
+    >
       {me ? (
         <>
-          <p className={styles.label}>Signed in as</p>
-          <p className={styles.email}>{me.email ?? "No email yet"}</p>
-          <p className={styles.meta}>Time zone: {me.timezone}</p>
+          <p className="text-sm text-muted-foreground">Signed in as</p>
+          <p className="font-medium">{me.email ?? "No email yet"}</p>
+          <p className="text-sm text-muted-foreground">Time zone: {me.timezone}</p>
         </>
       ) : (
-        <p className={styles.error} role="status">
+        <p className="text-sm text-muted-foreground" role="status">
           Couldn&apos;t load your account right now.
         </p>
       )}
@@ -35,11 +31,10 @@ export async function AccountSummary() {
   );
 }
 
-async function loadMe(): Promise<Me | null> {
+async function loadMe(): Promise<ApiSchemas["MeResponse"] | null> {
   try {
-    const res = await apiFetch("/me");
-    if (!res.ok) return null;
-    return (await res.json()) as Me;
+    const { data } = await (await apiClient()).GET("/me");
+    return data ?? null;
   } catch {
     return null;
   }
