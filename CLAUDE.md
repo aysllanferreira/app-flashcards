@@ -73,6 +73,44 @@ not in an extra section.
 - When archiving, post a summary comment on the issue covering what shipped and the archive path.
 - **Never close the issue during archive.** The PR closes it.
 
+## System design
+
+`system-design/` is the **source of truth** for the system's architecture, request and job flows, data model and CI/CD. It holds:
+
+- the PNG diagrams;
+- their editable `.excalidraw` sources;
+- `system-design/README.md`, which indexes the diagrams and records the decisions, trade-offs and open questions.
+
+Every OpenSpec phase checks work against it. When a change and the system design disagree, resolve it explicitly: adjust the change, or update the system design after the user approves. A change must never leave `system-design/` describing a different system from the one it delivers. These rules apply alongside the issue-driven workflow.
+
+### Diagram conventions
+
+- Every diagram is a pair with the same basename: `NN-name.png` plus `NN-name.excalidraw`. `NN` is a two-digit sequence number.
+- Every diagram is listed and embedded in `system-design/README.md`.
+- A new diagram takes the next free number. Don't renumber existing ones.
+- An edit updates **both** files: change the `.excalidraw` source (in Excalidraw+ or on excalidraw.com), then re-export the PNG so the two match. Update `README.md` too when the description, decisions or trade-offs change.
+
+### Explore
+
+- Once the discussion turns into concrete work, read `system-design/README.md` and the diagrams relevant to that work.
+- Tell the user whether the work **matches** the system design, and which diagrams cover it.
+- If it doesn't match, propose specific updates: which diagrams to edit or add, and what changes in each. Apply them only after the user approves. Explore is the main place where the system design is kept current.
+
+### Propose
+
+- `proposal.md` states the system-design alignment, either `System design: no change` or a list of the diagrams to add or update.
+- When diagrams change, `tasks.md` includes tasks to edit or create each `.excalidraw` source, re-export its PNG and update `system-design/README.md`.
+- `design.md` must not describe architecture that contradicts `system-design/` unless the proposal lists the matching diagram updates.
+
+### Update (`/opsx:update`)
+
+- Whenever the change artifacts are revised, re-check the system-design alignment in `proposal.md` and the diagram tasks in `tasks.md`, and correct them in the same revision.
+
+### Archive
+
+- **Gate:** do not archive while `system-design/` does not reflect what the change delivered. List any outstanding diagram updates and stop.
+- The archive summary comment on the issue lists the system-design files that changed, or states that none did.
+
 ## Commits and pull requests
 
 ### Commits

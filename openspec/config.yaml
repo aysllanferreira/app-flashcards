@@ -14,6 +14,12 @@ context: |
   "Issue-driven workflow" section of CLAUDE.md at the repo root, and they take
   precedence over this file.
 
+  System design: system-design/ (PNG diagrams, their .excalidraw sources and
+  README.md) is the source of truth for architecture, flows, data model and
+  CI/CD. Every phase checks work against it, and a change that diverges must
+  either be adjusted or update the diagrams after user approval. The full rules
+  are in the "System design" section of CLAUDE.md.
+
   Git: Conventional Commits, authored only by the repo owner, with no Claude
   Co-Authored-By trailer or "Generated with Claude Code" line. dev is the
   default branch and every PR targets it. PRs are squash-merged only, and the
@@ -24,9 +30,13 @@ rules:
   proposal:
     - 'The first line of proposal.md is exactly "Issue: #N", where N is the linked open GitHub issue. Do not write the proposal without one (see CLAUDE.md, Propose).'
     - 'The proposal must not claim scope or acceptance outcomes that the linked issue does not contain. If the issue needs to change, propose the issue edit to the user first.'
+    - 'State the system design alignment after checking system-design/ (README.md and the relevant diagrams): write "System design: no change", or list each diagram to add or update and what changes in it (see CLAUDE.md, System design).'
+  design:
+    - 'Do not describe architecture, flows, data model or CI/CD that contradict system-design/ unless proposal.md lists the matching diagram updates.'
   tasks:
     - 'Every acceptance criterion of the linked issue is covered by at least one task.'
     - 'Each task group heading names the issue acceptance criteria it covers, for example "(issue #N, AC 1 and 2)".'
+    - 'When proposal.md lists system-design diagram updates, include tasks to edit or create each NN-name.excalidraw source, re-export its NN-name.png, and update system-design/README.md.'
 
 operations:
   apply:
@@ -38,6 +48,7 @@ operations:
   archive:
     guidance:
       - 'Do not archive while any acceptance criterion on the linked issue is unticked; list the open criteria and stop.'
-      - 'After archiving, post a summary comment on the issue covering what shipped and the archive path.'
+      - 'Do not archive while system-design/ does not reflect what the change delivered; list any outstanding diagram updates from proposal.md and stop.'
+      - 'After archiving, post a summary comment on the issue covering what shipped and the archive path, and listing the system-design files that changed (or stating that none did).'
       - 'Do not close the issue. The PR''s "Closes #N" closes it when the PR is squash-merged into dev, the default branch. If the change reached dev without a PR, ask the user before closing.'
       - 'The delivering PR targets dev (never main, the release branch), has a Conventional Commit title, is squash-merged so the commit title ends in (#N), and carries no Claude co-author or "Generated with Claude Code" line.'
