@@ -22,31 +22,31 @@
 - [x] 1.8 Start `pnpm --filter api dev`. Verify that `curl -s -w ' %{http_code}' http://localhost:3001/health` prints `{"status":"ok"} 200`, then stop the server. Tick #24 AC 3.
 - [x] 1.9 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #24 AC 5.
 - [x] 1.10 Commit with a Conventional Commit message (no Claude attribution) and push `feat/api-modules-health`. Open a PR into `feat/nestjs-setup` titled like #24, with `Refs #24` and no `Closes` line in the body. Verify that `gh pr view --json baseRefName,body` shows `feat/nestjs-setup` and `Refs #24`.
-- [ ] 1.11 Post a progress comment on #24 (criteria verified, tasks completed, the PR link).
-- [ ] 1.12 Stop until the user confirms the #24 PR is merged. Verify that `gh pr view <n> --json state` shows `MERGED`, then `git switch feat/nestjs-setup && git pull --ff-only`.
+- [x] 1.11 Post a progress comment on #24 (criteria verified, tasks completed, the PR link).
+- [x] 1.12 Stop until the user confirms the #24 PR is merged. Verify that `gh pr view <n> --json state` shows `MERGED`, then `git switch feat/nestjs-setup && git pull --ff-only`.
 
 ## 2. Zod request validation and response shaping (issue #25, AC 1 to 5)
 
-- [ ] 2.1 Read #23 and #25, report any conflict, then cut `feat/api-zod-validation` from the updated `feat/nestjs-setup`. Verify that `git merge-base --is-ancestor origin/feat/nestjs-setup HEAD` exits 0.
-- [ ] 2.2 Register `{ provide: APP_PIPE, useClass: StandardSchemaValidationPipe }` and `{ provide: APP_INTERCEPTOR, useClass: StandardSchemaSerializerInterceptor }` in `AppModule` (design.md, decision 3), and add `@SerializeOptions({ schema: HealthResponseSchema })` to the health route. Verify that `pnpm --filter api test` still passes.
-- [ ] 2.3 Add `test/fixtures/fixture.module.ts` (design.md, decision 5):
+- [x] 2.1 Read #23 and #25, report any conflict, then cut `feat/api-zod-validation` from the updated `feat/nestjs-setup`. Verify that `git merge-base --is-ancestor origin/feat/nestjs-setup HEAD` exits 0.
+- [x] 2.2 Register `{ provide: APP_PIPE, useClass: StandardSchemaValidationPipe }` and `{ provide: APP_INTERCEPTOR, useClass: StandardSchemaSerializerInterceptor }` in `AppModule` (design.md, decision 3), and add `@SerializeOptions({ schema: HealthResponseSchema })` to the health route. Verify that `pnpm --filter api test` still passes.
+- [x] 2.3 Add `test/fixtures/fixture.module.ts` (design.md, decision 5):
   - a `POST /fixtures/:id` route with `@Param('id', { schema: z.uuid() })`;
   - `@Query({ schema })` with an optional `verbose` boolean;
   - `@Body({ schema })` with a required `title: string` (trimmed);
   - a response schema `{ id, title }`, while the handler returns `{ id, title, secret }`.
 
   Verify that the module compiles under `pnpm --filter api test`.
-- [ ] 2.4 Add `test/validation.e2e-spec.ts`, which builds a testing module from `AppModule` plus `FixtureModule`. Verify these e2e cases pass:
+- [x] 2.4 Add `test/validation.e2e-spec.ts`, which builds a testing module from `AppModule` plus `FixtureModule`. Verify these e2e cases pass:
   - a body without `title` gets 400 with a `message` array containing an entry that names `title`;
   - `not-a-uuid` as `:id` gets 400;
   - a valid body reaches the handler as the parsed value (e.g. `" Hola "` arrives trimmed as `"Hola"`).
 
   Tick #25 AC 2.
-- [ ] 2.5 In the same file, verify that the response body for a valid request has `id` and `title` and no `secret`. Tick #25 AC 3.
-- [ ] 2.6 In `test/health.e2e-spec.ts`, parse the `GET /health` body with `HealthResponseSchema.parse`. Verify that the test passes. Tick #25 AC 4.
-- [ ] 2.7 Verify that `grep -cE '"(nestjs-zod|class-validator|class-transformer)"' apps/api/package.json` prints `0`. Tick #25 AC 1.
-- [ ] 2.8 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #25 AC 5.
-- [ ] 2.9 Commit and push `feat/api-zod-validation`. Open a PR into `feat/nestjs-setup` titled like #25, with `Refs #25` and no `Closes` line. Verify the base and body with `gh pr view --json baseRefName,body`.
+- [x] 2.5 In the same file, verify that the response body for a valid request has `id` and `title` and no `secret`. Tick #25 AC 3.
+- [x] 2.6 In `test/health.e2e-spec.ts`, parse the `GET /health` body with `HealthResponseSchema.parse`. Verify that the test passes. Tick #25 AC 4.
+- [x] 2.7 Verify that `grep -cE '"(nestjs-zod|class-validator|class-transformer)"' apps/api/package.json` prints `0`. Tick #25 AC 1.
+- [x] 2.8 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #25 AC 5.
+- [x] 2.9 Commit and push `feat/api-zod-validation`. Open a PR into `feat/nestjs-setup` titled like #25, with `Refs #25` and no `Closes` line. Verify the base and body with `gh pr view --json baseRefName,body`.
 - [ ] 2.10 Post a progress comment on #25.
 - [ ] 2.11 Stop until the user confirms the #25 PR is merged. Verify `gh pr view <n> --json state` shows `MERGED`, then fast-forward the local `feat/nestjs-setup`.
 
