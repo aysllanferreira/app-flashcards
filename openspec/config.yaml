@@ -22,8 +22,10 @@ context: |
 
   Git: Conventional Commits, authored only by the repo owner, with no Claude
   Co-Authored-By trailer or "Generated with Claude Code" line. dev is the
-  default branch and every PR targets it. PRs are squash-merged only, and the
-  squash commit title is the PR title plus "(#N)". main is the release branch.
+  default branch and every feature PR targets it. Feature PRs are squash-merged
+  only, and the squash commit title is the PR title plus "(#N)". main is the
+  release branch: release PRs dev -> main are merged with a merge commit.
+  Versions are per-app git tags (<app>@X.Y.Z-dev.N on dev, <app>@X.Y.Z on main).
   See "Commits and pull requests" in CLAUDE.md.
 
 rules:
