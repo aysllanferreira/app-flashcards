@@ -46,6 +46,6 @@
 
 ## 7. Wrap-up and GitHub Wiki (issue #9, AC 9 and 10)
 
-- [ ] 7.1 Commit the new work with Conventional Commits and no Claude attribution, and push it to PR #11. Verify that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0.
-- [ ] 7.2 Confirm the wiki repository exists (the owner has created the first page in the web UI). Verify that `git ls-remote https://github.com/aysllanferreira/app-flashcards.wiki.git` succeeds.
-- [ ] 7.3 Create the GitHub Wiki: clone `app-flashcards.wiki.git`; write `Home`, `Roadmap`, `Status`, `Architecture`, `Development-Workflow`, `Decisions`, `Changelog`, `_Sidebar` and `_Footer` with the current project state (shipped #1, #2, #5, #8 and this change; open questions from `system-design/README.md`); push with a Conventional Commit. Verify that a fresh clone lists all nine files and that `_Sidebar.md` links to the seven content pages.
+- [x] 7.1 Commit the new work with Conventional Commits and no Claude attribution, and push it to PR #11. Verify that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0.
+- [x] 7.2 Confirm the wiki repository exists (the owner has created the first page in the web UI). Verify that `git ls-remote https://github.com/aysllanferreira/app-flashcards.wiki.git` succeeds.
+- [x] 7.3 Create the GitHub Wiki: clone `app-flashcards.wiki.git`; write `Home`, `Roadmap`, `Status`, `Architecture`, `Development-Workflow`, `Decisions`, `Changelog`, `_Sidebar` and `_Footer` with the current project state (shipped #1, #2, #5, #8 and this change; open questions from `system-design/README.md`); push with a Conventional Commit. Verify that a fresh clone lists all nine files and that `_Sidebar.md` links to the seven content pages.
