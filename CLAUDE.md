@@ -170,12 +170,21 @@ When a page has to be added, link it from `_Sidebar` in the same push.
 
 ### Branches and merging
 
-- `dev` is the default branch and the integration branch. **Every PR targets `dev`.**
-- `main` is the **release branch**. Feature PRs never target it.
-- PRs are always **squash-merged**; the repo allows no other merge method. The squash commit title is the PR title plus the PR number, for example `chore(openspec): enforce issue-driven workflow (#3)`. The repo is set up so GitHub adds `(#N)` automatically.
+- `dev` is the default branch and the integration branch. **Every feature PR targets `dev`.**
+- `main` is the **release branch**. The only PRs that target it are **release PRs from `dev`**. Feature PRs never target it.
+- Feature PRs into `dev` are always **squash-merged**; the `dev` ruleset allows no other method. The squash commit title is the PR title plus the PR number, for example `chore(openspec): enforce issue-driven workflow (#3)`. The repo is set up so GitHub adds `(#N)` automatically.
+- Release PRs `dev -> main` are merged with a **merge commit**, titled by the PR title; the `main` ruleset allows no other method. This keeps every `dev` commit in `main`'s history.
 - Write PR titles as Conventional Commit summaries, so the squash commit is one too.
+
+### Versioning
+
+- `api` and `web` are versioned independently, and versions live **only in git tags** named `<app>@<version>`, each with a GitHub Release. The `version` field in `apps/*/package.json` stays `0.0.0`.
+- On every push to `dev`, the `versioning` workflow tags each app that turbo reports as affected with `<app>@X.Y.Z-dev.N` (a prerelease). The bump comes from the squash commit: breaking is major (minor while 0.x), `feat` is minor, anything else is patch.
+- On every push to `main`, it promotes each app with a newer dev version to `<app>@X.Y.Z` (a release).
+- Never edit `package.json` versions or create, move or delete `<app>@*` tags by hand. The rules are in `openspec/specs/app-versioning/spec.md`.
 
 ### Pull requests
 
-- Every PR that delivers a change includes `Closes #N` in its body (see `.github/pull_request_template.md`). Because `dev` is the default branch, the issue closes when the PR is squash-merged into `dev`.
+- The PR that completes a change includes `Closes #N` in its body (see `.github/pull_request_template.md`). Because `dev` is the default branch, the issue closes when the PR is squash-merged into `dev`.
+- When a change ships across several PRs, the earlier ones (and any release PR) use `Refs #N`, so the issue stays open until the last one merges.
 - If a change reaches `dev` without a PR, ask the user before closing the issue, and close it only on approval.
