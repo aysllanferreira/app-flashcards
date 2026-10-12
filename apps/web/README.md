@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# web
 
-## Getting Started
+The Next.js web app for the flashcards app: decks, notes with a live card preview, and the card browser. It lives in this Turborepo monorepo next to the NestJS API (`apps/api`) and the shared `card-templates` package (`packages/card-templates`).
 
-First, run the development server:
+The rules for working on it (Tailwind and shadcn/ui, design tokens, both themes and both widths, server-side API calls, the tests) are in the "Web (apps/web)", "Design" and "Shared packages" sections of [`CLAUDE.md`](../../CLAUDE.md). The approved prototype is [`design/decks-and-cards/prototype.html`](../../design/decks-and-cards/prototype.html).
+
+## Run it
+
+From the repo root:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+docker compose up -d --wait db
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`pnpm dev` starts the web app on `http://localhost:3000` and the API on `http://localhost:3001`, after building `card-templates`. Signed-out visitors see the landing page; signed-in users land on `/decks`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env.local` and fill in:
 
-## Learn More
+| Variable | What it is |
+|---|---|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` | The Clerk development instance's keys |
+| `API_URL` | The API's base URL, read only on the server. Defaults to `http://localhost:3001` outside production and is required by `next start` |
+| `E2E_CLERK_USER_EMAIL` | In `.env.test.local`: the Clerk test user the signed-in Playwright tests sign in as |
 
-To learn more about Next.js, take a look at the following resources:
+All of these files are git-ignored except `.env.example`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Test it
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Command | What it does |
+|---|---|
+| `pnpm --filter web test` | Vitest (jsdom): components, the home page, and a check that the API types match `apps/api/openapi.json`. No server or network needed |
+| `pnpm --filter web test:e2e` | Playwright against the production build at 375 px (`phone`) and 1280 px (`desktop`): redirects, theme, layout, the full deck and note flow, overflow and axe checks. Needs the database (`docker compose up -d --wait db`) and port 3000 free; starts the API too. Signed-in tests are skipped without `E2E_CLERK_USER_EMAIL` |
+| `pnpm --filter web screenshots` | Regenerates the review screenshots under `design/decks-and-cards/screenshots/` |
 
-## Deploy on Vercel
+The first Playwright run needs a browser: `pnpm --filter web exec playwright install chromium`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Common tasks
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**After an API contract change**, regenerate the typed client and commit it:
+
+```bash
+pnpm --filter web generate:api
+```
+
+It writes `app/_lib/api-types.ts` from `apps/api/openapi.json`; `pnpm --filter web test` fails while it is stale.
+
+**Add a shadcn/ui component:**
+
+```bash
+pnpm --filter web dlx shadcn@latest add <name>
+```
+
+It lands in `components/ui/` and imports `cn` from shadcn's `cn` package. Style it only with the theme tokens.
+
+**Change a color, font or radius:** edit the `app-tokens` blocks in `design/decks-and-cards/prototype.html` first, then copy them unchanged into `app/globals.css`.

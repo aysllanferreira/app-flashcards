@@ -248,15 +248,15 @@
 - [x] 5.10 Add `e2e/screens.spec.ts`: for each new route, in both projects and both themes, signed in with seeded content, it checks that there's no horizontal overflow and runs an axe scan with no serious or critical violations. Also add a keyboard-only pass over the deck list and the editor (tab to each action, activate with Enter). Verify that it passes. Tick #65 AC 4.
 - [x] 5.11 Capture screenshots of the four screens in both projects and both themes into `design/decks-and-cards/screenshots/web-screens/` (16 PNGs) with the on-demand script from 2.12. Verify that `ls design/decks-and-cards/screenshots/web-screens/*.png | wc -l` prints `16`.
 - [x] 5.12 Verify that `pnpm turbo run lint test build --filter=web` and `pnpm --filter web test:e2e` each exit 0. Tick #65 AC 6.
-- [ ] 5.13 Check for sync duplicates, commit, push `feat/web-decks` and open a PR into `feat/decks-and-cards` titled like #65. The body has `Refs #65`, no `Closes`, the 16 screenshots embedded and the prototype link. Verify with `gh pr view --json baseRefName,body`.
-- [ ] 5.14 Stop and ask the user to review the screenshots against the prototype. Fix what they ask for (re-capturing the screenshots), then post a PR comment quoting their review. Verify that the comment exists. Tick #65 AC 5.
-- [ ] 5.15 Post a progress comment on #65 (criteria verified, tasks completed, the PR link).
-- [ ] 5.16 Stop until the user confirms the #65 PR is merged. Verify `MERGED`, then update `feat/decks-and-cards`.
+- [x] 5.13 Check for sync duplicates, commit, push `feat/web-decks` and open a PR into `feat/decks-and-cards` titled like #65. The body has `Refs #65`, no `Closes`, the 16 screenshots embedded and the prototype link. Verify with `gh pr view --json baseRefName,body`.
+- [x] 5.14 Stop and ask the user to review the screenshots against the prototype. Fix what they ask for (re-capturing the screenshots), then post a PR comment quoting their review. Verify that the comment exists. Tick #65 AC 5.
+- [x] 5.15 Post a progress comment on #65 (criteria verified, tasks completed, the PR link).
+- [x] 5.16 Stop until the user confirms the #65 PR is merged. Verify `MERGED`, then update `feat/decks-and-cards`.
 
 ## 6. Web UI, design and shared-package conventions (issue #66, AC 1 to 4)
 
-- [ ] 6.1 Read #60 and #66, report any conflict, then cut `docs/web-conventions` from the updated `feat/decks-and-cards`. Verify the merge base as in 1.2.
-- [ ] 6.2 Add a `## Web (apps/web)` section to `CLAUDE.md`, after the API section. It covers:
+- [x] 6.1 Read #60 and #66, report any conflict, then cut `docs/web-conventions` from the updated `feat/decks-and-cards`. Verify the merge base as in 1.2.
+- [x] 6.2 Add a `## Web (apps/web)` section to `CLAUDE.md`, after the API section. It covers:
   - Tailwind and shadcn/ui only (`components/ui`, no CSS modules, colors only from tokens);
   - every screen checked at 375 px and 1280 px in both themes;
   - API types only from the generated client, with `pnpm --filter web generate:api` after any contract change;
@@ -265,12 +265,12 @@
   - field HTML rendered only through the `card-templates` sanitizer, and template HTML only in a sandboxed iframe.
 
   Add a "Design" note (UI work starts from an approved prototype under `design/<change>/`, with screenshots next to it) and a "Shared packages" note (`packages/*` are pure, built by `tsc`, tested, and imported by both apps). Verify that `grep -n "^## Web (apps/web)" CLAUDE.md` prints one line, that the section contains `components/ui`, `375`, `1280`, `generate:api` and `card-templates`, and that `grep -n "design/" CLAUDE.md` and `grep -n "packages/" CLAUDE.md` each print at least one line. Tick #66 AC 1 and 2.
-- [ ] 6.3 In `openspec/config.yaml`:
+- [x] 6.3 In `openspec/config.yaml`:
   - add a proposal rule: "State the UI impact: write "UI: no change", or list the screens the change adds or changes";
   - add a tasks rule: UI changes include the prototype, its approval, the 375 px and 1280 px light and dark Playwright checks and the screenshots.
 
   Verify that `grep -n "UI: no change" openspec/config.yaml` prints at least one line and `openspec validate --specs --strict` still exits 0. Tick #66 AC 3.
-- [ ] 6.4 Rewrite `apps/web/README.md`: what the app is, `pnpm --filter web dev`, `test`, `test:e2e` (and the `.env.test.local` variables), `generate:api`, how to add a shadcn component (`pnpm --filter web dlx shadcn@latest add <name>`), and where the tokens come from. Verify that `grep -n "test:e2e\|generate:api\|shadcn" apps/web/README.md` matches all three. Tick #66 AC 4.
+- [x] 6.4 Rewrite `apps/web/README.md`: what the app is, `pnpm --filter web dev`, `test`, `test:e2e` (and the `.env.test.local` variables), `generate:api`, how to add a shadcn component (`pnpm --filter web dlx shadcn@latest add <name>`), and where the tokens come from. Verify that `grep -n "test:e2e\|generate:api\|shadcn" apps/web/README.md` matches all three. Tick #66 AC 4.
 - [ ] 6.5 Check for sync duplicates, commit, push `docs/web-conventions` and open a PR into `feat/decks-and-cards` titled like #66, with `Refs #66` and no `Closes`. Verify with `gh pr view --json baseRefName,body`.
 - [ ] 6.6 Post a progress comment on #66 (criteria verified, tasks completed, the PR link).
 - [ ] 6.7 Stop until the user confirms the #66 PR is merged. Verify `MERGED`, then update `feat/decks-and-cards`.
