@@ -48,6 +48,7 @@ rules:
     - 'State the system design alignment after checking system-design/ (README.md and the relevant diagrams): write "System design: no change", or list each diagram to add or update and what changes in it (see CLAUDE.md, System design).'
     - 'When the change ships as sub-issues, line 1 is "Issue: #P" (the parent issue) and line 2 is "Sub-issues: #S1, #S2, ..." listing every sub-issue in delivery order (see CLAUDE.md, Sub-issues and integration branches).'
     - 'State the API contract impact: write "API contract: no change", or list each apps/api endpoint (method and path) the change adds, changes or removes (see CLAUDE.md, API (apps/api)).'
+    - 'For every endpoint listed under the API contract impact, state whether it is public or authenticated. Routes need a Clerk session token unless marked @Public(), which is only for health, docs and signed callbacks such as webhooks (see CLAUDE.md, API (apps/api), Auth).'
     - 'State the data model impact: write "Data model: no change", or list the tables and columns the change adds, changes or removes (see CLAUDE.md, Database).'
   design:
     - 'Do not describe architecture, flows, data model or CI/CD that contradict system-design/ unless proposal.md lists the matching diagram updates.'

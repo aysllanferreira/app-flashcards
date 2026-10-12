@@ -36,7 +36,22 @@ The docs are served unless `NODE_ENV=production`; set `SWAGGER_UI=true` to serve
 | `SWAGGER_UI` | `false` | Serve `/docs` and `/docs-json` in production |
 | `DATABASE_URL` | the local Docker database | A `postgres://` URL. Required in production |
 
-Invalid values stop the API at startup with an error naming the variable. Copy `.env.example` to `.env` to override them locally; `.env` is git-ignored.
+The auth variables are in [Auth](#auth). Invalid values stop the API at startup with an error naming the variable. Copy `.env.example` to `.env` to override them locally; `.env` is git-ignored.
+
+## Auth
+
+Users sign in with [Clerk](https://clerk.com) in the web app. Every API route needs a valid Clerk session token, sent as `Authorization: Bearer <token>`, except the ones marked `@Public()`: `/health`, the docs and `POST /webhooks/clerk`, which checks its own signature. Without a valid token a route answers `401`. An account is created, with its "Default" deck preset and the built-in note types, on its first authenticated request or on Clerk's `user.created` webhook, whichever comes first. `GET /me` returns the caller's account. The rules for writing routes are in the "Auth" subsection of [`CLAUDE.md`](../../CLAUDE.md), and the flow is [`system-design/09-flow-user-sync.png`](../../system-design/09-flow-user-sync.png).
+
+| Variable | Default | |
+|---|---|---|
+| `WEB_ORIGIN` | `http://localhost:3000` | The web app's origins, comma-separated. Browsers may call the API only from these (CORS), and a session token's authorized party (`azp`) must be one of them. Required in production |
+| `CLERK_JWT_KEY` | none | Clerk's JWT public key in PEM format (**API keys > Show JWT public key**), so tokens are verified without a network call. A one-line value may write the line breaks as `\n` |
+| `CLERK_SECRET_KEY` | none | Clerk's secret key: the fallback when there is no `CLERK_JWT_KEY`, fetching Clerk's public keys over the network. Production needs one of the two keys |
+| `CLERK_WEBHOOK_SIGNING_SECRET` | none | The `whsec_...` signing secret of the webhook endpoint (see [Clerk webhooks (local)](#clerk-webhooks-local)). Without it every webhook is rejected. Required in production |
+
+Without either key, every route except the public ones answers `401`; `/health`, the docs and `pnpm --filter api openapi` still work.
+
+**Calling a protected route from Swagger UI:** sign in to the web app, then get a session token from the browser console with `await window.Clerk.session.getToken()`. Open `http://localhost:3001/docs`, choose **Authorize**, paste the token and call the route. Session tokens expire after about a minute, so get a fresh one when you see `401`.
 
 ## Database
 
