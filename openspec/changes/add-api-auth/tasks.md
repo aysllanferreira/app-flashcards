@@ -215,7 +215,7 @@
 - [x] 6.3 Verify that `pnpm --filter api db:generate` reports no schema changes and `git diff dev...feat/api-auth -- apps/api/drizzle` prints nothing. Tick #48 AC 4.
 - [x] 6.4 Verify that `gh issue view <n> --json body --jq .body | grep -c '^- \[ \]'` prints `0` for each of #49–#53. Tick #48 AC 1.
 - [x] 6.5 Open the PR from `feat/api-auth` into `dev`. Its title is `feat(auth): verify Clerk sessions in the API and sync users from Clerk webhooks`, and its body has `Closes #48`, `Closes #49`, `Closes #50`, `Closes #51`, `Closes #52` and `Closes #53`, with no Claude attribution. Verify that `gh pr view --json baseRefName,body` shows `dev` and all six `Closes` lines. Tick #48 AC 5.
-- [ ] 6.6 Run `openspec validate add-api-auth --strict`, then sync the deltas with `/opsx:sync`. Verify that:
+- [x] 6.6 Run `openspec validate add-api-auth --strict`, then sync the deltas with `/opsx:sync`. Verify that:
   - `openspec list --specs` lists `api-authentication` and `clerk-user-sync`;
   - `openspec/specs/web-authentication/spec.md` has the "Signed-in users see their account" requirement;
   - `openspec validate --specs --strict` exits 0.
