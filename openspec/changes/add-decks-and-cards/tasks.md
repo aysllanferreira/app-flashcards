@@ -77,7 +77,7 @@
   - the e2e folder excluded from Vitest.
 
   Install Chromium with `pnpm --filter web exec playwright install chromium`. Verify that `pnpm --filter web test:e2e --list` lists tests for both projects and `pnpm --filter web test` doesn't run them.
-- [ ] 2.10 Add `e2e/theme.spec.ts`:
+- [x] 2.10 Add `e2e/theme.spec.ts`:
   - choose light, dark and system through the toggle, reloading after each, and check the class on `html`;
   - with dark stored, check that `html` has `dark` at `DOMContentLoaded`;
   - with system and an emulated dark color scheme, check the dark theme.
