@@ -1,8 +1,8 @@
 {
   "name": "api",
   "version": "0.0.0",
-  "description": "",
-  "author": "",
+  "description": "NestJS API for the flashcards app",
+  "author": "Aysllan Ferreira",
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
