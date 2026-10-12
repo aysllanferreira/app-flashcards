@@ -172,8 +172,8 @@
   - `openspec validate --specs --strict` exits 0.
 
   Commit and push to `feat/nestjs-setup`. Tick #23 AC 4.
-- [ ] 6.4 Open the PR from `feat/nestjs-setup` into `dev`. Its title is `feat(api): add API foundation with feature modules, Zod validation and an OpenAPI contract`, and its body has `Closes #23`, `Closes #24`, `Closes #25`, `Closes #26`, `Closes #27` and `Closes #28`, with no Claude attribution. Verify that `gh pr view --json baseRefName,body` shows `dev` and all six `Closes` lines. Tick #23 AC 3.
-- [ ] 6.5 Clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
+- [x] 6.4 Open the PR from `feat/nestjs-setup` into `dev`. Its title is `feat(api): add API foundation with feature modules, Zod validation and an OpenAPI contract`, and its body has `Closes #23`, `Closes #24`, `Closes #25`, `Closes #26`, `Closes #27` and `Closes #28`, with no Claude attribution. Verify that `gh pr view --json baseRefName,body` shows `dev` and all six `Closes` lines. Tick #23 AC 3.
+- [x] 6.5 Clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
   - `Status`: #23 in review with the final PR, and the sub-PRs listed;
   - `Changelog`: a new top entry;
   - `Roadmap`: a new "API foundation" item before the Data layer, linked to #23;
