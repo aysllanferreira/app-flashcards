@@ -146,14 +146,14 @@
 
   Verify that the first plan uses `cards_review_queue_idx` and the second `cards_new_queue_idx`, and neither contains `Seq Scan on cards`. If the planner chooses otherwise, adjust the index or the seed's distribution. Never disable sequential scans to pass. Record both plans in the #40 progress comment. Tick #40 AC 5.
 - [x] 4.10 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #40 AC 6.
-- [ ] 4.11 Check for sync duplicates, commit and push `feat/db-history-media-jobs`. Open a PR into `feat/data-layer` titled like #40, with `Refs #40` and no `Closes` line. Verify the base and body.
-- [ ] 4.12 Post a progress comment on #40, including the two `EXPLAIN` plans.
-- [ ] 4.13 Stop until the user confirms the #40 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
+- [x] 4.11 Check for sync duplicates, commit and push `feat/db-history-media-jobs`. Open a PR into `feat/data-layer` titled like #40, with `Refs #40` and no `Closes` line. Verify the base and body.
+- [x] 4.12 Post a progress comment on #40, including the two `EXPLAIN` plans.
+- [x] 4.13 Stop until the user confirms the #40 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
 
 ## 5. Database conventions in CLAUDE.md, OpenSpec rules and the API README (issue #41, AC 1 to 3)
 
-- [ ] 5.1 Read #36 and #41, report any conflict, then cut `docs/database-conventions` from the updated `feat/data-layer`. Verify the merge base as in 2.1.
-- [ ] 5.2 Update the "API (`apps/api`)" section of `CLAUDE.md`:
+- [x] 5.1 Read #36 and #41, report any conflict, then cut `docs/database-conventions` from the updated `feat/data-layer`. Verify the merge base as in 2.1.
+- [x] 5.2 Update the "API (`apps/api`)" section of `CLAUDE.md`:
   - **Layout:** `src/database/` is among the cross-cutting folders, and `schema/` holds Drizzle tables, the only place a table may be defined.
   - **Tests:** `pnpm --filter api test` runs three suites (unit, e2e, database), and the database suite needs `docker compose up -d --wait db`.
   - **A new "Database" subsection:**
@@ -165,13 +165,13 @@
     - `db:seed` for local data.
 
   Verify that `grep -n "src/database\|db:generate\|drizzle-kit push\|composite foreign key" CLAUDE.md` matches each term. Tick #41 AC 1.
-- [ ] 5.3 Add to `openspec/config.yaml`:
+- [x] 5.3 Add to `openspec/config.yaml`:
   - a `rules.proposal` entry: state "Data model: no change" or list the tables and columns added, changed or removed;
   - a `rules.design` entry: new tables follow the table conventions in `CLAUDE.md`;
   - a `rules.tasks` entry: schema changes get tasks to generate and commit the migration with `pnpm --filter api db:generate`, apply it to a fresh database and add database tests for new constraints.
 
   Verify that `openspec instructions proposal --change add-data-layer --json | jq -r '.rules[]'` (and the same for `design` and `tasks`) prints each new rule. Tick #41 AC 2.
-- [ ] 5.4 Add a "Database" section to `apps/api/README.md`:
+- [x] 5.4 Add a "Database" section to `apps/api/README.md`:
   - `docker compose up -d --wait db`;
   - `pnpm --filter api db:migrate`, `db:seed` and `db:generate`;
   - running the tests;
