@@ -8,6 +8,9 @@ export const EnvSchema = z.object({
     .enum(['development', 'test', 'production'])
     .default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3001),
+  // Serves /docs and /docs-json in production too. Outside production the
+  // docs are always served.
+  SWAGGER_UI: z.stringbool().default(false),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

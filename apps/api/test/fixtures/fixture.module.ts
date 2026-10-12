@@ -1,13 +1,8 @@
-import {
-  Body,
-  Controller,
-  Module,
-  Param,
-  Post,
-  Query,
-  SerializeOptions,
-} from '@nestjs/common';
+import { Body, Controller, Module, Param, Post, Query } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import { z } from 'zod';
+import { ApiErrorResponses } from '../../src/common/decorators/api-error-responses.decorator.js';
+import { ApiResponseSchema } from '../../src/common/decorators/api-response-schema.decorator.js';
 
 // Test-only routes that exercise every kind of declared schema (body, query,
 // path parameter, response) without adding product endpoints. Lives under
@@ -17,9 +12,11 @@ export const FixtureBodySchema = z
   .meta({ id: 'FixtureBody' });
 export type FixtureBody = z.infer<typeof FixtureBodySchema>;
 
-export const FixtureQuerySchema = z
-  .object({ verbose: z.stringbool().optional() })
-  .meta({ id: 'FixtureQuery' });
+// No `.meta({ id })`: Swagger expands an inline query schema into one query
+// parameter per field, but leaves a named (referenced) one unexpanded.
+export const FixtureQuerySchema = z.object({
+  verbose: z.stringbool().optional(),
+});
 export type FixtureQuery = z.infer<typeof FixtureQuerySchema>;
 
 export const FixtureResponseSchema = z
@@ -30,7 +27,9 @@ export type FixtureResponse = z.infer<typeof FixtureResponseSchema>;
 @Controller('fixtures')
 export class FixtureController {
   @Post(':id')
-  @SerializeOptions({ schema: FixtureResponseSchema })
+  @ApiOperation({ summary: 'Fixture route for validation and docs tests' })
+  @ApiResponseSchema(201, FixtureResponseSchema)
+  @ApiErrorResponses({ badRequest: true })
   create(
     @Param('id', { schema: z.uuid() }) id: string,
     @Query({ schema: FixtureQuerySchema }) _query: FixtureQuery,
