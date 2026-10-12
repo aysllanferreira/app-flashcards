@@ -80,6 +80,49 @@
           }
         ]
       }
+    },
+    "/webhooks/clerk": {
+      "post": {
+        "operationId": "WebhooksController_clerk",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WebhookAck"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "summary": "Receive Clerk user events",
+        "tags": [
+          "webhooks"
+        ]
+      }
     }
   },
   "info": {
@@ -184,6 +227,21 @@
           "dayRolloverHour",
           "remindersOn",
           "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "WebhookAck": {
+        "type": "object",
+        "properties": {
+          "received": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "received"
         ],
         "additionalProperties": false
       }
