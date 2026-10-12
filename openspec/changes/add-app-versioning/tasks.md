@@ -45,7 +45,7 @@
 
 ## 6. PR 1: versioning lands on dev (issue #12, AC 4, 7 and 8)
 
-- [ ] 6.1 Commit groups 2 to 5 with Conventional Commits and no Claude attribution, push `feat/apps-versioning`, and open a PR to `dev` titled `feat(versioning): version api and web with dev prereleases and release tags`, with `Refs #12` in the body. Verify that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0 and that `gh pr view --json baseRefName,body` shows `dev` and `Refs #12`.
+- [x] 6.1 Commit groups 2 to 5 with Conventional Commits and no Claude attribution, push `feat/apps-versioning`, and open a PR to `dev` titled `feat(versioning): version api and web with dev prereleases and release tags`, with `Refs #12` in the body. Verify that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0 and that `gh pr view --json baseRefName,body` shows `dev` and `Refs #12`.
 - [ ] 6.2 After the user squash-merges the PR, check the workflow run on `dev`. Verify that `gh run list --workflow versioning.yml --branch dev --limit 1` shows success and that `git ls-remote --tags origin` lists `api@0.1.0-dev.1` and `web@0.1.0-dev.1`.
 
 ## 7. PR 2: system design, no tag (issue #12, AC 2 and 8)
