@@ -151,36 +151,36 @@
 
   Then verify that `docker compose exec db psql -U flashcards -tAc "select email from users order by created_at desc limit 1"` prints that account's email, and that the Clerk dashboard shows the delivery as succeeded. Do not handle the user's credentials. Tick #51 AC 6.
 - [x] 3.9 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #51 AC 7.
-- [ ] 3.10 Check for sync duplicates, commit and push `feat/clerk-webhooks`. Open a PR into `feat/api-auth` titled like #51, with `Refs #51` and no `Closes` line. Verify the base and body.
-- [ ] 3.11 Post a progress comment on #51.
-- [ ] 3.12 Stop until the user confirms the #51 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.
+- [x] 3.10 Check for sync duplicates, commit and push `feat/clerk-webhooks`. Open a PR into `feat/api-auth` titled like #51, with `Refs #51` and no `Closes` line. Verify the base and body.
+- [x] 3.11 Post a progress comment on #51.
+- [x] 3.12 Stop until the user confirms the #51 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.
 
 ## 4. Web: API calls with the session token and the account display (issue #52, AC 1 to 6)
 
-- [ ] 4.1 Read #48 and #52, report any conflict, then cut `feat/web-api-proof` from the updated `feat/api-auth`. Verify the merge base as in 1.2.
-- [ ] 4.2 Add `API_URL` to the `turbo.json` build `env` and `API_URL=` to `apps/web/.env.example`, and run `pnpm --filter web add server-only` if it isn't already available. Verify that `pnpm turbo run build --filter=web --dry=json | jq '.tasks[] | select(.taskId=="web#build") | .environmentVariables'` lists `API_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
-- [ ] 4.3 Add `apps/web/app/_lib/api.ts` with `apiFetch` (design.md, decision 10) and alias `server-only` to an empty module in `vitest.config.mts`. Add `__tests__/api.test.ts` with `@clerk/nextjs/server` and `fetch` mocked, which shows that:
+- [x] 4.1 Read #48 and #52, report any conflict, then cut `feat/web-api-proof` from the updated `feat/api-auth`. Verify the merge base as in 1.2.
+- [x] 4.2 Add `API_URL` to the `turbo.json` build `env` and `API_URL=` to `apps/web/.env.example`, and run `pnpm --filter web add server-only` if it isn't already available. Verify that `pnpm turbo run build --filter=web --dry=json | jq '.tasks[] | select(.taskId=="web#build") | .environmentVariables'` lists `API_URL`, `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
+- [x] 4.3 Add `apps/web/app/_lib/api.ts` with `apiFetch` (design.md, decision 10) and alias `server-only` to an empty module in `vitest.config.mts`. Add `__tests__/api.test.ts` with `@clerk/nextjs/server` and `fetch` mocked, which shows that:
   - a token `abc` sends `Authorization: Bearer abc` to `http://localhost:3001/me`;
   - no token sends no `Authorization` header;
   - `API_URL` overrides the base URL.
 
   Verify that `pnpm --filter web test` passes. Tick #52 AC 1.
-- [ ] 4.4 Add `apps/web/app/_components/account-summary.tsx` and render it on `/` (design.md, decision 10). Add `__tests__/account-summary.test.tsx`, which shows that it:
+- [x] 4.4 Add `apps/web/app/_components/account-summary.tsx` and render it on `/` (design.md, decision 10). Add `__tests__/account-summary.test.tsx`, which shows that it:
   - renders nothing when signed out;
   - renders the email and time zone from a mocked 200 `/me`;
   - renders "No email yet" for a null email;
   - renders the "Couldn't load your account right now." message for a rejected `fetch` and for a 500.
 
   Verify that `pnpm --filter web test` passes.
-- [ ] 4.5 With `docker compose up -d --wait db` and `pnpm dev` running both apps, check `/` signed out:
+- [x] 4.5 With `docker compose up -d --wait db` and `pnpm dev` running both apps, check `/` signed out:
   - `curl -s -o /dev/null -w '%{http_code} %{redirect_url}' http://localhost:3000/` prints `200` and no redirect;
   - the page has no account section (checked in the built-in browser).
 
   Tick #52 AC 3.
-- [ ] 4.6 Ask the user to sign in on `http://localhost:3000` in the built-in browser, or to provide a development-instance test account for you to use. Verify in the browser that `/` shows the account's email (or "No email yet") and `UTC`, and that `docker compose exec db psql -U flashcards -tAc "select count(*) from users where clerk_user_id = '<the signed-in user id>'"` prints `1`. Tick #52 AC 2.
-- [ ] 4.7 Still signed in, stop only the API and reload `/`. Verify that the page loads (the browser's network panel shows 200 for the document) and shows "Couldn't load your account right now.", then restart the API. Tick #52 AC 4.
-- [ ] 4.8 Verify that the dry run in 4.2 lists `API_URL` and that `grep -rn "NEXT_PUBLIC_API\|CLERK_SECRET_KEY" apps/web/app` prints nothing. Tick #52 AC 5.
-- [ ] 4.9 Verify that `pnpm turbo run lint test build --filter=web` exits 0. Tick #52 AC 6.
+- [x] 4.6 Ask the user to sign in on `http://localhost:3000` in the built-in browser, or to provide a development-instance test account for you to use. Verify in the browser that `/` shows the account's email (or "No email yet") and `UTC`, and that `docker compose exec db psql -U flashcards -tAc "select count(*) from users where clerk_user_id = '<the signed-in user id>'"` prints `1`. Tick #52 AC 2.
+- [x] 4.7 Still signed in, stop only the API and reload `/`. Verify that the page loads (the browser's network panel shows 200 for the document) and shows "Couldn't load your account right now.", then restart the API. Tick #52 AC 4.
+- [x] 4.8 Verify that the dry run in 4.2 lists `API_URL` and that `grep -rn "NEXT_PUBLIC_API\|CLERK_SECRET_KEY" apps/web/app` prints nothing. Tick #52 AC 5.
+- [x] 4.9 Verify that `pnpm turbo run lint test build --filter=web` exits 0. Tick #52 AC 6.
 - [ ] 4.10 Check for sync duplicates, commit and push `feat/web-api-proof`. Open a PR into `feat/api-auth` titled like #52, with `Refs #52` and no `Closes` line. Verify the base and body.
 - [ ] 4.11 Post a progress comment on #52.
 - [ ] 4.12 Stop until the user confirms the #52 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.

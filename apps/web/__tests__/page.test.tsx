@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import Home from "../app/page";
+
+// An async server component, covered on its own in account-summary.test.tsx.
+vi.mock("../app/_components/account-summary", () => ({
+  AccountSummary: () => null,
+}));
 
 test("renders the home page heading", () => {
   render(<Home />);
