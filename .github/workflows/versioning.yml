@@ -1,0 +1,47 @@
+# Tags api and web with a dev prerelease on every push to dev that affects
+# them, and promotes them to a release on every push to main.
+# See openspec/specs/app-versioning/spec.md.
+name: versioning
+
+on:
+  push:
+    branches: [dev, main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: versioning-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # turbo --affected and the tag lookups need full history and tags.
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Tag dev prereleases
+        if: github.ref_name == 'dev'
+        run: node tooling/versioning/src/cli.ts dev
+        env:
+          BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Promote releases
+        if: github.ref_name == 'main'
+        run: node tooling/versioning/src/cli.ts main
+        env:
+          GH_TOKEN: ${{ github.token }}

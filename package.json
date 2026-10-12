@@ -1,0 +1,18 @@
+{
+  "name": "app-flashcards",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "prepare": "husky",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
+    "husky": "^9.1.7",
+    "turbo": "^2.11.7"
+  }
+}
