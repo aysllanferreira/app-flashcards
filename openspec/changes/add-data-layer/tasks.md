@@ -34,39 +34,39 @@
   - Open questions without the scheduler and ORM items.
 
   Verify that `grep -n "Data model growth path\|tts_clips\|FSRS\|Drizzle\|copy on subscribe" system-design/README.md` matches each term, the Open questions section names neither, and `git diff --stat origin/feat/data-layer -- 'system-design/01-*' 'system-design/02-*' 'system-design/07-*'` prints nothing. Tick #37 AC 4.
-- [ ] 1.10 Check for sync duplicates as in 1.1, commit with a Conventional Commit message (no Claude attribution) and push `docs/data-model-design`. Open a PR into `feat/data-layer` titled like #37, with `Refs #37` and no `Closes` line in the body. Verify that `gh pr view --json baseRefName,body` shows `feat/data-layer` and `Refs #37`.
-- [ ] 1.11 Post a progress comment on #37 (criteria verified, tasks completed, the PR link).
-- [ ] 1.12 Stop until the user confirms the #37 PR is merged. Verify that `gh pr view <n> --json state` shows `MERGED`, then `git switch feat/data-layer && git pull --ff-only`.
+- [x] 1.10 Check for sync duplicates as in 1.1, commit with a Conventional Commit message (no Claude attribution) and push `docs/data-model-design`. Open a PR into `feat/data-layer` titled like #37, with `Refs #37` and no `Closes` line in the body. Verify that `gh pr view --json baseRefName,body` shows `feat/data-layer` and `Refs #37`.
+- [x] 1.11 Post a progress comment on #37 (criteria verified, tasks completed, the PR link).
+- [x] 1.12 Stop until the user confirms the #37 PR is merged. Verify that `gh pr view <n> --json state` shows `MERGED`, then `git switch feat/data-layer && git pull --ff-only`.
 
 ## 2. Postgres in Docker and the Drizzle foundation (issue #38, AC 1 to 7)
 
-- [ ] 2.1 Read #36 and #38, report any conflict, then cut `feat/db-foundation` from the updated `feat/data-layer`. Verify that `git merge-base --is-ancestor origin/feat/data-layer HEAD` exits 0.
-- [ ] 2.2 Add `compose.yaml` and `docker/postgres/init/01-test-database.sql` (design.md, decision 9). Verify that `docker compose up -d --wait db` exits 0 and `docker compose exec db psql -U flashcards -lqt | cut -d'|' -f1` lists `flashcards` and `flashcards_test`. Tick #38 AC 1.
-- [ ] 2.3 Add `.env`, `.env.*` and `!.env.example` to the root `.gitignore`, and create `apps/api/.env.example` with the local `DATABASE_URL` (design.md, decision 10). Verify that `git check-ignore apps/api/.env` prints the path and `git check-ignore apps/api/.env.example` exits 1.
-- [ ] 2.4 In `apps/api`, run `pnpm add -E drizzle-orm@0.45.4 pg@8.23.1 uuid@14.0.3` and `pnpm add -D -E drizzle-kit@0.31.11 @types/pg` (design.md, decisions 1, 2 and 5). Verify that `apps/api/package.json` lists all five without a `^` or `~`, and `pnpm install --frozen-lockfile` at the root exits 0.
-- [ ] 2.5 Add `DATABASE_URL` to `src/config/env.ts` (design.md, decision 10), with `src/config/env.spec.ts` covering three cases: the local default outside production, a rejected `not-a-url`, and a missing value under `NODE_ENV=production`, the last two with errors naming `DATABASE_URL`. Verify that the unit tests pass, and that after `pnpm --filter api build`, `DATABASE_URL=not-a-url node apps/api/dist/main.js` exits non-zero with `DATABASE_URL` in its output. Tick #38 AC 3.
-- [ ] 2.6 Add `src/database/columns.ts`, `database.providers.ts` and `database.module.ts` (design.md, decisions 2, 3, 5 and 10), and import `DatabaseModule` in `AppModule`. Verify that:
+- [x] 2.1 Read #36 and #38, report any conflict, then cut `feat/db-foundation` from the updated `feat/data-layer`. Verify that `git merge-base --is-ancestor origin/feat/data-layer HEAD` exits 0.
+- [x] 2.2 Add `compose.yaml` and `docker/postgres/init/01-test-database.sql` (design.md, decision 9). Verify that `docker compose up -d --wait db` exits 0 and `docker compose exec db psql -U flashcards -lqt | cut -d'|' -f1` lists `flashcards` and `flashcards_test`. Tick #38 AC 1.
+- [x] 2.3 Add `.env`, `.env.*` and `!.env.example` to the root `.gitignore`, and create `apps/api/.env.example` with the local `DATABASE_URL` (design.md, decision 10). Verify that `git check-ignore apps/api/.env` prints the path and `git check-ignore apps/api/.env.example` exits 1.
+- [x] 2.4 In `apps/api`, run `pnpm add -E drizzle-orm@0.45.4 pg@8.23.1 uuid@14.0.3` and `pnpm add -D -E drizzle-kit@0.31.11 @types/pg` (design.md, decisions 1, 2 and 5). Verify that `apps/api/package.json` lists all five without a `^` or `~`, and `pnpm install --frozen-lockfile` at the root exits 0.
+- [x] 2.5 Add `DATABASE_URL` to `src/config/env.ts` (design.md, decision 10), with `src/config/env.spec.ts` covering three cases: the local default outside production, a rejected `not-a-url`, and a missing value under `NODE_ENV=production`, the last two with errors naming `DATABASE_URL`. Verify that the unit tests pass, and that after `pnpm --filter api build`, `DATABASE_URL=not-a-url node apps/api/dist/main.js` exits non-zero with `DATABASE_URL` in its output. Tick #38 AC 3.
+- [x] 2.6 Add `src/database/columns.ts`, `database.providers.ts` and `database.module.ts` (design.md, decisions 2, 3, 5 and 10), and import `DatabaseModule` in `AppModule`. Verify that:
   - the existing unit and e2e suites pass;
   - `git diff --exit-code apps/api/openapi.json` exits 0;
   - with `docker compose stop db`, `pnpm --filter api dev` starts and `curl -s http://localhost:3001/health` prints `{"status":"ok"}`.
 
   Then stop the server and run `docker compose start db`. Tick #38 AC 4.
-- [ ] 2.7 Add `apps/api/drizzle.config.ts` and the `db:generate` and `db:migrate` scripts (design.md, decisions 4 and 11). Create `src/modules/users/users.module.ts` and `src/modules/users/schema/users.ts` (design.md, decision 7), import `UsersModule` in `AppModule`, and run `pnpm --filter api db:generate`. Verify that a migration appears under `apps/api/drizzle/` whose SQL has `DEFAULT uuidv7()`, a unique `clerk_user_id` and the `day_rollover_hour` check.
-- [ ] 2.8 Run `docker compose down -v && docker compose up -d --wait db`, then `pnpm --filter api db:migrate`. Verify that:
+- [x] 2.7 Add `apps/api/drizzle.config.ts` and the `db:generate` and `db:migrate` scripts (design.md, decisions 4 and 11). Create `src/modules/users/users.module.ts` and `src/modules/users/schema/users.ts` (design.md, decision 7), import `UsersModule` in `AppModule`, and run `pnpm --filter api db:generate`. Verify that a migration appears under `apps/api/drizzle/` whose SQL has `DEFAULT uuidv7()`, a unique `clerk_user_id` and the `day_rollover_hour` check.
+- [x] 2.8 Run `docker compose down -v && docker compose up -d --wait db`, then `pnpm --filter api db:migrate`. Verify that:
   - it exits 0, and `docker compose exec db psql -U flashcards -c '\dt'` lists `users`;
   - a second `db:migrate` exits 0 and applies nothing;
   - `pnpm --filter api db:generate` reports no schema changes and creates no file.
 
   Tick #38 AC 2.
-- [ ] 2.9 Add `vitest.config.db.ts`, `test/db/global-setup.ts`, `test/db/helpers.ts` and `test/db/users.db-spec.ts`, and extend the `test` script with the database suite (design.md, decision 11). The users tests:
+- [x] 2.9 Add `vitest.config.db.ts`, `test/db/global-setup.ts`, `test/db/helpers.ts` and `test/db/users.db-spec.ts`, and extend the `test` script with the database suite (design.md, decision 11). The users tests:
   - insert a user and read it back;
   - check that the id's `uuid_extract_version` is 7;
   - expect `23505` for a duplicate `clerk_user_id`;
   - expect `23514` for `day_rollover_hour = 24`.
 
   Verify that `pnpm --filter api test` runs three suites and passes, and that with `docker compose stop db` it exits non-zero with the `docker compose up -d --wait db` message (then `docker compose start db`). Tick #38 AC 5.
-- [ ] 2.10 Extend `test/architecture.spec.ts` with the table-location rule (design.md, decision 4). Verify that it passes as is, fails naming the file after adding `apps/api/src/stray-table.ts` containing a `pgTable(` call, and passes again once the file is removed. Tick #38 AC 6.
-- [ ] 2.11 Verify that `pnpm turbo run lint test build --filter=api` exits 0 with the `db` container healthy. Tick #38 AC 7.
+- [x] 2.10 Extend `test/architecture.spec.ts` with the table-location rule (design.md, decision 4). Verify that it passes as is, fails naming the file after adding `apps/api/src/stray-table.ts` containing a `pgTable(` call, and passes again once the file is removed. Tick #38 AC 6.
+- [x] 2.11 Verify that `pnpm turbo run lint test build --filter=api` exits 0 with the `db` container healthy. Tick #38 AC 7.
 - [ ] 2.12 Check for sync duplicates, commit and push `feat/db-foundation`. Open a PR into `feat/data-layer` titled like #38, with `Refs #38` and no `Closes` line. Verify the base and body with `gh pr view --json baseRefName,body`.
 - [ ] 2.13 Post a progress comment on #38.
 - [ ] 2.14 Stop until the user confirms the #38 PR is merged. Verify `MERGED`, then fast-forward the local `feat/data-layer`.
