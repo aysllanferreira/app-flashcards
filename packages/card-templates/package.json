@@ -1,0 +1,30 @@
+{
+  "name": "card-templates",
+  "version": "0.0.0",
+  "private": true,
+  "description": "How notes become cards: template rendering, cloze numbers, card generation and field sanitizing, shared by the API and the web app",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+    "lint": "oxlint src && tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "domhandler": "^6.0.1",
+    "entities": "^8.1.0",
+    "htmlparser2": "^12.0.0"
+  },
+  "devDependencies": {
+    "oxlint": "^1.58.0",
+    "typescript": "^6.0.2",
+    "vitest": "^5.0.3"
+  }
+}

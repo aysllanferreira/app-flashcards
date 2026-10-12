@@ -133,30 +133,30 @@
   - `pnpm turbo run lint test build --filter=api` exits 0.
 
   Tick #63 AC 7.
-- [ ] 3.12 Check for sync duplicates, commit, push `feat/api-decks` and open a PR into `feat/decks-and-cards` titled like #63, with `Refs #63` and no `Closes`. Verify with `gh pr view --json baseRefName,body`.
-- [ ] 3.13 Post a progress comment on #63 (criteria verified, tasks completed, the PR link).
-- [ ] 3.14 Stop until the user confirms the #63 PR is merged. Verify `MERGED`, then update `feat/decks-and-cards`.
+- [x] 3.12 Check for sync duplicates, commit, push `feat/api-decks` and open a PR into `feat/decks-and-cards` titled like #63, with `Refs #63` and no `Closes`. Verify with `gh pr view --json baseRefName,body`.
+- [x] 3.13 Post a progress comment on #63 (criteria verified, tasks completed, the PR link).
+- [x] 3.14 Stop until the user confirms the #63 PR is merged. Verify `MERGED`, then update `feat/decks-and-cards`.
 
 ## 4. API: notes, card generation, browsing and `packages/card-templates` (issue #64, AC 1 to 8)
 
-- [ ] 4.1 Read #60 and #64, report any conflict, then cut `feat/api-notes` from the updated `feat/decks-and-cards`. Verify the merge base as in 1.2.
-- [ ] 4.2 Create `packages/card-templates` (design.md, decision 1):
+- [x] 4.1 Read #60 and #64, report any conflict, then cut `feat/api-notes` from the updated `feat/decks-and-cards`. Verify the merge base as in 1.2.
+- [x] 4.2 Create `packages/card-templates` (design.md, decision 1):
   - `package.json` with name `card-templates`, `"type": "module"`, `exports` pointing at `dist`, and scripts `build` (`tsc`), `dev` (`tsc --watch`), `lint` (`oxlint src` and `tsc --noEmit`) and `test` (`vitest run`);
   - dependencies `htmlparser2`, `domhandler` and `entities`;
   - `tsconfig.json` (ESM, declarations, `outDir` `dist`) and `dist` in `.gitignore`.
 
   Add `packages/*` to `pnpm-workspace.yaml`, and `"dependsOn": ["^build"]` to `build`, `test` and `lint` in `turbo.json`. Verify that `pnpm install` exits 0, `pnpm turbo ls` lists `card-templates`, and `pnpm build` shows the `card-templates#build` task finishing before `api#build` and `web#build`.
-- [ ] 4.3 Implement `sanitizeFieldHtml` and `toPlainText` (design.md, decision 4), with Vitest tests for every scenario of "Sanitizing field HTML" in the `card-templates` spec: allowed and dropped markup, paragraphs becoming line breaks, idempotence, `<img onerror>`, `javascript:` URLs, and `<script>` and `<style>` content. Verify that `pnpm --filter card-templates test` passes.
-- [ ] 4.4 Implement `clozeNumbers` and `render` (design.md, decision 2), with tests for the "Rendering templates" and "Cloze numbers" scenarios, including a hint (`{{c1::Madrid::capital}}` showing `[capital]`) and unknown and empty fields rendering empty. Verify that the tests pass.
-- [ ] 4.5 Implement `cardsFor` and `clozeFields`, with tests for the "Cards a note produces" scenarios and Basic giving 1 card. Verify that `pnpm --filter card-templates test` passes and covers every case in #64 AC 1. Tick #64 AC 1.
-- [ ] 4.6 Add `"card-templates": "workspace:*"` to `apps/api` and `apps/web`. Verify that `pnpm turbo ls --filter=...card-templates` lists `card-templates`, `api` and `web`, and that `node -e "import('card-templates').then(m => console.log(typeof m.cardsFor))"` run from `apps/api` prints `function`.
-- [ ] 4.7 Add the note types HTTP layer:
+- [x] 4.3 Implement `sanitizeFieldHtml` and `toPlainText` (design.md, decision 4), with Vitest tests for every scenario of "Sanitizing field HTML" in the `card-templates` spec: allowed and dropped markup, paragraphs becoming line breaks, idempotence, `<img onerror>`, `javascript:` URLs, and `<script>` and `<style>` content. Verify that `pnpm --filter card-templates test` passes.
+- [x] 4.4 Implement `clozeNumbers` and `render` (design.md, decision 2), with tests for the "Rendering templates" and "Cloze numbers" scenarios, including a hint (`{{c1::Madrid::capital}}` showing `[capital]`) and unknown and empty fields rendering empty. Verify that the tests pass.
+- [x] 4.5 Implement `cardsFor` and `clozeFields`, with tests for the "Cards a note produces" scenarios and Basic giving 1 card. Verify that `pnpm --filter card-templates test` passes and covers every case in #64 AC 1. Tick #64 AC 1.
+- [x] 4.6 Add `"card-templates": "workspace:*"` to `apps/api` and `apps/web`. Verify that `pnpm turbo ls --filter=...card-templates` lists `card-templates`, `api` and `web`, and that `node -e "import('card-templates').then(m => console.log(typeof m.cardsFor))"` run from `apps/api` prints `function`.
+- [x] 4.7 Add the note types HTTP layer:
   - `dto/note-type.dto.ts` (`NoteTypeSchema` with fields and templates, `NoteTypeListResponseSchema`);
   - `note-types.service.ts`, which lists the caller's note types with fields in `ord` order and templates in `ord` order;
   - `note-types.controller.ts` with `GET /note-types` and its decorators.
 
   Add a database e2e test where a newly provisioned user gets Basic, Basic (and reversed card) and Cloze, parsed with the schema, and a call without a token gets 401. Verify that `pnpm --filter api test:db` passes.
-- [ ] 4.8 Add the notes DTOs (`NoteSchema`, `NoteWithCardsSchema`, `CardSummarySchema`, `CreateNoteBodySchema`, `UpdateNoteBodySchema` and a param schema), and `notes.service.ts` `create` (design.md, decision 5): load the caller's note type (404), check the deck (404), sanitize, compute `cardsFor` (400 when empty), then insert the note and its cards with one shared `position`, in one transaction. Add `POST /notes` to `notes.controller.ts`. Add database e2e tests:
+- [x] 4.8 Add the notes DTOs (`NoteSchema`, `NoteWithCardsSchema`, `CardSummarySchema`, `CreateNoteBodySchema`, `UpdateNoteBodySchema` and a param schema), and `notes.service.ts` `create` (design.md, decision 5): load the caller's note type (404), check the deck (404), sanitize, compute `cardsFor` (400 when empty), then insert the note and its cards with one shared `position`, in one transaction. Add `POST /notes` to `notes.controller.ts`. Add database e2e tests:
   - Basic (and reversed card) with both fields returns 2 cards;
   - with an empty Back, it returns 1 card;
   - Cloze `c1`/`c2` returns 2 cards;
@@ -164,14 +164,14 @@
   - every body is parsed.
 
   Verify that they pass. Tick #64 AC 2.
-- [ ] 4.9 Add a test where a field sent as `<img src=x onerror=alert(1)><b>hi</b>` comes back as `<b>hi</b>`, and is stored that way in `notes.fields`, and where `<b>hola</b> amigo` gives the sort field `hola amigo`. Verify that it passes. Tick #64 AC 4.
-- [ ] 4.10 Add `GET /notes/{id}` and `PATCH /notes/{id}` (sanitize, update the sort field, insert missing cards with `ON CONFLICT DO NOTHING` into the deck of the earliest card, never touch existing cards). Add the tests:
+- [x] 4.9 Add a test where a field sent as `<img src=x onerror=alert(1)><b>hi</b>` comes back as `<b>hi</b>`, and is stored that way in `notes.fields`, and where `<b>hola</b> amigo` gives the sort field `hola amigo`. Verify that it passes. Tick #64 AC 4.
+- [x] 4.10 Add `GET /notes/{id}` and `PATCH /notes/{id}` (sanitize, update the sort field, insert missing cards with `ON CONFLICT DO NOTHING` into the deck of the earliest card, never touch existing cards). Add the tests:
   - adding `{{c3::...}}` to a 2-card cloze note gives 3 cards, the first two keeping their ids, `state`, `due_at`, `stability`, `difficulty`, `reps` and `lapses`;
   - removing `c2` afterwards still leaves 3 cards.
 
   Verify that they pass. Tick #64 AC 3.
-- [ ] 4.11 Add `DELETE /notes/{id}` (204) and a database test where the note and its cards are gone and their review logs remain with `card_id` null. Verify that it passes. Tick #64 AC 5.
-- [ ] 4.12 Add the cards DTOs (`CardRowSchema`, `CardListResponseSchema` with `nextCursor`, a query schema with no `id` for `deckId`, `q`, `sort`, `order`, `cursor` and `limit`, and `MoveCardBodySchema`), and `cards.service.ts` (design.md, decision 9):
+- [x] 4.11 Add `DELETE /notes/{id}` (204) and a database test where the note and its cards are gone and their review logs remain with `card_id` null. Verify that it passes. Tick #64 AC 5.
+- [x] 4.12 Add the cards DTOs (`CardRowSchema`, `CardListResponseSchema` with `nextCursor`, a query schema with no `id` for `deckId`, `q`, `sort`, `order`, `cursor` and `limit`, and `MoveCardBodySchema`), and `cards.service.ts` (design.md, decision 9):
   - `list` with the joins, the subtree filter, the escaped `ILIKE`, keyset ordering on `(key, id)` and the base64url cursor, with 400 for a malformed or mismatched cursor;
   - `move`, which checks the target deck (404) and leaves the scheduling alone.
 
@@ -182,8 +182,8 @@
   - a move keeps `state` and `due_at`.
 
   Verify that they pass. Tick #64 AC 6.
-- [ ] 4.13 Add one database test file that covers the ownership scenario in the `note-management` spec. Every new route returns 404 with an `ErrorResponse` body for user Y's note, card, deck or note type, both as the subject and in a body or query, and leaves Y's data unchanged. Every route returns 401 without a token. Verify that it passes. Tick #64 AC 7.
-- [ ] 4.14 Run `pnpm --filter api openapi` and commit `openapi.json`. Verify that:
+- [x] 4.13 Add one database test file that covers the ownership scenario in the `note-management` spec. Every new route returns 404 with an `ErrorResponse` body for user Y's note, card, deck or note type, both as the subject and in a body or query, and leaves Y's data unchanged. Every route returns 401 without a token. Verify that it passes. Tick #64 AC 7.
+- [x] 4.14 Run `pnpm --filter api openapi` and commit `openapi.json`. Verify that:
   - `pnpm --filter api db:seed` exits 0;
   - running `pnpm --filter api openapi` again leaves `git status` clean;
   - `pnpm turbo run lint test build --filter=api --filter=card-templates` exits 0;
