@@ -1,0 +1,38 @@
+.account {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  padding: 16px 20px;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 12px;
+  font-family: var(--font-geist-sans);
+}
+
+.label,
+.meta {
+  font-size: 14px;
+  color: #666;
+}
+
+.email {
+  font-size: 18px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.error {
+  font-size: 14px;
+  color: #b42318;
+}
+
+@media (prefers-color-scheme: dark) {
+  .label,
+  .meta {
+    color: #999;
+  }
+
+  .error {
+    color: #f97066;
+  }
+}
