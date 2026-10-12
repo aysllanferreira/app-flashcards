@@ -282,13 +282,13 @@
 - [x] 7.3 Verify that `pnpm --filter api db:generate` reports no schema changes and `git diff dev...feat/decks-and-cards -- apps/api/drizzle` prints nothing. Tick #60 AC 4.
 - [x] 7.4 Verify that `gh issue view <n> --json body --jq .body | grep -c '^- \[ \]'` prints `0` for each of #61 to #66. Tick #60 AC 1.
 - [x] 7.5 Open the PR from `feat/decks-and-cards` into `dev`. Its title is `feat(decks): create, edit, delete and list decks and notes in the API and the web app`, and its body has `Closes #60` and `Closes #61` through `Closes #66`, with no Claude attribution. Verify that `gh pr view --json baseRefName,body` shows `dev` and all seven `Closes` lines. Tick #60 AC 5.
-- [ ] 7.6 Run `openspec validate add-decks-and-cards --strict`, then sync the deltas with `/opsx:sync`. Verify that:
+- [x] 7.6 Run `openspec validate add-decks-and-cards --strict`, then sync the deltas with `/opsx:sync`. Verify that:
   - `openspec list --specs` lists `deck-management`, `note-management`, `card-templates`, `web-ui-foundation` and `web-deck-screens`;
   - `openspec/specs/web-authentication/spec.md` has "Public pages stay public" and no "All routes stay public";
   - `openspec validate --specs --strict` exits 0.
 
   Commit and push to `feat/decks-and-cards` (it lands in the open PR). Tick #60 AC 6.
-- [ ] 7.7 Clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
+- [x] 7.7 Clone `https://github.com/aysllanferreira/app-flashcards.wiki.git` into the scratchpad and update:
   - `Status`: #60 in review, awaiting squash-merge, with the final PR and the six sub-PRs listed;
   - `Changelog`: a new top entry;
   - `Roadmap`: the Decks and cards item linked to #60 and in review;
