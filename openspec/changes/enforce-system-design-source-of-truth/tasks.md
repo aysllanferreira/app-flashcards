@@ -25,4 +25,4 @@
 ## 4. Wrap-up (issue #9, AC 1 to 5)
 
 - [x] 4.1 Confirm `system-design/` is unchanged (this change states "System design: no change"). Verify that `git diff --stat dev -- system-design/` prints nothing.
-- [ ] 4.2 Commit with Conventional Commits and no Claude attribution, and open a PR to `dev` with `Closes #9`. Verify that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0 and that `gh pr view --json baseRefName -q .baseRefName` prints `dev`.
+- [x] 4.2 Commit with Conventional Commits and no Claude attribution, and open a PR to `dev` with `Closes #9`. Verify that `git log dev..HEAD --format=%B | grep -ci "co-authored-by"` prints 0 and that `gh pr view --json baseRefName -q .baseRefName` prints `dev`.
