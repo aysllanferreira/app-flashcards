@@ -271,17 +271,17 @@
 
   Verify that `grep -n "UI: no change" openspec/config.yaml` prints at least one line and `openspec validate --specs --strict` still exits 0. Tick #66 AC 3.
 - [x] 6.4 Rewrite `apps/web/README.md`: what the app is, `pnpm --filter web dev`, `test`, `test:e2e` (and the `.env.test.local` variables), `generate:api`, how to add a shadcn component (`pnpm --filter web dlx shadcn@latest add <name>`), and where the tokens come from. Verify that `grep -n "test:e2e\|generate:api\|shadcn" apps/web/README.md` matches all three. Tick #66 AC 4.
-- [ ] 6.5 Check for sync duplicates, commit, push `docs/web-conventions` and open a PR into `feat/decks-and-cards` titled like #66, with `Refs #66` and no `Closes`. Verify with `gh pr view --json baseRefName,body`.
-- [ ] 6.6 Post a progress comment on #66 (criteria verified, tasks completed, the PR link).
-- [ ] 6.7 Stop until the user confirms the #66 PR is merged. Verify `MERGED`, then update `feat/decks-and-cards`.
+- [x] 6.5 Check for sync duplicates, commit, push `docs/web-conventions` and open a PR into `feat/decks-and-cards` titled like #66, with `Refs #66` and no `Closes`. Verify with `gh pr view --json baseRefName,body`.
+- [x] 6.6 Post a progress comment on #66 (criteria verified, tasks completed, the PR link).
+- [x] 6.7 Stop until the user confirms the #66 PR is merged. Verify `MERGED`, then update `feat/decks-and-cards`.
 
 ## 7. Integration, final PR and wiki (issue #60, AC 1 to 7)
 
-- [ ] 7.1 If `dev` moved, merge `origin/dev` into `feat/decks-and-cards` (no rebase) and push. With `docker compose up -d --wait db` run first, verify that `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm test` and `pnpm build` at the repo root each exit 0. Tick #60 AC 2.
-- [ ] 7.2 Verify that `jq -r '.paths | keys[]' apps/api/openapi.json` prints exactly `/cards`, `/cards/{id}`, `/decks`, `/decks/{id}`, `/health`, `/me`, `/note-types`, `/notes`, `/notes/{id}` and `/webhooks/clerk`. Tick #60 AC 3.
-- [ ] 7.3 Verify that `pnpm --filter api db:generate` reports no schema changes and `git diff dev...feat/decks-and-cards -- apps/api/drizzle` prints nothing. Tick #60 AC 4.
-- [ ] 7.4 Verify that `gh issue view <n> --json body --jq .body | grep -c '^- \[ \]'` prints `0` for each of #61 to #66. Tick #60 AC 1.
-- [ ] 7.5 Open the PR from `feat/decks-and-cards` into `dev`. Its title is `feat(decks): create, edit, delete and list decks and notes in the API and the web app`, and its body has `Closes #60` and `Closes #61` through `Closes #66`, with no Claude attribution. Verify that `gh pr view --json baseRefName,body` shows `dev` and all seven `Closes` lines. Tick #60 AC 5.
+- [x] 7.1 If `dev` moved, merge `origin/dev` into `feat/decks-and-cards` (no rebase) and push. With `docker compose up -d --wait db` run first, verify that `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm test` and `pnpm build` at the repo root each exit 0. Tick #60 AC 2.
+- [x] 7.2 Verify that `jq -r '.paths | keys[]' apps/api/openapi.json` prints exactly `/cards`, `/cards/{id}`, `/decks`, `/decks/{id}`, `/health`, `/me`, `/note-types`, `/notes`, `/notes/{id}` and `/webhooks/clerk`. Tick #60 AC 3.
+- [x] 7.3 Verify that `pnpm --filter api db:generate` reports no schema changes and `git diff dev...feat/decks-and-cards -- apps/api/drizzle` prints nothing. Tick #60 AC 4.
+- [x] 7.4 Verify that `gh issue view <n> --json body --jq .body | grep -c '^- \[ \]'` prints `0` for each of #61 to #66. Tick #60 AC 1.
+- [x] 7.5 Open the PR from `feat/decks-and-cards` into `dev`. Its title is `feat(decks): create, edit, delete and list decks and notes in the API and the web app`, and its body has `Closes #60` and `Closes #61` through `Closes #66`, with no Claude attribution. Verify that `gh pr view --json baseRefName,body` shows `dev` and all seven `Closes` lines. Tick #60 AC 5.
 - [ ] 7.6 Run `openspec validate add-decks-and-cards --strict`, then sync the deltas with `/opsx:sync`. Verify that:
   - `openspec list --specs` lists `deck-management`, `note-management`, `card-templates`, `web-ui-foundation` and `web-deck-screens`;
   - `openspec/specs/web-authentication/spec.md` has "Public pages stay public" and no "All routes stay public";
