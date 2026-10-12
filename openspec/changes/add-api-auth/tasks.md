@@ -181,14 +181,14 @@
 - [x] 4.7 Still signed in, stop only the API and reload `/`. Verify that the page loads (the browser's network panel shows 200 for the document) and shows "Couldn't load your account right now.", then restart the API. Tick #52 AC 4.
 - [x] 4.8 Verify that the dry run in 4.2 lists `API_URL` and that `grep -rn "NEXT_PUBLIC_API\|CLERK_SECRET_KEY" apps/web/app` prints nothing. Tick #52 AC 5.
 - [x] 4.9 Verify that `pnpm turbo run lint test build --filter=web` exits 0. Tick #52 AC 6.
-- [ ] 4.10 Check for sync duplicates, commit and push `feat/web-api-proof`. Open a PR into `feat/api-auth` titled like #52, with `Refs #52` and no `Closes` line. Verify the base and body.
-- [ ] 4.11 Post a progress comment on #52.
-- [ ] 4.12 Stop until the user confirms the #52 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.
+- [x] 4.10 Check for sync duplicates, commit and push `feat/web-api-proof`. Open a PR into `feat/api-auth` titled like #52, with `Refs #52` and no `Closes` line. Verify the base and body.
+- [x] 4.11 Post a progress comment on #52.
+- [x] 4.12 Stop until the user confirms the #52 PR is merged. Verify `MERGED`, then fast-forward the local `feat/api-auth`.
 
 ## 5. Auth conventions in CLAUDE.md, OpenSpec rules and the API README (issue #53, AC 1 to 3)
 
-- [ ] 5.1 Read #48 and #53, report any conflict, then cut `docs/auth-conventions` from the updated `feat/api-auth`. Verify the merge base as in 1.2.
-- [ ] 5.2 Add an "Auth" subsection to the "API (`apps/api`)" section of `CLAUDE.md`:
+- [x] 5.1 Read #48 and #53, report any conflict, then cut `docs/auth-conventions` from the updated `feat/api-auth`. Verify the merge base as in 1.2.
+- [x] 5.2 Add an "Auth" subsection to the "API (`apps/api`)" section of `CLAUDE.md`:
   - every route requires a valid Clerk session token unless marked `@Public()`;
   - `@Public()` is only for health, docs and signed third-party callbacks such as webhooks;
   - routes read the caller with `@CurrentUser()`, never from the token;
@@ -197,8 +197,8 @@
   - the `WEB_ORIGIN` and `CLERK_*` variables.
 
   Also add `src/modules/auth` and the two decorators to the Layout bullets. Verify that `grep -n "@Public()\|@CurrentUser()\|ensureUser\|WEB_ORIGIN" CLAUDE.md` matches inside the "API (apps/api)" section. Tick #53 AC 1.
-- [ ] 5.3 Add a `rules.proposal` entry to `openspec/config.yaml`: every endpoint listed under the API contract impact states whether it is public or authenticated. Verify that `grep -n "public or authenticated" openspec/config.yaml` prints it and that `openspec instructions proposal --change add-api-auth --json | jq -r '.rules[]'` includes it. Tick #53 AC 2.
-- [ ] 5.4 Add an "Auth" section to `apps/api/README.md`:
+- [x] 5.3 Add a `rules.proposal` entry to `openspec/config.yaml`: every endpoint listed under the API contract impact states whether it is public or authenticated. Verify that `grep -n "public or authenticated" openspec/config.yaml` prints it and that `openspec instructions proposal --change add-api-auth --json | jq -r '.rules[]'` includes it. Tick #53 AC 2.
+- [x] 5.4 Add an "Auth" section to `apps/api/README.md`:
   - an environment table with `WEB_ORIGIN`, `CLERK_JWT_KEY`, `CLERK_SECRET_KEY` and `CLERK_WEBHOOK_SIGNING_SECRET` (defaults, and what is required in production);
   - how to call an authenticated route from Swagger UI's Authorize button;
   - a link to the "Clerk webhooks (local)" section.
