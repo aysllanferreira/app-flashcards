@@ -1,5 +1,10 @@
 import "server-only";
 import { auth } from "@clerk/nextjs/server";
+import createClient from "openapi-fetch";
+import type { components, paths } from "./api-types";
+
+/** The API's named request and response schemas, from openapi.json. */
+export type ApiSchemas = components["schemas"];
 
 // The API started by `pnpm --filter api dev`.
 const LOCAL_API_URL = "http://localhost:3001";
@@ -23,13 +28,33 @@ export async function apiFetch(
   path: string,
   init: RequestInit = {},
 ): Promise<Response> {
-  const { getToken } = await auth();
-  const token = await getToken();
   const headers = new Headers(init.headers);
-  if (token) headers.set("Authorization", `Bearer ${token}`);
+  for (const [name, value] of Object.entries(await authorization())) {
+    headers.set(name, value);
+  }
   return fetch(`${apiBaseUrl()}${path}`, {
     ...init,
     headers,
     cache: "no-store",
   });
+}
+
+/**
+ * A client typed by the API's contract (paths, bodies and responses come from
+ * openapi.json), calling it the same way as apiFetch: as the signed-in user,
+ * never cached.
+ */
+export async function apiClient() {
+  return createClient<paths>({
+    baseUrl: apiBaseUrl(),
+    headers: await authorization(),
+    cache: "no-store",
+  });
+}
+
+/** The bearer token header for the signed-in user, or none when signed out. */
+async function authorization(): Promise<Record<string, string>> {
+  const { getToken } = await auth();
+  const token = await getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
