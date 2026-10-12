@@ -145,6 +145,67 @@ Every OpenSpec phase checks work against it. When a change and the system design
 - **Gate:** do not archive while `system-design/` does not reflect what the change delivered. List any outstanding diagram updates and stop.
 - The archive summary comment on the issue lists the system-design files that changed, or states that none did.
 
+## API (apps/api)
+
+The NestJS API follows these conventions. The OpenAPI contract `apps/api/openapi.json` is the **source of truth** for what the API exposes, and it is always generated from the code. The rules apply alongside the system design; `system-design/08-api-structure` shows the structure.
+
+### Layout
+
+- Every feature is a module folder `src/modules/<name>/` with:
+  - `<name>.module.ts`;
+  - `<name>.controller.ts`: HTTP only, no business logic;
+  - `<name>.service.ts`: the business logic;
+  - `dto/`: request and response schemas;
+  - `schema/`: persistence schemas (database tables) only, added once the module needs them.
+- Code that belongs to no single feature lives in:
+  - `src/config/`: the Zod environment schema, validated at startup by `@nestjs/config`;
+  - `src/common/`: shared decorators and schemas, such as `ErrorResponse`;
+  - `src/openapi/`: the document builder and the `openapi.json` generator.
+- `app.module.ts` and `main.ts` stay at the `src/` root. A new module is imported in `AppModule`.
+- `test/architecture.spec.ts` fails when a `*.controller.ts` or `*.service.ts` sits outside `src/modules/<name>/`, or a module folder lacks `<name>.module.ts`.
+
+### DTOs, validation and responses
+
+- Request and response shapes are **Zod schemas** in the module's `dto/`. Each `dto/<name>.dto.ts` exports `XSchema` and `type X = z.infer<typeof XSchema>`.
+- Never use `class-validator`, `class-transformer` or `nestjs-zod`.
+- Routes declare inputs with `@Body({ schema })`, `@Query({ schema })` and `@Param('id', { schema })`, and type the parameter with the inferred type.
+- Validation is global:
+  - the `StandardSchemaValidationPipe` registered in `AppModule` returns 400 with one message per invalid field;
+  - the `StandardSchemaSerializerInterceptor` shapes every response with the route's response schema and drops undeclared fields.
+- **Component ids:** body and response schemas get `.meta({ id: 'X' })`, which becomes a named OpenAPI component. Query and path-parameter object schemas **never** get an `id`. Swagger only expands an inline query schema into parameters, and the lint fails on the unused component a named one leaves behind.
+
+### Documenting routes (Swagger)
+
+Every route needs:
+- `@ApiTags('<module>')` on its controller;
+- `@ApiOperation({ summary })`;
+- `@ApiResponseSchema(status, XSchema)`, once per route, for the success response. It documents the schema and shapes the response with it, so never add a separate `@SerializeOptions` or `@ApiResponse` for the success response.
+- `@ApiErrorResponses()` for the shared `ErrorResponse`: 500 on every route, plus `{ badRequest: true }` for 400 on routes that take input.
+
+Swagger UI is at `/docs` and the JSON at `/docs-json`. Both are served unless `NODE_ENV=production`; `SWAGGER_UI=true` turns them on in production. The startup log prints the URLs.
+
+### The contract: openapi.json
+
+- After any change to routes, schemas or Swagger decorators, run `pnpm --filter api openapi` and commit the regenerated `apps/api/openapi.json` with the change.
+- **Never** edit `openapi.json` by hand. A `PreToolUse` hook (`.claude/hooks/guard-openapi-file.mjs`) blocks Claude's `Edit` and `Write` on it.
+- `pnpm --filter api test` runs a drift test that fails when the file doesn't match the code.
+- `pnpm --filter api lint` runs Redocly (`apps/api/redocly.yaml`) on the file. Every operation needs a `summary`, an `operationId`, a 2xx response with a schema and an `ErrorResponse` error response, and unused components fail. Turn a `recommended` rule off only with a comment explaining why.
+- The document's `info.version` is the contract version, set in `src/openapi/build-document.ts`. It is not the release tag, and it changes only on a deliberate contract change.
+
+### Tests
+
+- `pnpm --filter api test` runs both suites: unit (`*.spec.ts`) and e2e (`*.e2e-spec.ts`, in-process with supertest).
+- Every endpoint has an e2e test that parses its response body with the route's response schema (`XSchema.parse(res.body)`).
+- Test-only routes live under `test/fixtures/` and never reach `dist/` or `openapi.json`.
+
+### OpenSpec
+
+- Proposals state the API contract impact: "API contract: no change", or the endpoints added, changed or removed.
+- When endpoints change, `tasks.md` includes tasks for:
+  - their schemas and Swagger decorators;
+  - regenerating `openapi.json`;
+  - e2e tests that parse responses with their schemas.
+
 ## GitHub Wiki
 
 The GitHub Wiki (`https://github.com/aysllanferreira/app-flashcards/wiki`) is the project's shared, browsable place for the roadmap, current status and documentation. Every change keeps it current.

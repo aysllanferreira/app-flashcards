@@ -36,6 +36,11 @@ Delivered in five sub-issues, each a PR into the integration branch `feat/nestjs
   - the new diagram `08-api-structure` and the README Decisions rows.
 - **BREAKING (local only):** `GET http://localhost:3001/` no longer returns `Hello World!`; the API's liveness check is `GET /health`. Nothing consumes `/` today.
 
+API contract:
+- adds `GET /health` (200 `HealthResponse`, 500 `ErrorResponse`);
+- removes the starter's `GET /`;
+- creates the committed contract `apps/api/openapi.json`.
+
 System design:
 - **Add `08-api-structure`.** A new scene in the Excalidraw+ collection `app-flashcards`, exported as `08-api-structure.excalidraw` and `.png`. It shows:
   - the HTTP entry point (`main.ts`) and the planned worker entry;

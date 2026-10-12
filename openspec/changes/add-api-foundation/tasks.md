@@ -114,13 +114,13 @@
   Tick #27 AC 4.
 - [x] 4.6 Verify that `pnpm turbo run lint test build --filter=api` exits 0. Tick #27 AC 5.
 - [x] 4.7 Commit and push `feat/api-openapi-contract`. Open a PR into `feat/nestjs-setup` titled like #27, with `Refs #27` and no `Closes` line. Verify the base and body.
-- [ ] 4.8 Post a progress comment on #27.
-- [ ] 4.9 Stop until the user confirms the #27 PR is merged. Verify `MERGED`, then fast-forward the local `feat/nestjs-setup`.
+- [x] 4.8 Post a progress comment on #27.
+- [x] 4.9 Stop until the user confirms the #27 PR is merged. Verify `MERGED`, then fast-forward the local `feat/nestjs-setup`.
 
 ## 5. API conventions and system design (issue #28, AC 1 to 4)
 
-- [ ] 5.1 Read #23 and #28, report any conflict, then cut `docs/api-conventions` from the updated `feat/nestjs-setup`.
-- [ ] 5.2 Add `## API (apps/api)` to `CLAUDE.md` after `## System design`. It covers:
+- [x] 5.1 Read #23 and #28, report any conflict, then cut `docs/api-conventions` from the updated `feat/nestjs-setup`.
+- [x] 5.2 Add `## API (apps/api)` to `CLAUDE.md` after `## System design`. It covers:
   - the module layout and cross-cutting folders;
   - Zod DTOs in `dto/` (`XSchema` plus `type X`), and `schema/` for persistence only;
   - body and response schemas get `.meta({ id })`, but query and path-parameter object schemas never do, because Swagger would not expand them into parameters and the lint fails on the unused component;
@@ -130,14 +130,14 @@
   - the drift test, Redocly lint, architecture test and e2e schema tests.
 
   Verify that `grep -n "^## API (apps/api)" CLAUDE.md` matches and that the section mentions `pnpm --filter api openapi`, `@ApiResponseSchema`, `dto/` and the rule that query schemas get no `.meta({ id })`. Tick #28 AC 1.
-- [ ] 5.3 Add to `openspec/config.yaml`:
+- [x] 5.3 Add to `openspec/config.yaml`:
   - a `rules.proposal` entry: state "API contract: no change" or list the endpoints added, changed or removed;
   - a `rules.design` entry: request and response shapes are Zod schemas in the module's `dto/`, with no class-validator DTOs;
   - a `rules.tasks` entry: changed endpoints get tasks for their schemas and Swagger decorators, regenerating `openapi.json`, and e2e tests that parse responses with their schemas;
   - one `context` sentence pointing to the `CLAUDE.md` API section.
 
   Verify that `openspec instructions proposal|design|tasks --change add-api-foundation --json | jq -r '.rules[]'` prints each new rule. Tick #28 AC 2.
-- [ ] 5.4 Replace `apps/api/README.md` with:
+- [x] 5.4 Replace `apps/api/README.md` with:
   - what the API is;
   - `pnpm --filter api dev`, `test` and `lint`;
   - the `/docs` and `/docs-json` URLs and the production gating;
@@ -145,20 +145,20 @@
   - a pointer to `CLAUDE.md` for the rules.
 
   Verify that the README mentions all three commands and both URLs, and that `grep -ci "mau\|observe" apps/api/README.md` prints `0`. Tick #28 AC 3.
-- [ ] 5.5 Read the Excalidraw+ diagram format guide (`read_diagram_format`), then create the scene `08-api-structure` in the `app-flashcards` collection with `create_diagram` (design.md, decision 13). Check it with `take_screenshot` and fix any overlap or missing node with `edit_scene_content`. Verify that `list_collection_scenes` for `app-flashcards` lists `08-api-structure` and that the screenshot shows:
+- [x] 5.5 Read the Excalidraw+ diagram format guide (`read_diagram_format`), then create the scene `08-api-structure` in the `app-flashcards` collection with `create_diagram` (design.md, decision 13). Check it with `take_screenshot` and fix any overlap or missing node with `edit_scene_content`. Verify that `list_collection_scenes` for `app-flashcards` lists `08-api-structure` and that the screenshot shows:
   - the entry points;
   - the pipeline;
   - the modules (health built, the rest marked planned);
   - `config`, `common` and `openapi`;
   - `openapi.json`.
-- [ ] 5.6 Export the pair from the scene through the shell, never hand-editing or rendering locally: `system-design/08-api-structure.excalidraw` from `get_scene_content`, and `system-design/08-api-structure.png` from `take_screenshot`. Verify that both files exist, `jq empty` passes on the `.excalidraw`, and `file` reports the `.png` as PNG image data.
-- [ ] 5.7 Update `system-design/README.md`:
+- [x] 5.6 Export the pair from the scene through the shell, never hand-editing or rendering locally: `system-design/08-api-structure.excalidraw` from `get_scene_content`, and `system-design/08-api-structure.png` from `take_screenshot`. Verify that both files exist, `jq empty` passes on the `.excalidraw`, and `file` reports the `.png` as PNG image data.
+- [x] 5.7 Update `system-design/README.md`:
   - add a "08. API structure" section embedding `08-api-structure.png`;
   - add Decisions rows for API layout (feature modules), API validation (Zod through Nest's built-in Standard Schema support) and the API contract (generated OpenAPI 3.1, committed `openapi.json`, drift and lint checks);
   - remove the open question "ORM and migration tool" only if it is decided by then (it isn't, today).
 
   Verify that `grep -n "08-api-structure.png" system-design/README.md` matches and `git diff --stat dev -- 'system-design/0[1-7]-*'` prints nothing. Tick #28 AC 4.
-- [ ] 5.8 Commit and push `docs/api-conventions`. Open a PR into `feat/nestjs-setup` titled like #28, with `Refs #28` and no `Closes` line. Verify the base and body.
+- [x] 5.8 Commit and push `docs/api-conventions`. Open a PR into `feat/nestjs-setup` titled like #28, with `Refs #28` and no `Closes` line. Verify the base and body.
 - [ ] 5.9 Post a progress comment on #28.
 - [ ] 5.10 Stop until the user confirms the #28 PR is merged. Verify `MERGED`, then fast-forward the local `feat/nestjs-setup`.
 
