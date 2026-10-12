@@ -1,8 +1,8 @@
 ## 1. Design prototype and system design (issue #61, AC 1 to 4)
 
-- [ ] 1.1 Cut `feat/decks-and-cards` from `dev`, commit this change's artifacts as `chore(openspec): propose add-decks-and-cards` and push the branch, so the integration branch exists before the first sub-PR. Before committing, run `find . -name "* [0-9].*" -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*"` and remove any sync duplicates. Verify that `git ls-remote --heads origin feat/decks-and-cards` prints the same SHA as `git rev-parse feat/decks-and-cards`.
-- [ ] 1.2 Read #60 and #61 with `gh issue view`, report any conflict with these artifacts, then cut `docs/decks-design` from `feat/decks-and-cards`. Verify that `git merge-base --is-ancestor origin/feat/decks-and-cards HEAD` exits 0.
-- [ ] 1.3 Load the `artifact-design` skill, then build `design/decks-and-cards/prototype.html` as one self-contained page (design.md, decision 15):
+- [x] 1.1 Cut `feat/decks-and-cards` from `dev`, commit this change's artifacts as `chore(openspec): propose add-decks-and-cards` and push the branch, so the integration branch exists before the first sub-PR. Before committing, run `find . -name "* [0-9].*" -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/.next/*"` and remove any sync duplicates. Verify that `git ls-remote --heads origin feat/decks-and-cards` prints the same SHA as `git rev-parse feat/decks-and-cards`.
+- [x] 1.2 Read #60 and #61 with `gh issue view`, report any conflict with these artifacts, then cut `docs/decks-design` from `feat/decks-and-cards`. Verify that `git merge-base --is-ancestor origin/feat/decks-and-cards HEAD` exits 0.
+- [x] 1.3 Load the `artifact-design` skill, then build `design/decks-and-cards/prototype.html` as one self-contained page (design.md, decision 15):
   - `:root` and `.dark` token blocks: background, foreground, card, muted, border, primary and primary-foreground, due (terracotta), new (green), destructive, ring, radius and the Fraunces, Geist and Geist Mono families;
   - the deck list, deck page, note editor (pickers, rich-text fields with bold, italic, underline and the cloze action, tags, live preview of each card) and card browser (dense table with Geist Mono numbers; stacked rows at phone width);
   - each screen in a 375 px frame and a 1280 px frame, each frame with its own light/dark switch;
@@ -10,21 +10,21 @@
   - how the card preview looks in the dark theme (design.md, Open Questions).
 
   Verify by opening it in the built-in browser: no console errors, and screenshots of each screen at both widths in both themes show the content without horizontal scrolling inside the frames.
-- [ ] 1.4 Publish the prototype as a private artifact and post its link in a comment on #61. Verify that `gh issue view 61 --comments` shows the link and that `grep -c "deck-list\|deck-page\|note-editor\|card-browser" design/decks-and-cards/prototype.html` prints a number of at least 4. Tick #61 AC 1.
-- [ ] 1.5 Stop and ask the user to review the prototype. Apply requested changes to the same file and republish to the same URL until the user approves. Then post a comment on #61 that quotes the user's approval. Verify that the comment exists. Tick #61 AC 2.
-- [ ] 1.6 Read the Excalidraw+ diagram format guide (`read_diagram_format`), list the `app-flashcards` collection's scenes with `list_collection_scenes`, and read `08-api-structure` with `get_scene_content`. With `edit_scene_content`:
+- [x] 1.4 Publish the prototype as a private artifact and post its link in a comment on #61. Verify that `gh issue view 61 --comments` shows the link and that `grep -c "deck-list\|deck-page\|note-editor\|card-browser" design/decks-and-cards/prototype.html` prints a number of at least 4. Tick #61 AC 1.
+- [x] 1.5 Stop and ask the user to review the prototype. Apply requested changes to the same file and republish to the same URL until the user approves. Then post a comment on #61 that quotes the user's approval. Verify that the comment exists. Tick #61 AC 2.
+- [x] 1.6 Read the Excalidraw+ diagram format guide (`read_diagram_format`), list the `app-flashcards` collection's scenes with `list_collection_scenes`, and read `08-api-structure` with `get_scene_content`. With `edit_scene_content`:
   - move `decks`, `notes`, `cards` and `note-types` from the planned modules to the built ones;
   - add a `packages/card-templates` box (render, cloze, cards-for, sanitize) with arrows from the `notes` module and from `apps/web`.
 
   Check it with `take_screenshot` and fix any overlap. Verify that the screenshot shows the four modules as built and the `card-templates` box with both arrows.
-- [ ] 1.7 Export the pair through the shell, never hand-editing or rendering it locally: `system-design/08-api-structure.excalidraw` from `get_scene_content` and `system-design/08-api-structure.png` from `take_screenshot`. Verify that:
+- [x] 1.7 Export the pair through the shell, never hand-editing or rendering it locally: `system-design/08-api-structure.excalidraw` from `get_scene_content` and `system-design/08-api-structure.png` from `take_screenshot`. Verify that:
   - `jq empty` passes on the `.excalidraw`;
   - `file` reports the `.png` as PNG image data;
   - `grep -c "card-templates" system-design/08-api-structure.excalidraw` and the same for `note-types` each print a number above 0;
   - `git diff --stat origin/feat/decks-and-cards -- 'system-design/0[1234567]-*' 'system-design/09-*'` prints nothing.
 
   Tick #61 AC 3.
-- [ ] 1.8 Update `system-design/README.md`:
+- [x] 1.8 Update `system-design/README.md`:
   - the 08 description names the built deck, note, card and note-type modules and the shared `card-templates` package;
   - a "Shared code" decision row (workspace packages under `packages/`, pure, built by `tsc`, tested once and imported by both apps);
   - a "Web UI" decision row (Tailwind v4 and shadcn/ui, light / dark / system, Paper tokens from the approved prototype, 375 px and 1280 px, calls to the API only from the Next.js server);

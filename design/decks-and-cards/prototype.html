@@ -1,0 +1,783 @@
+<title>Decks and Cards Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Geist:wght@400..600&family=Geist+Mono:wght@400..500&display=swap">
+<style>
+/* Layout: a review sheet. Each screen of the app is rendered twice, in a 375 px
+   phone frame and a 1280 px desktop frame (scaled to fit), each with its own
+   light/dark switch. The frames are CSS containers, so the app's breakpoints
+   (768 px, 1024 px) respond to the frame width, not to this page. */
+
+/* app-tokens:light
+   Paper direction. Copied unchanged into apps/web/app/globals.css (#62). */
+:root, .light {
+  --background: #f6f3ec;
+  --foreground: #1d1b18;
+  --card: #fffdf9;
+  --card-foreground: #1d1b18;
+  --popover: #fffdf9;
+  --popover-foreground: #1d1b18;
+  --primary: #1d1b18;
+  --primary-foreground: #faf7f1;
+  --secondary: #ece7dd;
+  --secondary-foreground: #1d1b18;
+  --muted: #eee9e0;
+  --muted-foreground: #6b645a;
+  --accent: #ebe5da;
+  --accent-foreground: #1d1b18;
+  --destructive: #a3261c;
+  --destructive-foreground: #fffdf9;
+  --border: #e2dbcf;
+  --input: #d9d1c3;
+  --ring: #b4532a;
+  --due: #b4532a;
+  --due-muted: #f5e2d7;
+  --new: #3d6a45;
+  --new-muted: #e1ebdd;
+  --learning: #8d6514;
+  --learning-muted: #f2e6c8;
+  --card-preview: #ffffff;
+  --card-preview-foreground: #000000;
+  --card-preview-cloze: #0000ff;
+  --radius: 0.625rem;
+  --font-heading: var(--font-fraunces, "Fraunces"), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-geist, "Geist"), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono, "Geist Mono"), ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+/* app-tokens:light:end */
+
+/* app-tokens:dark */
+.dark {
+  --background: #161412;
+  --foreground: #ece6dc;
+  --card: #1e1b18;
+  --card-foreground: #ece6dc;
+  --popover: #221f1b;
+  --popover-foreground: #ece6dc;
+  --primary: #ece6dc;
+  --primary-foreground: #161412;
+  --secondary: #2a2622;
+  --secondary-foreground: #ece6dc;
+  --muted: #24201c;
+  --muted-foreground: #a3998b;
+  --accent: #2c2823;
+  --accent-foreground: #ece6dc;
+  --destructive: #e3685a;
+  --destructive-foreground: #161412;
+  --border: #322d27;
+  --input: #3d372f;
+  --ring: #e08a62;
+  --due: #e08a62;
+  --due-muted: #3a241a;
+  --new: #93c28f;
+  --new-muted: #1f2c1f;
+  --learning: #d8aa4c;
+  --learning-muted: #33290f;
+  --card-preview: #2b2927;
+  --card-preview-foreground: #ece6dc;
+  --card-preview-cloze: #8db8ff;
+  color-scheme: dark;
+}
+/* app-tokens:dark:end */
+
+/* Review-sheet chrome (not part of the app). */
+html { --desk: #e8e3d9; --desk-ink: #4d473f; }
+html.dark { --desk: #0d0c0b; --desk-ink: #b3a99b; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--desk);
+  color: var(--foreground);
+  font: 15px/1.55 var(--font-sans);
+  padding-inline: 16px;
+  padding-block: 0 64px;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+
+.sheet-top {
+  max-width: 1400px; margin: 0 auto; padding-block: 32px 8px;
+  display: grid; gap: 14px;
+}
+.sheet-top h1 {
+  font: 500 34px/1.1 var(--font-heading); font-variation-settings: "opsz" 96;
+  letter-spacing: -0.015em; margin: 0; text-wrap: balance;
+}
+.sheet-top p { margin: 0; color: var(--desk-ink); max-width: 68ch; }
+.sheet-bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.jump { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 14px; }
+.jump a { color: var(--foreground); text-underline-offset: 3px; }
+.seg { display: inline-flex; border: 1px solid var(--input); border-radius: 999px; padding: 2px; background: var(--card); }
+.seg button { border: 0; background: transparent; border-radius: 999px; padding: 3px 11px; font-size: 13px; cursor: pointer; color: var(--muted-foreground); }
+.seg button[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); }
+
+.screen { max-width: 1400px; margin: 0 auto; padding-block: 40px 0; display: grid; gap: 16px; }
+.screen-head { display: grid; gap: 4px; max-width: 76ch; }
+.screen-head h2 { font: 500 24px/1.2 var(--font-heading); font-variation-settings: "opsz" 48; margin: 0; }
+.screen-head .route { font: 13px var(--font-mono); color: var(--desk-ink); }
+.screen-head p { margin: 0; color: var(--desk-ink); font-size: 14px; }
+.frames { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.frame { margin: 0; display: grid; gap: 8px; min-width: 0; }
+.frame[data-w="375"] { flex: 0 1 375px; }
+.frame[data-w="1280"] { flex: 1 1 560px; }
+.frame figcaption { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--desk-ink); }
+.scaler { position: relative; overflow: hidden; border-radius: 14px; }
+.device {
+  position: absolute; top: 0; left: 0; transform-origin: top left;
+  container-type: inline-size; border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .06), 0 12px 32px -12px rgb(0 0 0 / .18);
+}
+
+/* ---------- The app ---------- */
+.app {
+  position: relative; display: grid; grid-template-rows: auto 1fr; min-height: 780px;
+  background: var(--background); color: var(--foreground);
+  font: 14px/1.45 var(--font-sans); -webkit-font-smoothing: antialiased;
+}
+.app-header {
+  display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 12px 0 8px;
+  border-bottom: 1px solid var(--border); background: var(--background);
+}
+.brand { display: flex; align-items: center; gap: 10px; font: 500 18px/1 var(--font-heading); font-variation-settings: "opsz" 36; letter-spacing: -0.01em; margin-right: auto; }
+.brand-mark { position: relative; width: 20px; height: 16px; }
+.brand-mark::before, .brand-mark::after { content: ""; position: absolute; width: 15px; height: 11px; border-radius: 3px; border: 1.5px solid var(--foreground); background: var(--background); }
+.brand-mark::before { left: 0; top: 4px; }
+.brand-mark::after { left: 5px; top: 0; background: var(--due); border-color: var(--due); }
+.avatar { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--secondary); font-size: 12px; font-weight: 500; border: 1px solid var(--border); }
+.icon-btn { width: 36px; height: 36px; display: inline-grid; place-items: center; border: 0; border-radius: var(--radius); background: transparent; color: var(--foreground); cursor: pointer; }
+.icon-btn:hover { background: var(--accent); }
+.app-body { display: grid; grid-template-columns: minmax(0, 1fr); min-height: 0; }
+.sidebar { display: none; flex-direction: column; gap: 2px; padding: 18px 12px; border-right: 1px solid var(--border); }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: calc(var(--radius) - 2px); color: var(--muted-foreground); font-weight: 500; text-decoration: none; }
+.nav-item[aria-current="page"] { background: var(--secondary); color: var(--foreground); }
+.sidebar-foot { margin-top: auto; padding: 12px 10px 4px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted-foreground); display: grid; gap: 2px; }
+.sidebar-foot strong { font: 500 22px/1.1 var(--font-mono); color: var(--due); font-variant-numeric: tabular-nums; }
+.main { padding: 20px 16px 40px; min-width: 0; }
+
+@container (min-width: 768px) {
+  .main { padding: 32px 36px 48px; }
+}
+@container (min-width: 1024px) {
+  .app { min-height: 760px; }
+  .app-header { padding: 0 20px; }
+  .menu-btn { display: none; }
+  .app-body { grid-template-columns: 232px minmax(0, 1fr); }
+  .sidebar { display: flex; }
+  .main { padding: 36px 48px 56px; }
+  .main-inner { max-width: 920px; }
+}
+
+.crumbs { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted-foreground); margin-bottom: 6px; }
+.crumbs svg.i { width: 14px; height: 14px; }
+.page-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 16px; margin-bottom: 22px; }
+.page-head > div { min-width: 0; }
+.title { font: 500 28px/1.12 var(--font-heading); font-variation-settings: "opsz" 72; letter-spacing: -0.015em; margin: 0; text-wrap: balance; }
+.lede { margin: 6px 0 0; color: var(--muted-foreground); max-width: 60ch; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+@container (min-width: 768px) { .title { font-size: 34px; } }
+
+.btn { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px; border-radius: var(--radius); border: 1px solid transparent; font-weight: 500; font-size: 14px; cursor: pointer; white-space: nowrap; }
+.btn svg.i { width: 16px; height: 16px; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); }
+.btn-outline { background: var(--card); border-color: var(--input); color: var(--foreground); }
+.btn-ghost { background: transparent; color: var(--foreground); }
+.btn-ghost:hover, .btn-outline:hover { background: var(--accent); }
+.btn-destructive { background: var(--destructive); color: var(--destructive-foreground); }
+.btn-sm { height: 30px; padding: 0 10px; font-size: 13px; }
+.only-wide { display: none; }
+@container (min-width: 768px) { .only-wide { display: inline-flex; } .only-narrow { display: none; } }
+
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: calc(var(--radius) + 2px); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.c-new { color: var(--new); }
+.c-due { color: var(--due); }
+.c-zero { color: var(--muted-foreground); opacity: .55; }
+.c-muted { color: var(--muted-foreground); }
+
+/* Deck tree */
+.tree-head, .tree-row { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, 38px); align-items: center; gap: 4px; padding: 0 12px; }
+.tree-head { height: 34px; font-size: 12px; color: var(--muted-foreground); border-bottom: 1px solid var(--border); letter-spacing: .02em; }
+.tree-head span:not(:first-child), .tree-row .num { text-align: right; }
+.tree-row { min-height: 46px; border-bottom: 1px solid var(--border); }
+.tree-row:last-child { border-bottom: 0; }
+.tree-row:hover { background: var(--accent); }
+.deck-name { display: flex; align-items: center; gap: 6px; min-width: 0; padding-left: calc(var(--depth, 0) * 22px); }
+.deck-name a { color: inherit; text-decoration: none; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.deck-name .twisty { width: 18px; color: var(--muted-foreground); display: inline-grid; place-items: center; }
+.deck-name .twisty svg.i { width: 15px; height: 15px; }
+.tree-row[data-depth="1"] .deck-name a { font-weight: 400; }
+@container (min-width: 768px) {
+  .tree-head, .tree-row { grid-template-columns: minmax(0, 1fr) repeat(3, 64px); padding: 0 18px; }
+  .tree-row { min-height: 50px; }
+}
+.tree-note { margin: 10px 2px 0; font-size: 12px; color: var(--muted-foreground); }
+
+/* Deck page */
+.figures { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0 0 26px; padding: 14px 0; border-block: 1px solid var(--border); }
+.figure { display: grid; gap: 1px; }
+.figure b { font: 500 24px/1.1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.figure span { font-size: 12px; color: var(--muted-foreground); }
+.section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 10px; }
+.section-title h2 { font: 500 18px/1.2 var(--font-heading); font-variation-settings: "opsz" 24; margin: 0; }
+.section-title a { font-size: 13px; color: var(--muted-foreground); }
+.stack { display: grid; gap: 28px; }
+
+/* Chips */
+.chip { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+.chip-new { background: var(--new-muted); color: var(--new); }
+.chip-learning { background: var(--learning-muted); color: var(--learning); }
+.chip-review { background: var(--secondary); color: var(--secondary-foreground); }
+.chip-relearning { background: var(--due-muted); color: var(--due); }
+.tag { display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 6px 0 10px; border-radius: 999px; background: var(--secondary); font-size: 13px; }
+.tag svg.i { width: 13px; height: 13px; color: var(--muted-foreground); }
+
+/* Card browser: table from 768 px, stacked rows below */
+.toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-bottom: 14px; }
+@container (min-width: 768px) { .toolbar { grid-template-columns: minmax(0, 1fr) 190px 190px; } }
+.input, .select { display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 12px; border: 1px solid var(--input); border-radius: var(--radius); background: var(--card); color: var(--foreground); min-width: 0; }
+.input .ph { color: var(--muted-foreground); }
+.select { justify-content: space-between; }
+.select span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.select svg.i, .input svg.i { width: 16px; height: 16px; color: var(--muted-foreground); }
+.result-count { font-size: 13px; color: var(--muted-foreground); margin: 0 0 8px; }
+.cards-table { display: none; width: 100%; border-collapse: collapse; font-size: 13.5px; color: var(--foreground); font-family: var(--font-sans); }
+.cards-table th { text-align: left; font-weight: 500; font-size: 12px; color: var(--muted-foreground); height: 34px; padding: 0 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.cards-table td { height: 38px; padding: 0 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.cards-table tr:last-child td { border-bottom: 0; }
+.cards-table tbody tr:hover { background: var(--accent); }
+.cards-table td.sf { max-width: 300px; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.cards-table td.end { width: 44px; text-align: right; padding-right: 6px; }
+.cards-table .icon-btn { width: 30px; height: 30px; }
+.cards-list { list-style: none; margin: 0; padding: 0; }
+.cards-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 11px 14px; border-bottom: 1px solid var(--border); }
+.cards-list li:last-child { border-bottom: 0; }
+.cards-list .sf { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cards-list .meta { grid-column: 1; font-size: 12.5px; color: var(--muted-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cards-list .side { grid-row: 1 / span 2; grid-column: 2; display: grid; justify-items: end; align-content: center; gap: 3px; }
+.cards-list .side .num { font-size: 12px; color: var(--muted-foreground); }
+@container (min-width: 768px) { .cards-table { display: table; } .cards-list { display: none; } }
+.more { display: flex; justify-content: center; margin-top: 16px; }
+
+/* Note editor */
+.editor-grid { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); }
+@container (min-width: 1024px) { .editor-grid { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; } .preview { position: sticky; top: 0; } }
+.form { display: grid; gap: 18px; }
+.row-2 { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+@container (min-width: 600px) { .row-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.field { display: grid; gap: 6px; }
+.field > label, .field > .label { font-weight: 500; font-size: 13px; }
+.hint { font-size: 12.5px; color: var(--muted-foreground); }
+.rte { border: 1px solid var(--input); border-radius: var(--radius); background: var(--card); overflow: hidden; }
+.rte.focused { border-color: var(--ring); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ring) 22%, transparent); }
+.rte-bar { display: flex; align-items: center; gap: 2px; padding: 4px; border-bottom: 1px solid var(--border); background: var(--muted); }
+.rte-bar .tb { min-width: 30px; height: 28px; border: 0; border-radius: 6px; background: transparent; cursor: pointer; font-size: 14px; color: var(--foreground); padding: 0 7px; }
+.rte-bar .tb:hover { background: var(--accent); }
+.rte-bar .tb.on { background: var(--secondary); }
+.rte-bar .sep { width: 1px; height: 18px; background: var(--border); margin: 0 4px; }
+.rte-bar .tb.cloze { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; }
+.rte-bar .tb.cloze .num { color: var(--due); }
+.rte-body { padding: 12px 14px; min-height: 84px; font-size: 15px; line-height: 1.6; }
+.cz { font-family: var(--font-mono); font-size: 13px; color: var(--due); background: var(--due-muted); border-radius: 4px; padding: 1px 4px; }
+.cz b { font-family: var(--font-sans); font-size: 15px; color: var(--foreground); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 38px; padding: 5px 8px; border: 1px solid var(--input); border-radius: var(--radius); background: var(--card); }
+.tags .ph { font-size: 13px; color: var(--muted-foreground); padding-left: 4px; }
+.form-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; padding-top: 4px; }
+.preview { display: grid; gap: 10px; padding: 14px; }
+.preview-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.preview-head h2 { font: 500 16px/1.2 var(--font-heading); font-variation-settings: "opsz" 24; margin: 0; }
+.switch { display: flex; flex-wrap: wrap; gap: 6px; }
+.switch button { height: 28px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--input); background: var(--card); font-size: 12.5px; cursor: pointer; color: var(--muted-foreground); }
+.switch button[aria-pressed="true"] { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.sides { display: grid; gap: 10px; }
+@container (min-width: 600px) and (max-width: 1023px) { .sides { grid-template-columns: 1fr 1fr; } }
+.side-label { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-foreground); margin-bottom: 4px; }
+.card-frame { border: 1px solid var(--border); border-radius: var(--radius); background: var(--card-preview); color: var(--card-preview-foreground); padding: 22px 16px; min-height: 108px; display: grid; place-items: center; text-align: center; font: 20px/1.4 Arial, Helvetica, sans-serif; }
+.card-frame .cloze { font-weight: bold; color: var(--card-preview-cloze); }
+.card-frame hr { border: 0; border-top: 1px solid currentColor; opacity: .35; margin: 10px 0; width: 100%; }
+.card-frame .inner { width: 100%; }
+.sandbox-note { font-size: 12px; color: var(--muted-foreground); }
+
+/* States */
+.empty { display: grid; justify-items: start; gap: 10px; padding: 36px 24px; text-align: left; }
+.empty h2 { font: 500 22px/1.2 var(--font-heading); font-variation-settings: "opsz" 36; margin: 0; }
+.empty p { margin: 0; color: var(--muted-foreground); max-width: 46ch; }
+.empty-art { display: flex; gap: 6px; margin-bottom: 6px; }
+.empty-art span { width: 34px; height: 24px; border-radius: 5px; border: 1.5px dashed var(--input); }
+.empty-art span:nth-child(2) { transform: translateY(-6px) rotate(4deg); border-color: var(--due); border-style: solid; background: var(--due-muted); }
+.skel { display: block; height: 12px; border-radius: 6px; background: var(--muted); position: relative; overflow: hidden; }
+.skel::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--card) 70%, transparent), transparent); animation: shimmer 1.4s infinite; }
+@keyframes shimmer { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .skel::after { animation: none; } }
+.alert { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; padding: 16px; border: 1px solid color-mix(in srgb, var(--destructive) 35%, var(--border)); border-radius: calc(var(--radius) + 2px); background: color-mix(in srgb, var(--destructive) 7%, var(--card)); }
+.alert svg.i { color: var(--destructive); margin-top: 2px; }
+.alert strong { font-weight: 600; }
+.alert p { margin: 0; grid-column: 2; color: var(--muted-foreground); }
+.alert .actions { grid-column: 2; margin-top: 8px; }
+.overlay { position: absolute; inset: 0; background: rgb(12 10 8 / .48); display: grid; place-items: center; padding: 16px; z-index: 5; }
+.dialog { width: min(440px, 100%); background: var(--popover); color: var(--popover-foreground); border: 1px solid var(--border); border-radius: calc(var(--radius) + 4px); padding: 22px; display: grid; gap: 12px; box-shadow: 0 24px 48px -16px rgb(0 0 0 / .35); }
+.dialog h2 { font: 500 20px/1.25 var(--font-heading); font-variation-settings: "opsz" 36; margin: 0; }
+.dialog p { margin: 0; color: var(--muted-foreground); }
+.impact { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--border); border-radius: var(--radius); }
+.impact div { padding: 10px 12px; display: grid; gap: 1px; }
+.impact div + div { border-left: 1px solid var(--border); }
+.impact b { font: 500 20px/1.1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.impact span { font-size: 12px; color: var(--muted-foreground); }
+.dialog .actions { justify-content: flex-end; margin-top: 4px; }
+.nav-sheet { position: absolute; inset: 0; z-index: 6; display: none; }
+.app.sheet-open .nav-sheet { display: block; }
+.nav-sheet .scrim { position: absolute; inset: 0; background: rgb(12 10 8 / .48); }
+.nav-sheet .sheet { position: absolute; top: 0; bottom: 0; left: 0; width: min(290px, 82%); background: var(--background); border-right: 1px solid var(--border); padding: 12px; display: flex; flex-direction: column; gap: 2px; }
+.nav-sheet .sheet-head { display: flex; align-items: center; justify-content: space-between; height: 44px; margin-bottom: 10px; padding-left: 6px; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></symbol>
+  <symbol id="i-decks" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></symbol>
+  <symbol id="i-move" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0-5 5v6"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+</svg>
+
+<header class="sheet-top">
+  <h1>Decks and Cards Prototype</h1>
+  <p>The Paper direction for issue #61: the deck list, a deck's page, the note editor and the card browser, plus their empty, loading, error and delete states. Every screen is shown at 375 px and 1280 px; switch each frame between light and dark.</p>
+  <div class="sheet-bar">
+    <nav class="jump" aria-label="Screens">
+      <a href="#deck-list">Deck list</a><a href="#deck-page">Deck page</a><a href="#note-editor">Note editor</a><a href="#card-browser">Card browser</a><a href="#states">States</a>
+    </nav>
+    <div class="seg" role="group" aria-label="Theme for every frame">
+      <button type="button" id="all-mixed" aria-pressed="true">Phone light, desktop dark</button>
+      <button type="button" id="all-light" aria-pressed="false">All light</button>
+      <button type="button" id="all-dark" aria-pressed="false">All dark</button>
+    </div>
+  </div>
+</header>
+
+<section class="screen" id="deck-list">
+  <div class="screen-head">
+    <h2>Deck list</h2>
+    <div class="route">/decks</div>
+    <p>Home for signed-in users. Counts include subdecks: new in green, due in terracotta, total in grey. Zeros fade back so the numbers that need attention stand out.</p>
+  </div>
+  <div class="frames" data-screen="t-deck-list" data-nav="decks"></div>
+</section>
+
+<section class="screen" id="deck-page">
+  <div class="screen-head">
+    <h2>Deck page</h2>
+    <div class="route">/decks/[id]</div>
+    <p>One deck with its own figures, its subdecks and its cards. Rename and Move open dialogs; Delete deck lives in the overflow menu and always confirms.</p>
+  </div>
+  <div class="frames" data-screen="t-deck-page" data-nav="decks"></div>
+</section>
+
+<section class="screen" id="note-editor">
+  <div class="screen-head">
+    <h2>Note editor</h2>
+    <div class="route">/notes/new · /notes/[id]/edit</div>
+    <p>A Cloze note with two deletions, so the preview shows two cards. Fields allow bold, italic and underline; Cloze wraps the selection in the next number. The preview renders in a sandbox with the note type's own CSS; in the dark theme it uses Anki's night colors.</p>
+  </div>
+  <div class="frames" data-screen="t-note-editor" data-nav="decks"></div>
+</section>
+
+<section class="screen" id="card-browser">
+  <div class="screen-head">
+    <h2>Card browser</h2>
+    <div class="route">/cards</div>
+    <p>A dense table from 768 px with monospace dates; below that, each card becomes a stacked row. Search matches the sort field; the deck filter includes subdecks; Load more follows the cursor.</p>
+  </div>
+  <div class="frames" data-screen="t-card-browser" data-nav="cards"></div>
+</section>
+
+<section class="screen" id="states">
+  <div class="screen-head">
+    <h2>States</h2>
+    <p>Empty, loading and error on the deck list, the delete confirmation on the deck page, and the navigation sheet that replaces the sidebar below 1024 px.</p>
+  </div>
+  <div class="screen-head"><h2 style="font-size:18px">Empty</h2></div>
+  <div class="frames" data-screen="t-empty" data-nav="decks"></div>
+  <div class="screen-head"><h2 style="font-size:18px">Loading</h2></div>
+  <div class="frames" data-screen="t-loading" data-nav="decks"></div>
+  <div class="screen-head"><h2 style="font-size:18px">Error</h2></div>
+  <div class="frames" data-screen="t-error" data-nav="decks"></div>
+  <div class="screen-head"><h2 style="font-size:18px">Delete confirmation</h2></div>
+  <div class="frames" data-screen="t-delete" data-nav="decks"></div>
+  <div class="screen-head"><h2 style="font-size:18px">Navigation sheet</h2></div>
+  <div class="frames" data-screen="t-deck-list" data-nav="decks" data-sheet="open" data-widths="375"></div>
+</section>
+
+<!-- App shell: every screen is placed into .main-inner. -->
+<template id="t-shell">
+  <div class="app">
+    <header class="app-header">
+      <button class="icon-btn menu-btn" type="button" aria-label="Open navigation" data-sheet-toggle><svg class="i"><use href="#i-menu"/></svg></button>
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Flashcards</div>
+      <button class="icon-btn theme-btn" type="button" aria-label="Theme: light, dark or system"><svg class="i"><use href="#i-moon"/></svg></button>
+      <span class="avatar" aria-label="Your account">AF</span>
+    </header>
+    <div class="app-body">
+      <nav class="sidebar" aria-label="Main">
+        <a class="nav-item" data-nav="decks" href="#"><svg class="i"><use href="#i-decks"/></svg>Decks</a>
+        <a class="nav-item" data-nav="cards" href="#"><svg class="i"><use href="#i-list"/></svg>Browse cards</a>
+        <div class="sidebar-foot"><strong>42</strong>cards due today</div>
+      </nav>
+      <main class="main"><div class="main-inner"></div></main>
+    </div>
+    <div class="nav-sheet">
+      <div class="scrim" data-sheet-toggle></div>
+      <nav class="sheet" aria-label="Main">
+        <div class="sheet-head"><div class="brand"><span class="brand-mark" aria-hidden="true"></span>Flashcards</div><button class="icon-btn" type="button" aria-label="Close navigation" data-sheet-toggle><svg class="i"><use href="#i-x"/></svg></button></div>
+        <a class="nav-item" data-nav="decks" href="#"><svg class="i"><use href="#i-decks"/></svg>Decks</a>
+        <a class="nav-item" data-nav="cards" href="#"><svg class="i"><use href="#i-list"/></svg>Browse cards</a>
+        <div class="sidebar-foot"><strong>42</strong>cards due today</div>
+      </nav>
+    </div>
+  </div>
+</template>
+
+<template id="t-deck-list">
+  <div class="page-head">
+    <div>
+      <h1 class="title">Decks</h1>
+      <p class="lede"><span class="num c-due">42</span> cards due across 4 decks</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-outline" type="button"><svg class="i"><use href="#i-plus"/></svg>New deck</button>
+      <button class="btn btn-primary" type="button"><svg class="i"><use href="#i-plus"/></svg>Add note</button>
+    </div>
+  </div>
+  <div class="panel" role="table" aria-label="Your decks">
+    <div class="tree-head" role="row"><span>Deck</span><span>New</span><span>Due</span><span>Total</span></div>
+    <div class="tree-row" role="row" data-depth="0"><div class="deck-name"><span class="twisty"><svg class="i"><use href="#i-down"/></svg></span><a href="#">Spanish</a></div><span class="num c-new">12</span><span class="num c-due">30</span><span class="num c-muted">840</span></div>
+    <div class="tree-row" role="row" data-depth="1" style="--depth:1"><div class="deck-name"><span class="twisty"></span><a href="#">Verbs</a></div><span class="num c-new">5</span><span class="num c-due">14</span><span class="num c-muted">310</span></div>
+    <div class="tree-row" role="row" data-depth="1" style="--depth:1"><div class="deck-name"><span class="twisty"></span><a href="#">Food</a></div><span class="num c-new">3</span><span class="num c-due">9</span><span class="num c-muted">220</span></div>
+    <div class="tree-row" role="row" data-depth="0"><div class="deck-name"><span class="twisty"><svg class="i"><use href="#i-down"/></svg></span><a href="#">French</a></div><span class="num c-new">10</span><span class="num c-due">6</span><span class="num c-muted">402</span></div>
+    <div class="tree-row" role="row" data-depth="1" style="--depth:1"><div class="deck-name"><span class="twisty"></span><a href="#">Grammar</a></div><span class="num c-new">6</span><span class="num c-due">2</span><span class="num c-muted">150</span></div>
+    <div class="tree-row" role="row" data-depth="0"><div class="deck-name"><span class="twisty"></span><a href="#">Cell biology</a></div><span class="num c-zero">0</span><span class="num c-due">4</span><span class="num c-muted">226</span></div>
+    <div class="tree-row" role="row" data-depth="0"><div class="deck-name"><span class="twisty"><svg class="i"><use href="#i-right"/></svg></span><a href="#">JLPT N5</a></div><span class="num c-new">20</span><span class="num c-due">2</span><span class="num c-muted">520</span></div>
+  </div>
+  <p class="tree-note">Counts include subdecks. JLPT N5 is collapsed.</p>
+</template>
+
+<template id="t-deck-page">
+  <div class="crumbs"><a href="#" class="c-muted">Decks</a><svg class="i"><use href="#i-right"/></svg><span>Spanish</span></div>
+  <div class="page-head">
+    <div>
+      <h1 class="title">Spanish</h1>
+      <p class="lede">Everyday vocabulary, and the verbs I keep mixing up.</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-outline only-wide" type="button"><svg class="i"><use href="#i-pencil"/></svg>Rename</button>
+      <button class="btn btn-outline only-wide" type="button"><svg class="i"><use href="#i-move"/></svg>Move</button>
+      <button class="btn btn-primary" type="button"><svg class="i"><use href="#i-plus"/></svg>Add note</button>
+      <button class="btn btn-outline" type="button" aria-label="More actions"><svg class="i"><use href="#i-more"/></svg></button>
+    </div>
+  </div>
+  <div class="figures">
+    <div class="figure"><b class="c-new">12</b><span>New</span></div>
+    <div class="figure"><b class="c-due">30</b><span>Due now</span></div>
+    <div class="figure"><b>840</b><span>Cards</span></div>
+    <div class="figure"><b>412</b><span>Notes</span></div>
+  </div>
+  <div class="stack">
+    <div>
+      <div class="section-title"><h2>Subdecks</h2><a href="#">New subdeck</a></div>
+      <div class="panel">
+        <div class="tree-head"><span>Deck</span><span>New</span><span>Due</span><span>Total</span></div>
+        <div class="tree-row" data-depth="0"><div class="deck-name"><span class="twisty"></span><a href="#">Verbs</a></div><span class="num c-new">5</span><span class="num c-due">14</span><span class="num c-muted">310</span></div>
+        <div class="tree-row" data-depth="0"><div class="deck-name"><span class="twisty"></span><a href="#">Food</a></div><span class="num c-new">3</span><span class="num c-due">9</span><span class="num c-muted">220</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title"><h2>Cards</h2><a href="#">Open in browser</a></div>
+      <div class="panel">
+        <table class="cards-table">
+          <thead><tr><th>Sort field</th><th>Deck</th><th>Card</th><th>State</th><th>Due</th></tr></thead>
+          <tbody>
+            <tr><td class="sf">comer</td><td>Spanish › Verbs</td><td>Card 1</td><td><span class="chip chip-review">Review</span></td><td class="num">Oct 14</td></tr>
+            <tr><td class="sf">comer</td><td>Spanish › Verbs</td><td>Card 2</td><td><span class="chip chip-review">Review</span></td><td class="num">Oct 19</td></tr>
+            <tr><td class="sf">la berenjena</td><td>Spanish › Food</td><td>Card 1</td><td><span class="chip chip-learning">Learning</span></td><td class="num">Today 18:40</td></tr>
+            <tr><td class="sf">Madrid is the capital of Spain.</td><td>Spanish</td><td>Cloze 1</td><td><span class="chip chip-new">New</span></td><td class="num c-muted">·</td></tr>
+          </tbody>
+        </table>
+        <ul class="cards-list">
+          <li><span class="sf">comer</span><span class="meta">Verbs · Card 1</span><span class="side"><span class="chip chip-review">Review</span><span class="num">Oct 14</span></span></li>
+          <li><span class="sf">comer</span><span class="meta">Verbs · Card 2</span><span class="side"><span class="chip chip-review">Review</span><span class="num">Oct 19</span></span></li>
+          <li><span class="sf">la berenjena</span><span class="meta">Food · Card 1</span><span class="side"><span class="chip chip-learning">Learning</span><span class="num">18:40</span></span></li>
+          <li><span class="sf">Madrid is the capital of Spain.</span><span class="meta">Spanish · Cloze 1</span><span class="side"><span class="chip chip-new">New</span></span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="t-note-editor">
+  <div class="crumbs"><a href="#" class="c-muted">Decks</a><svg class="i"><use href="#i-right"/></svg><a href="#" class="c-muted">Spanish</a><svg class="i"><use href="#i-right"/></svg><span>Add note</span></div>
+  <div class="page-head"><div><h1 class="title">Add note</h1></div></div>
+  <div class="editor-grid">
+    <div class="form">
+      <div class="row-2">
+        <div class="field"><span class="label">Note type</span><div class="select" role="button" tabindex="0"><span>Cloze</span><svg class="i"><use href="#i-down"/></svg></div></div>
+        <div class="field"><span class="label">Deck</span><div class="select" role="button" tabindex="0"><span>Spanish</span><svg class="i"><use href="#i-down"/></svg></div></div>
+      </div>
+      <div class="field">
+        <span class="label">Text</span>
+        <div class="rte focused">
+          <div class="rte-bar" role="toolbar" aria-label="Formatting">
+            <button class="tb" type="button" aria-label="Bold"><b>B</b></button>
+            <button class="tb" type="button" aria-label="Italic"><i style="font-family:Georgia,serif">I</i></button>
+            <button class="tb" type="button" aria-label="Underline"><u>U</u></button>
+            <span class="sep"></span>
+            <button class="tb cloze" type="button">[…] Cloze <span class="num">c3</span></button>
+          </div>
+          <div class="rte-body"><span class="cz">{{c1::<b>Madrid</b>}}</span> is the capital of <span class="cz">{{c2::<b>Spain</b>}}</span>.</div>
+        </div>
+        <span class="hint">Select text and press Cloze (Ctrl+Shift+C) to hide it on its own card.</span>
+      </div>
+      <div class="field">
+        <span class="label">Back Extra</span>
+        <div class="rte">
+          <div class="rte-bar" role="toolbar" aria-label="Formatting">
+            <button class="tb" type="button" aria-label="Bold"><b>B</b></button>
+            <button class="tb" type="button" aria-label="Italic"><i style="font-family:Georgia,serif">I</i></button>
+            <button class="tb" type="button" aria-label="Underline"><u>U</u></button>
+          </div>
+          <div class="rte-body">Capital since <i>1561</i>, apart from 1601 to 1606.</div>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">Tags</span>
+        <div class="tags"><span class="tag">geography<svg class="i"><use href="#i-x"/></svg></span><span class="tag">capitals<svg class="i"><use href="#i-x"/></svg></span><span class="ph">Add a tag</span></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-ghost" type="button">Cancel</button>
+        <button class="btn btn-outline only-wide" type="button">Save and add another</button>
+        <button class="btn btn-primary" type="button">Save note</button>
+      </div>
+    </div>
+    <aside class="panel preview" aria-label="Preview">
+      <div class="preview-head"><h2>Preview</h2><span class="hint">2 cards</span></div>
+      <div class="switch" role="group" aria-label="Card">
+        <button type="button" aria-pressed="true" data-card="1">Cloze 1</button>
+        <button type="button" aria-pressed="false" data-card="2">Cloze 2</button>
+      </div>
+      <div class="sides" data-preview="1">
+        <div><div class="side-label">Front</div><div class="card-frame"><div class="inner"><span class="cloze">[...]</span> is the capital of Spain.</div></div></div>
+        <div><div class="side-label">Back</div><div class="card-frame"><div class="inner"><span class="cloze">Madrid</span> is the capital of Spain.<br>Capital since <i>1561</i>, apart from 1601 to 1606.</div></div></div>
+      </div>
+      <div class="sides" data-preview="2" hidden>
+        <div><div class="side-label">Front</div><div class="card-frame"><div class="inner">Madrid is the capital of <span class="cloze">[...]</span>.</div></div></div>
+        <div><div class="side-label">Back</div><div class="card-frame"><div class="inner">Madrid is the capital of <span class="cloze">Spain</span>.<br>Capital since <i>1561</i>, apart from 1601 to 1606.</div></div></div>
+      </div>
+      <span class="sandbox-note">Rendered with the Cloze note type's CSS, in a sandbox.</span>
+    </aside>
+  </div>
+</template>
+
+<template id="t-card-browser">
+  <div class="page-head">
+    <div><h1 class="title">Browse cards</h1></div>
+    <div class="actions"><button class="btn btn-primary" type="button"><svg class="i"><use href="#i-plus"/></svg>Add note</button></div>
+  </div>
+  <div class="toolbar">
+    <div class="input"><svg class="i"><use href="#i-search"/></svg><span class="ph">Search cards</span></div>
+    <div class="select" role="button" tabindex="0"><span>All decks</span><svg class="i"><use href="#i-down"/></svg></div>
+    <div class="select" role="button" tabindex="0"><span>Sort field, A to Z</span><svg class="i"><use href="#i-down"/></svg></div>
+  </div>
+  <p class="result-count"><span class="num">1,988</span> cards</p>
+  <div class="panel">
+    <table class="cards-table">
+      <thead><tr><th>Sort field</th><th>Deck</th><th>Card</th><th>State</th><th>Due</th><th><span class="sr-only" style="position:absolute;clip:rect(0 0 0 0)">Actions</span></th></tr></thead>
+      <tbody>
+        <tr><td class="sf">comer</td><td>Spanish › Verbs</td><td>Card 1</td><td><span class="chip chip-review">Review</span></td><td class="num">2026-10-14</td><td class="end"><button class="icon-btn" type="button" aria-label="Actions for comer, card 1"><svg class="i"><use href="#i-more"/></svg></button></td></tr>
+        <tr><td class="sf">comer</td><td>Spanish › Verbs</td><td>Card 2</td><td><span class="chip chip-review">Review</span></td><td class="num">2026-10-19</td><td class="end"><button class="icon-btn" type="button" aria-label="Actions for comer, card 2"><svg class="i"><use href="#i-more"/></svg></button></td></tr>
+        <tr><td class="sf">la berenjena</td><td>Spanish › Food</td><td>Card 1</td><td><span class="chip chip-learning">Learning</span></td><td class="num">2026-10-12 18:40</td><td class="end"><button class="icon-btn" type="button" aria-label="Actions for la berenjena"><svg class="i"><use href="#i-more"/></svg></button></td></tr>
+        <tr><td class="sf">le subjonctif après « bien que »</td><td>French › Grammar</td><td>Card 1</td><td><span class="chip chip-relearning">Relearning</span></td><td class="num">2026-10-12 21:05</td><td class="end"><button class="icon-btn" type="button" aria-label="Actions for le subjonctif"><svg class="i"><use href="#i-more"/></svg></button></td></tr>
+        <tr><td class="sf">Madrid is the capital of Spain.</td><td>Spanish</td><td>Cloze 1</td><td><span class="chip chip-new">New</span></td><td class="num c-muted">·</td><td class="end"><button class="icon-btn" type="button" aria-label="Actions for Madrid, cloze 1"><svg class="i"><use href="#i-more"/></svg></button></td></tr>
+        <tr><td class="sf">Madrid is the capital of Spain.</td><td>Spanish</td><td>Cloze 2</td><td><span class="chip chip-new">New</span></td><td class="num c-muted">·</td><td class="end"><button class="icon-btn" type="button" aria-label="Actions for Madrid, cloze 2"><svg class="i"><use href="#i-more"/></svg></button></td></tr>
+        <tr><td class="sf">mitochondria</td><td>Cell biology</td><td>Card 1</td><td><span class="chip chip-review">Review</span></td><td class="num c-due">2026-10-12</td><td class="end"><button class="icon-btn" type="button" aria-label="Actions for mitochondria"><svg class="i"><use href="#i-more"/></svg></button></td></tr>
+        <tr><td class="sf">ribosome</td><td>Cell biology</td><td>Card 1</td><td><span class="chip chip-review">Review</span></td><td class="num">2026-11-03</td><td class="end"><button class="icon-btn" type="button" aria-label="Actions for ribosome"><svg class="i"><use href="#i-more"/></svg></button></td></tr>
+        <tr><td class="sf">ser vs. estar</td><td>Spanish › Verbs</td><td>Card 1</td><td><span class="chip chip-review">Review</span></td><td class="num">2026-11-02</td><td class="end"><button class="icon-btn" type="button" aria-label="Actions for ser vs. estar"><svg class="i"><use href="#i-more"/></svg></button></td></tr>
+        <tr><td class="sf">水 (みず)</td><td>JLPT N5 › Kanji</td><td>Card 1</td><td><span class="chip chip-new">New</span></td><td class="num c-muted">·</td><td class="end"><button class="icon-btn" type="button" aria-label="Actions for 水"><svg class="i"><use href="#i-more"/></svg></button></td></tr>
+      </tbody>
+    </table>
+    <ul class="cards-list">
+      <li><span class="sf">comer</span><span class="meta">Spanish › Verbs · Card 1</span><span class="side"><span class="chip chip-review">Review</span><span class="num">Oct 14</span></span></li>
+      <li><span class="sf">comer</span><span class="meta">Spanish › Verbs · Card 2</span><span class="side"><span class="chip chip-review">Review</span><span class="num">Oct 19</span></span></li>
+      <li><span class="sf">la berenjena</span><span class="meta">Spanish › Food · Card 1</span><span class="side"><span class="chip chip-learning">Learning</span><span class="num">18:40</span></span></li>
+      <li><span class="sf">le subjonctif après « bien que »</span><span class="meta">French › Grammar · Card 1</span><span class="side"><span class="chip chip-relearning">Relearning</span><span class="num">21:05</span></span></li>
+      <li><span class="sf">Madrid is the capital of Spain.</span><span class="meta">Spanish · Cloze 1</span><span class="side"><span class="chip chip-new">New</span></span></li>
+      <li><span class="sf">Madrid is the capital of Spain.</span><span class="meta">Spanish · Cloze 2</span><span class="side"><span class="chip chip-new">New</span></span></li>
+      <li><span class="sf">mitochondria</span><span class="meta">Cell biology · Card 1</span><span class="side"><span class="chip chip-review">Review</span><span class="num c-due">Today</span></span></li>
+    </ul>
+  </div>
+  <div class="more"><button class="btn btn-outline" type="button">Load 50 more</button></div>
+</template>
+
+<template id="t-empty">
+  <div class="page-head">
+    <div><h1 class="title">Decks</h1></div>
+  </div>
+  <div class="panel empty">
+    <div class="empty-art" aria-hidden="true"><span></span><span></span><span></span></div>
+    <h2>Start your first deck</h2>
+    <p>Decks hold your cards. Make one for each subject, then add notes to it; every note becomes one or more cards.</p>
+    <button class="btn btn-primary" type="button"><svg class="i"><use href="#i-plus"/></svg>New deck</button>
+  </div>
+</template>
+
+<template id="t-loading">
+  <div class="page-head">
+    <div><h1 class="title">Decks</h1><p class="lede"><span class="skel" style="width:190px;margin-top:6px"></span></p></div>
+  </div>
+  <div class="panel" aria-busy="true" aria-label="Loading your decks">
+    <div class="tree-head"><span>Deck</span><span>New</span><span>Due</span><span>Total</span></div>
+    <div class="tree-row"><span class="skel" style="width:46%"></span><span class="skel"></span><span class="skel"></span><span class="skel"></span></div>
+    <div class="tree-row"><span class="skel" style="width:34%;margin-left:22px"></span><span class="skel"></span><span class="skel"></span><span class="skel"></span></div>
+    <div class="tree-row"><span class="skel" style="width:40%"></span><span class="skel"></span><span class="skel"></span><span class="skel"></span></div>
+    <div class="tree-row"><span class="skel" style="width:28%"></span><span class="skel"></span><span class="skel"></span><span class="skel"></span></div>
+  </div>
+</template>
+
+<template id="t-error">
+  <div class="page-head">
+    <div><h1 class="title">Decks</h1></div>
+    <div class="actions"><button class="btn btn-outline" type="button"><svg class="i"><use href="#i-plus"/></svg>New deck</button></div>
+  </div>
+  <div class="alert" role="alert">
+    <svg class="i"><use href="#i-alert"/></svg>
+    <strong>Couldn't load your decks</strong>
+    <p>The server didn't answer. Your cards are safe; check your connection and try again.</p>
+    <div class="actions"><button class="btn btn-outline btn-sm" type="button"><svg class="i"><use href="#i-refresh"/></svg>Try again</button></div>
+  </div>
+</template>
+
+<template id="t-delete">
+  <div class="crumbs"><a href="#" class="c-muted">Decks</a><svg class="i"><use href="#i-right"/></svg><span>Spanish</span></div>
+  <div class="page-head">
+    <div><h1 class="title">Spanish</h1><p class="lede">Everyday vocabulary, and the verbs I keep mixing up.</p></div>
+  </div>
+  <div class="figures">
+    <div class="figure"><b class="c-new">12</b><span>New</span></div>
+    <div class="figure"><b class="c-due">30</b><span>Due now</span></div>
+    <div class="figure"><b>840</b><span>Cards</span></div>
+  </div>
+  <div class="overlay" data-overlay>
+    <div class="dialog" role="alertdialog" aria-label="Delete Spanish">
+      <h2>Delete “Spanish”?</h2>
+      <p>This deletes the deck with everything in it. Review history stays in your statistics. You can't undo this.</p>
+      <div class="impact">
+        <div><b>2</b><span>subdecks</span></div>
+        <div><b>840</b><span>cards</span></div>
+        <div><b>412</b><span>notes</span></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" type="button">Cancel</button>
+        <button class="btn btn-destructive" type="button"><svg class="i"><use href="#i-trash"/></svg>Delete deck</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const media = window.matchMedia('(prefers-color-scheme: dark)');
+  const pageTheme = () => {
+    const explicit = root.getAttribute('data-theme');
+    const dark = explicit ? explicit === 'dark' : media.matches;
+    root.classList.toggle('dark', dark);
+  };
+  pageTheme();
+  media.addEventListener?.('change', pageTheme);
+  new MutationObserver(pageTheme).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+
+  const shell = document.getElementById('t-shell');
+  const frames = [];
+
+  function build(container) {
+    const screen = document.getElementById(container.dataset.screen);
+    const widths = (container.dataset.widths || '375,1280').split(',').map(Number);
+    for (const w of widths) {
+      const fig = document.createElement('figure');
+      fig.className = 'frame';
+      fig.dataset.w = String(w);
+      const label = w === 375 ? 'Phone · 375 px' : 'Desktop · 1280 px';
+      fig.innerHTML = `<figcaption><span>${label}</span><span class="seg" role="group" aria-label="Theme for this frame"><button type="button" data-t="light">Light</button><button type="button" data-t="dark">Dark</button></span></figcaption><div class="scaler"></div>`;
+      const device = document.createElement('div');
+      device.className = 'device';
+      device.style.width = w + 'px';
+      device.appendChild(shell.content.cloneNode(true));
+      device.querySelector('.main-inner').appendChild(screen.content.cloneNode(true));
+      device.querySelectorAll(`.nav-item[data-nav="${container.dataset.nav}"]`).forEach((a) => a.setAttribute('aria-current', 'page'));
+      if (container.dataset.sheet === 'open') device.querySelector('.app').classList.add('sheet-open');
+      const overlay = device.querySelector('[data-overlay]');
+      if (overlay) device.querySelector('.app').appendChild(overlay);
+      fig.querySelector('.scaler').appendChild(device);
+      container.appendChild(fig);
+      frames.push({ fig, device, w });
+    }
+  }
+  document.querySelectorAll('.frames[data-screen]').forEach(build);
+
+  function setTheme(frame, theme) {
+    frame.device.classList.toggle('dark', theme === 'dark');
+    frame.device.classList.toggle('light', theme !== 'dark');
+    frame.fig.querySelectorAll('[data-t]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.t === theme)));
+    frame.device.querySelectorAll('.theme-btn use').forEach((u) => u.setAttribute('href', theme === 'dark' ? '#i-sun' : '#i-moon'));
+  }
+  function setAll(mode) {
+    for (const f of frames) setTheme(f, mode === 'mixed' ? (f.w === 375 ? 'light' : 'dark') : mode);
+    for (const id of ['mixed', 'light', 'dark']) document.getElementById('all-' + id).setAttribute('aria-pressed', String(id === mode));
+  }
+  setAll('mixed');
+  document.getElementById('all-mixed').addEventListener('click', () => setAll('mixed'));
+  document.getElementById('all-light').addEventListener('click', () => setAll('light'));
+  document.getElementById('all-dark').addEventListener('click', () => setAll('dark'));
+
+  function fit(f) {
+    const scaler = f.fig.querySelector('.scaler');
+    const avail = scaler.clientWidth || f.fig.clientWidth;
+    const s = Math.min(1, avail / f.w);
+    f.device.style.transform = `scale(${s})`;
+    scaler.style.height = Math.ceil(f.device.offsetHeight * s) + 'px';
+  }
+  const ro = new ResizeObserver(() => frames.forEach(fit));
+  for (const f of frames) { ro.observe(f.fig); ro.observe(f.device); fit(f); }
+  document.fonts?.ready.then(() => frames.forEach(fit));
+
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-t]');
+    if (t) { const f = frames.find((x) => x.fig.contains(t)); if (f) setTheme(f, t.dataset.t); return; }
+    const sheet = e.target.closest('[data-sheet-toggle]');
+    if (sheet) { sheet.closest('.app').classList.toggle('sheet-open'); return; }
+    const card = e.target.closest('[data-card]');
+    if (card) {
+      const box = card.closest('.preview');
+      box.querySelectorAll('[data-card]').forEach((b) => b.setAttribute('aria-pressed', String(b === card)));
+      box.querySelectorAll('[data-preview]').forEach((p) => { p.hidden = p.dataset.preview !== card.dataset.card; });
+      return;
+    }
+    const themeBtn = e.target.closest('.theme-btn');
+    if (themeBtn) { const f = frames.find((x) => x.device.contains(themeBtn)); if (f) setTheme(f, f.device.classList.contains('dark') ? 'light' : 'dark'); }
+    if (e.target.closest('.device a[href="#"]')) e.preventDefault();
+  });
+})();
+</script>

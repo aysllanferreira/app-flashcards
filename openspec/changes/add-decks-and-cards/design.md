@@ -238,7 +238,7 @@ The page is published as a private claude.ai artifact for review on a phone, and
 - [Unsanitized template HTML from user-owned note types.] → It is only ever rendered in a `sandbox=""` iframe (decision 3).
 - [The allowlist is narrow: imported HTML loses colors, links and images.] → It is deliberate for now, and widening the allowlist is a one-place change. Media (roadmap item 5) adds `img` with checked `src`.
 - [The advisory lock serializes all deck writes of one user.] → Deck writes are rare and short, so contention is negligible. Note and card writes don't take it.
-- [The stock note type CSS paints a white card, which may look harsh in the dark theme preview.] → The prototype decides how the preview frame looks in dark mode (see Open Questions).
+- [The stock note type CSS paints a white card, which may look harsh in the dark theme preview.] → In the dark theme the preview uses Anki's night colors, as approved in the prototype (#61).
 - [Six sub-PRs and a long-lived integration branch.] → This is the same pattern as #48. `dev` is merged into the branch when it moves, never rebased.
 - [`^build` dependencies make `pnpm test` build the package first.] → It's a one-second `tsc` and is cached by turbo.
 
@@ -253,5 +253,5 @@ The page is published as a private claude.ai artifact for review on a phone, and
 
 ## Open Questions
 
-- **Dark-mode card preview:** should the preview frame add Anki's `.nightMode` class and a dark override, or show cards exactly as the note type's CSS paints them? The prototype (#61) settles it. Either way the iframe from decision 3 stays the same.
+- **Dark-mode card preview (resolved in #61):** the approved prototype uses Anki's night colors in the dark theme (the `--card-preview*` tokens). The iframe from decision 3 is unchanged.
 - **The exact set of shadcn components:** decision 11 lists the expected set, and #62 or #65 may add or drop one as the prototype requires. That changes no task.
