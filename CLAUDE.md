@@ -88,7 +88,11 @@ Every OpenSpec phase checks work against it. When a change and the system design
 - Every diagram is a pair with the same basename: `NN-name.png` plus `NN-name.excalidraw`. `NN` is a two-digit sequence number.
 - Every diagram is listed and embedded in `system-design/README.md`.
 - A new diagram takes the next free number. Don't renumber existing ones.
-- An edit updates **both** files: change the `.excalidraw` source (in Excalidraw+ or on excalidraw.com), then re-export the PNG so the two match. Update `README.md` too when the description, decisions or trade-offs change.
+- Every diagram is also the scene `NN-name` in the Excalidraw+ collection `app-flashcards`, and that scene is the **only** place it is edited.
+- Every create or edit goes through the **Excalidraw+ MCP**: `create_diagram` or `edit_scene_content` on the scene, then `take_screenshot` to check the result.
+- The repo pair is then exported from the scene: `NN-name.excalidraw` from `get_scene_content` and `NN-name.png` from `take_screenshot`, so the scene and both files match. Update `README.md` too when the description, decisions or trade-offs change.
+- A new diagram starts as a new scene with the same name, `NN-name`, in the `app-flashcards` collection.
+- **Never** hand-edit or locally render `system-design/*.excalidraw` or `system-design/*.png`. A `PreToolUse` hook (`.claude/hooks/guard-diagram-files.mjs`) blocks Claude's `Edit` and `Write` on them; write the exports from the MCP output through the shell.
 
 ### Explore
 

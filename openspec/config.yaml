@@ -38,7 +38,7 @@ rules:
   tasks:
     - 'Every acceptance criterion of the linked issue is covered by at least one task.'
     - 'Each task group heading names the issue acceptance criteria it covers, for example "(issue #N, AC 1 and 2)".'
-    - 'When proposal.md lists system-design diagram updates, include tasks to edit or create each NN-name.excalidraw source, re-export its NN-name.png, and update system-design/README.md.'
+    - 'When proposal.md lists system-design diagram updates, include tasks to edit or create each NN-name scene in the Excalidraw+ collection app-flashcards through the Excalidraw+ MCP (checked with take_screenshot), export NN-name.excalidraw and NN-name.png from that scene, and update system-design/README.md. Never hand-edit or locally render the diagram files.'
     - 'The last task creates or updates the GitHub Wiki, after the commits and the PR: always Status and Changelog, plus Roadmap, Architecture and Decisions when the change affects them; name the pages it updates (see CLAUDE.md, GitHub Wiki).'
 
 operations:
