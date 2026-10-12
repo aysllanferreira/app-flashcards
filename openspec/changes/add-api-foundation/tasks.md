@@ -159,14 +159,14 @@
 
   Verify that `grep -n "08-api-structure.png" system-design/README.md` matches and `git diff --stat dev -- 'system-design/0[1-7]-*'` prints nothing. Tick #28 AC 4.
 - [x] 5.8 Commit and push `docs/api-conventions`. Open a PR into `feat/nestjs-setup` titled like #28, with `Refs #28` and no `Closes` line. Verify the base and body.
-- [ ] 5.9 Post a progress comment on #28.
-- [ ] 5.10 Stop until the user confirms the #28 PR is merged. Verify `MERGED`, then fast-forward the local `feat/nestjs-setup`.
+- [x] 5.9 Post a progress comment on #28.
+- [x] 5.10 Stop until the user confirms the #28 PR is merged. Verify `MERGED`, then fast-forward the local `feat/nestjs-setup`.
 
 ## 6. Integration, final PR and wiki (issue #23, AC 1 to 5)
 
-- [ ] 6.1 If `dev` moved, merge `origin/dev` into `feat/nestjs-setup` (no rebase) and push. Then verify that `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm test` and `pnpm build` at the repo root each exit 0. Tick #23 AC 2.
-- [ ] 6.2 Verify that `gh issue view <n> --json body --jq .body | grep -c '^- \[ \]'` prints `0` for each of #24–#28. Tick #23 AC 1.
-- [ ] 6.3 Run `openspec validate add-api-foundation --strict`, then sync the deltas with `/opsx:sync`. Verify that:
+- [x] 6.1 If `dev` moved, merge `origin/dev` into `feat/nestjs-setup` (no rebase) and push. Then verify that `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm test` and `pnpm build` at the repo root each exit 0. Tick #23 AC 2.
+- [x] 6.2 Verify that `gh issue view <n> --json body --jq .body | grep -c '^- \[ \]'` prints `0` for each of #24–#28. Tick #23 AC 1.
+- [x] 6.3 Run `openspec validate add-api-foundation --strict`, then sync the deltas with `/opsx:sync`. Verify that:
   - `openspec/specs/monorepo-workspace/spec.md` checks `GET http://localhost:3001/health` returning 200;
   - `openspec list --specs` lists `api-module-structure`, `api-request-validation` and `api-openapi-contract`;
   - `openspec validate --specs --strict` exits 0.
