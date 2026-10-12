@@ -1,11 +1,11 @@
 # System design: Flashcards MVP
 
-The MVP architecture for the flashcards app, tracked in issue #8. Every diagram comes in two files:
+The MVP architecture for the flashcards app, tracked in issue #8. Every diagram is edited in its Excalidraw+ scene, `NN-name` in the Excalidraw+ collection `app-flashcards`, and the repo holds two files exported from that scene:
 
-- `NN-name.png`: the rendered image.
-- `NN-name.excalidraw`: the editable source. Open it at <https://excalidraw.com> (File > Open) or in the Excalidraw+ collection `app-flashcards`.
+- `NN-name.png`: the rendered image, exported from the scene screenshot.
+- `NN-name.excalidraw`: the scene content, exported from the scene. Open it for viewing at <https://excalidraw.com> (File > Open).
 
-If you change a diagram, re-export both files.
+To change a diagram, edit its Excalidraw+ scene through the Excalidraw+ MCP, check it with a screenshot, then re-export both files from the scene. Never edit or render the files here directly (see "Diagram conventions" in `CLAUDE.md`).
 
 ## Diagrams
 
