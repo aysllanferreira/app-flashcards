@@ -47,7 +47,7 @@ Postgres tables and relationships, plus the hot query and its indexes.
 
 ### 07. CI/CD
 
-From pull request to production for the backend image and the Amplify-hosted web app.
+From pull request to production for the backend image and the Amplify-hosted web app, plus the versioning lane that tags each app on pushes to `dev` and `main`.
 
 ![CI/CD](07-cicd.png)
 
@@ -67,7 +67,8 @@ From pull request to production for the backend image and the Amplify-hosted web
 | Email | **Amazon SES** for review reminders | Clerk only sends auth emails |
 | DNS | **Route 53**: `app.*` points to Amplify, `api.*` to the Elastic IP, `cdn.*` to CloudFront | One hosted zone for the domain |
 | Secrets | **SSM Parameter Store** for api and worker, **Amplify environment variables** for web | Nothing secret lives in the repo or the Docker image |
-| CI/CD | **GitHub Actions** CI on every PR to `dev`. A merge to `main` builds the image, pushes it to **ECR**, runs migrations and redeploys through **SSM Run Command**. Amplify builds `main` on its own | AWS access uses GitHub OIDC, with no long-lived keys |
+| CI/CD | **GitHub Actions** CI on every PR to `dev`. Feature PRs are squash-merged into `dev`; release PRs `dev -> main` are merged with a **merge commit**. A merge to `main` builds the image, pushes it to **ECR**, runs migrations and redeploys through **SSM Run Command**. Amplify builds `main` on its own | AWS access uses GitHub OIDC, with no long-lived keys. Merge commits keep every `dev` commit in `main`'s history, so release PRs show only what is new |
+| Versioning | `api` and `web` are versioned **independently** with Semantic Versioning, stored **only as git tags** (`<app>@X.Y.Z`) with GitHub Releases. The `versioning` workflow tags each app that `turbo ls --affected` reports on a push to `dev` with `<app>@X.Y.Z-dev.N` (bump from the commit type), and on a push to `main` promotes the latest dev version to `<app>@X.Y.Z` | The turbo graph catches shared-package, lockfile and root-config changes. No bot commits, so the `dev`/`main` rulesets need no bypass. Tags created with `GITHUB_TOKEN` don't trigger other workflows, so future deploy jobs must run in the same workflow or use `workflow_run` |
 
 ## Accepted trade-offs
 
