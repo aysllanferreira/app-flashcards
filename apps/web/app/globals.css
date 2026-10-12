@@ -1,49 +1,131 @@
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Clerk's styles get their own layer (cssLayerName in app/layout.tsx), so
+   Tailwind utilities can still override them. */
+@layer theme, base, clerk, components, utilities;
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens: the `app-tokens` blocks of design/decks-and-cards/prototype.html,
+   copied unchanged. Change them there first, then copy them here. */
+
+/* app-tokens:light
+   Paper direction. Copied unchanged into apps/web/app/globals.css (#62). */
+:root, .light {
+  --background: #f6f3ec;
+  --foreground: #1d1b18;
+  --card: #fffdf9;
+  --card-foreground: #1d1b18;
+  --popover: #fffdf9;
+  --popover-foreground: #1d1b18;
+  --primary: #1d1b18;
+  --primary-foreground: #faf7f1;
+  --secondary: #ece7dd;
+  --secondary-foreground: #1d1b18;
+  --muted: #eee9e0;
+  --muted-foreground: #6b645a;
+  --accent: #ebe5da;
+  --accent-foreground: #1d1b18;
+  --destructive: #a3261c;
+  --destructive-foreground: #fffdf9;
+  --border: #e2dbcf;
+  --input: #d9d1c3;
+  --ring: #b4532a;
+  --due: #b4532a;
+  --due-muted: #f5e2d7;
+  --new: #3d6a45;
+  --new-muted: #e1ebdd;
+  --learning: #8d6514;
+  --learning-muted: #f2e6c8;
+  --card-preview: #ffffff;
+  --card-preview-foreground: #000000;
+  --card-preview-cloze: #0000ff;
+  --radius: 0.625rem;
+  --font-heading: var(--font-fraunces, "Fraunces"), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-geist, "Geist"), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono, "Geist Mono"), ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+/* app-tokens:light:end */
+
+/* app-tokens:dark */
+.dark {
+  --background: #161412;
+  --foreground: #ece6dc;
+  --card: #1e1b18;
+  --card-foreground: #ece6dc;
+  --popover: #221f1b;
+  --popover-foreground: #ece6dc;
+  --primary: #ece6dc;
+  --primary-foreground: #161412;
+  --secondary: #2a2622;
+  --secondary-foreground: #ece6dc;
+  --muted: #24201c;
+  --muted-foreground: #a3998b;
+  --accent: #2c2823;
+  --accent-foreground: #ece6dc;
+  --destructive: #e3685a;
+  --destructive-foreground: #161412;
+  --border: #322d27;
+  --input: #3d372f;
+  --ring: #e08a62;
+  --due: #e08a62;
+  --due-muted: #3a241a;
+  --new: #93c28f;
+  --new-muted: #1f2c1f;
+  --learning: #d8aa4c;
+  --learning-muted: #33290f;
+  --card-preview: #2b2927;
+  --card-preview-foreground: #ece6dc;
+  --card-preview-cloze: #8db8ff;
+  color-scheme: dark;
+}
+/* app-tokens:dark:end */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-due: var(--due);
+  --color-due-muted: var(--due-muted);
+  --color-new: var(--new);
+  --color-new-muted: var(--new-muted);
+  --color-learning: var(--learning);
+  --color-learning-muted: var(--learning-muted);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* The token blocks set --font-sans and --font-mono, which the `font-sans` and
+   `font-mono` utilities already read. Headings use their own utility. */
+@utility font-heading {
+  font-family: var(--font-heading);
+  font-variation-settings: "opsz" 72;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-html {
-  height: 100%;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
   }
 }

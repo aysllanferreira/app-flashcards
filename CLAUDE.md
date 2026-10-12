@@ -185,7 +185,8 @@ Every route needs:
 - `@ApiTags('<module>')` on its controller;
 - `@ApiOperation({ summary })`;
 - `@ApiResponseSchema(status, XSchema)`, once per route, for the success response. It documents the schema and shapes the response with it, so never add a separate `@SerializeOptions` or `@ApiResponse` for the success response.
-- `@ApiErrorResponses()` for the shared `ErrorResponse`: 500 on every route, plus `{ badRequest: true }` for 400 on routes that take input and `{ unauthorized: true }` for 401 on every route that isn't `@Public()`.
+- `@ApiErrorResponses()` for the shared `ErrorResponse`: 500 on every route, plus `{ badRequest: true }` for 400 on routes that take input, `{ unauthorized: true }` for 401 on every route that isn't `@Public()`, `{ notFound: true }` for 404 on routes that address a record by id or name one in their input, and `{ conflict: true }` for 409 on routes that can clash with an existing record.
+- A route that answers **204 with no body** (deletes) uses `@HttpCode(204)` and `@ApiNoContentResponse()` instead of `@ApiResponseSchema`, which needs a schema.
 
 Swagger UI is at `/docs` and the JSON at `/docs-json`. Both are served unless `NODE_ENV=production`; `SWAGGER_UI=true` turns them on in production. The startup log prints the URLs.
 
@@ -247,6 +248,43 @@ Postgres 18 runs in Docker for local development and tests: `docker compose up -
   - their schemas and Swagger decorators;
   - regenerating `openapi.json`;
   - e2e tests that parse responses with their schemas.
+
+## Web (apps/web)
+
+The Next.js app follows these conventions. The approved prototype under `design/` is the visual target (see "Design"), and `system-design/README.md` ("Web UI") records the decisions.
+
+### Styling and components
+
+- **Tailwind v4 and shadcn/ui only.** Components live in `components/ui/` (add one with `pnpm --filter web dlx shadcn@latest add <name>`), app components in `app/_components/`. No CSS modules, no inline colors.
+- **Colors come only from the design tokens** in `app/globals.css` (the `:root, .light` and `.dark` blocks, copied unchanged from the prototype, plus `--due`, `--new` and `--learning` for card states). Change a token in the prototype first, then copy it.
+- Fonts: Fraunces for headings (`font-heading`), Geist for text, Geist Mono for numbers and dates.
+- **Light, dark and system themes** through `next-themes` (class on `<html>`, set before the first paint). Every screen works in both themes.
+- **Every screen works at 375 px and 1280 px**: no horizontal scroll, navigation in a sheet below 1024 px, dense tables become stacked rows below 768 px.
+
+### Data and the API
+
+- **The browser never calls the API.** Pages are Server Components that read through `apiClient()` (`app/_lib/api.ts`), and writes are Server Actions in `app/_lib/actions.ts` that call the API and revalidate. Both send the user's Clerk session token.
+- **API types come only from the contract.** `app/_lib/api-types.ts` is generated from `apps/api/openapi.json`: run `pnpm --filter web generate:api` after any contract change and commit the result. `pnpm --filter web test` fails while it is stale. Never hand-write interfaces for API bodies.
+- **Field HTML is shown only after sanitizing** with `sanitizeFieldHtml` from `card-templates`, and card template HTML renders only inside a sandboxed `<iframe>` (no `allow-scripts`).
+- Pages that show a user's own data are protected in `proxy.ts` (`auth.protect()`); `/`, `/sign-in` and `/sign-up` stay public.
+
+### Tests
+
+- `pnpm --filter web test` (Vitest, jsdom) needs no server or network.
+- `pnpm --filter web test:e2e` (Playwright) runs against the production build at 375 px (`phone`) and 1280 px (`desktop`), with the API as a second web server. It needs `docker compose up -d --wait db`, and port 3000 free.
+- **The one exception to "tests never call Clerk":** signed-in Playwright tests sign in with `@clerk/testing` as a test user of the Clerk development instance (`E2E_CLERK_USER_EMAIL` in the git-ignored `apps/web/.env.test.local`), and skip without it. Each spec cleans up the decks it creates.
+- Every screen gets an overflow check at both widths in both themes and an axe scan with no serious or critical violations.
+- `pnpm --filter web screenshots` regenerates the review screenshots under `design/<change>/screenshots/`.
+
+## Design
+
+- **UI work starts from an approved prototype.** A change that adds or reshapes screens first builds an HTML prototype under `design/<change>/` (every screen at 375 px and 1280 px, light and dark, with empty, loading, error and confirmation states), publishes it for review, and records the user's approval on the issue before any screen is built.
+- The PR that delivers the screens embeds screenshots of them (`design/<change>/screenshots/`) and records the user's review against the prototype.
+
+## Shared packages (packages/)
+
+- Code that both apps need, with no I/O, lives in a workspace package under `packages/` (today `card-templates`: template rendering, card generation and field sanitizing).
+- A package is plain TypeScript built by `tsc` to `dist/`, imported as `"<name>": "workspace:*"`, and tested with its own `pnpm --filter <name> test`. Turbo builds it before the apps (`^build`), and a change to it marks both apps as affected for versioning.
 
 ## GitHub Wiki
 
