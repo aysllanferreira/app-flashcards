@@ -28,6 +28,11 @@ context: |
   is the source of truth for the API. The full rules are in the "API (apps/api)"
   section of CLAUDE.md.
 
+  Database: Postgres 18 in Docker locally (compose.yaml), Neon in production.
+  Drizzle tables live in each module's schema/ folder, and SQL migrations are
+  generated with drizzle-kit and committed. The table conventions, migration
+  rules and database tests are in the "Database" subsection of CLAUDE.md.
+
   Git: Conventional Commits, authored only by the repo owner, with no Claude
   Co-Authored-By trailer or "Generated with Claude Code" line. dev is the
   default branch and every feature PR targets it. Feature PRs are squash-merged
@@ -43,15 +48,18 @@ rules:
     - 'State the system design alignment after checking system-design/ (README.md and the relevant diagrams): write "System design: no change", or list each diagram to add or update and what changes in it (see CLAUDE.md, System design).'
     - 'When the change ships as sub-issues, line 1 is "Issue: #P" (the parent issue) and line 2 is "Sub-issues: #S1, #S2, ..." listing every sub-issue in delivery order (see CLAUDE.md, Sub-issues and integration branches).'
     - 'State the API contract impact: write "API contract: no change", or list each apps/api endpoint (method and path) the change adds, changes or removes (see CLAUDE.md, API (apps/api)).'
+    - 'State the data model impact: write "Data model: no change", or list the tables and columns the change adds, changes or removes (see CLAUDE.md, Database).'
   design:
     - 'Do not describe architecture, flows, data model or CI/CD that contradict system-design/ unless proposal.md lists the matching diagram updates.'
     - 'API request and response shapes are Zod schemas in the module''s dto/ folder (body and response schemas with .meta({ id }), query and path-parameter schemas without one). Never design class-validator or class-transformer DTOs, or use nestjs-zod (see CLAUDE.md, API (apps/api)).'
+    - 'New or changed tables follow the table conventions in CLAUDE.md (Database): UUIDv7 id(), userId() ownership, composite foreign keys (x_id, user_id) for required references to user-owned rows, NO ACTION for "in use" references, timestamptz, text with CHECK for enumerations, explicit snake_case constraint names. Tables live only in src/modules/<name>/schema/.'
   tasks:
     - 'Every acceptance criterion of the linked issue is covered by at least one task.'
     - 'Each task group heading names the issue acceptance criteria it covers, for example "(issue #N, AC 1 and 2)".'
     - 'When proposal.md lists system-design diagram updates, include tasks to edit or create each NN-name scene in the Excalidraw+ collection app-flashcards through the Excalidraw+ MCP (checked with take_screenshot), export NN-name.excalidraw and NN-name.png from that scene, and update system-design/README.md. Never hand-edit or locally render the diagram files.'
     - 'The last task creates or updates the GitHub Wiki, after the commits and the PR: always Status and Changelog, plus Roadmap, Architecture and Decisions when the change affects them; name the pages it updates (see CLAUDE.md, GitHub Wiki).'
     - 'When the change adds or changes apps/api endpoints, include tasks to: declare their Zod request and response schemas and Swagger decorators (@ApiTags, @ApiOperation, @ApiResponseSchema, @ApiErrorResponses); regenerate apps/api/openapi.json with pnpm --filter api openapi; and add e2e tests that parse each response with its schema (see CLAUDE.md, API (apps/api)).'
+    - 'When the change adds or changes database tables or columns, include tasks to: generate the migration with pnpm --filter api db:generate, review and commit the SQL; apply it to a fresh database (docker compose down -v && docker compose up -d --wait db && pnpm --filter api db:migrate) and check db:generate then reports no schema changes; and add database tests in apps/api/test/db for every new constraint (see CLAUDE.md, Database).'
     - 'When the change ships as sub-issues: write one task group per sub-issue in delivery order, its heading naming that sub-issue''s criteria (for example "(issue #S1, AC 1 and 2)"). End each group with tasks that push the sub-branch, open a PR into the integration branch with "Refs #S" (no Closes), post a progress comment on the sub-issue, and stop until the user confirms the merge (gh pr view <n> --json state shows MERGED). Add a final group that opens the PR from the integration branch into dev with "Closes #P" and "Closes #S" for every sub-issue, followed by the wiki task.'
 
 operations:

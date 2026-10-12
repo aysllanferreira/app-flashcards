@@ -12,6 +12,8 @@ import {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  // Runs onApplicationShutdown on SIGTERM/SIGINT, which closes the database pool.
+  app.enableShutdownHooks();
   const config = app.get<ConfigService<Env, true>>(ConfigService);
   const port = config.get('PORT', { infer: true });
   const docsEnabled =
